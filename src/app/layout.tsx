@@ -1,0 +1,68 @@
+import type { Metadata } from "next";
+import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
+import "antd/dist/reset.css";
+import BootstrapJs from "../components/bootstrap-js/bootstrapjs";
+import "../style/icon/boxicons/boxicons/css/boxicons.min.css";
+import "../style/icon/tabler-icons/webfont/tabler-icons.css";
+import "../style/icon/weather/weathericons.css";
+import "../style/icon/typicons/typicons.css";
+import "../style/css/fontawesome/css/fontawesome.min.css";
+import "../style/css/fontawesome/css/all.min.css";
+import "../style/icon/ionic/ionicons.css";
+import "../style/icon/tabler-icons/webfont/tabler-icons.css";
+import "../style/css/feather.css";
+import "./globals.scss";
+import "antd/dist/reset.css";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import { ReduxProvider } from "@/providers/ReduxProvider";
+import ThemeInitializer from "@/core/common/ThemeInitializer";
+import InitialLoader from "@/core/common/InitialLoader";
+import { AuthProvider } from "@/providers/AuthContext";
+import AuthInitializer from "@/authMe/AuthInitializer";
+import HelpChatWidget from "@/components/help-chatbot/ChatWidget";
+
+export const metadata: Metadata = {
+  title: "HRM",
+  description: "HRM",
+  manifest: "/manifest.json",
+  themeColor: "#ffffff",
+  applicationName: "HRM",
+  appleWebApp: {
+    capable: true,
+    title: "HRM",
+  },
+  icons: {
+    icon: "favicon.png",
+    shortcut: "favicon.png", // Add shortcut icon for better support
+    apple: "/icon-192.png", // home-screen icon for Apple devices
+  },
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body>
+        <ReduxProvider>
+          <AuthProvider>
+            <AuthInitializer />
+            <InitialLoader />
+            <ThemeInitializer />
+            {children}
+             <ToastContainer
+          position="top-right"
+          autoClose={3000}
+        />
+            <BootstrapJs />
+            <HelpChatWidget />
+          </AuthProvider>
+        </ReduxProvider>
+      </body>
+    </html>
+  );
+}
