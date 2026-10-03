@@ -41,6 +41,4 @@ yarn-error.log*
 next-env.d.ts
 
 # large icon files
-src/style/icon/tabler-icons/eps/
-src/style/icon/tabler-icons/webfont/
-src/style/icon/tabler-icons/fonts/
+src/style/icon/
