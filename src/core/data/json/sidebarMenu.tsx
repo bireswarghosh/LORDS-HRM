@@ -487,6 +487,16 @@ export const SidebarDataTest = [
             permission: "Sidebar Payroll",
             submenuItems: [],
           },
+          {
+            label: "Monthly Wage Sheet",
+            link: routes.monthlyWages,
+            base: routes.monthlyWages,
+            submenu: false,
+            showSubRoute: false,
+            materialicons: "receipt_long",
+            permission: "Sidebar Payroll",
+            submenuItems: [],
+          },
         ],
       },
 

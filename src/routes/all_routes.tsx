@@ -388,6 +388,7 @@ export const all_routes = {
   salaryComponent: "/salary-component",
   salaryAssign: "/salary-assign",
   payroll: "/pay-roll",
+  monthlyWages: "/monthly-wages",
   role: "/role-page",
   rolePermissions:"/AssignRolePermissionsPage",
   PerformanceReview:"/performanceReview",

@@ -32,6 +32,7 @@ export const routePermissions: Record<string, string> = {
   "/salary-component": "Sidebar Salary Component",
   "/salary-assign": "Sidebar Salary Assign",
   "/pay-roll": "Sidebar Payroll",
+  "/monthly-wages": "Sidebar Payroll",
 
   // Work Schedule
   "/ShiftWiseEmployeePage": "Sidebar Schedule",

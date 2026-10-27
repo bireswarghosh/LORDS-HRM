@@ -40,5 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# large icon files
-src/style/icon/
+# large icon files - only exclude eps
+src/style/icon/tabler-icons/eps/
+src/style/icon/tabler-icons/tabler-icons.png

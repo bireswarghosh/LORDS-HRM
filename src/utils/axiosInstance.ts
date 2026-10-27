@@ -1,14 +1,11 @@
 import axios from "axios";
 
+const rawBaseURL = process.env.NEXT_PUBLIC_API_URL || "https://hrmbackend-main.vercel.app/api/v1";
+const cleanBaseURL = (rawBaseURL || "").replace(/^[\uFEFF\u200B\s]+/, "").trim();
+
 const axiosInstance = axios.create({
-  // baseURL: "https://hrm-backend-dver.onrender.com/api/v1",
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
-  // baseURL: "https://2gvbh86w-5000.inc1.devtunnels.ms/api/v1",
-
+  baseURL: cleanBaseURL || "https://hrmbackend-main.vercel.app/api/v1",
   timeout: 60000,
-
- 
-
   headers: {
     "Content-Type": "application/json",
   },
