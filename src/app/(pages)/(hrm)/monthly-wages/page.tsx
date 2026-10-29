@@ -23,12 +23,16 @@ import {
   ArrowRight,
   Sparkles,
   X,
+  ExternalLink,
+  Link2,
 } from "lucide-react";
 
 interface LabourRow {
   code: string;
   name: string;
   fatherName: string;
+  designation?: string;
+  department?: string;
   esicNo: string;
   doj: string;
   presentDays: number;
@@ -58,18 +62,18 @@ interface SummaryData {
 }
 
 const MONTHS = [
-  { value: 1, label: "January" },
-  { value: 2, label: "February" },
-  { value: 3, label: "March" },
-  { value: 4, label: "April" },
-  { value: 5, label: "May" },
-  { value: 6, label: "June" },
-  { value: 7, label: "July" },
-  { value: 8, label: "August" },
-  { value: 9, label: "September" },
-  { value: 10, label: "October" },
-  { value: 11, label: "November" },
-  { value: 12, label: "December" },
+  { value: 1, label: "January", short: "Jan" },
+  { value: 2, label: "February", short: "Feb" },
+  { value: 3, label: "March", short: "Mar" },
+  { value: 4, label: "April", short: "Apr" },
+  { value: 5, label: "May", short: "May" },
+  { value: 6, label: "June", short: "Jun" },
+  { value: 7, label: "July", short: "Jul" },
+  { value: 8, label: "August", short: "Aug" },
+  { value: 9, label: "September", short: "Sep" },
+  { value: 10, label: "October", short: "Oct" },
+  { value: 11, label: "November", short: "Nov" },
+  { value: 12, label: "December", short: "Dec" },
 ];
 
 const YEARS = [2024, 2025, 2026, 2027, 2028];
@@ -77,12 +81,12 @@ const YEARS = [2024, 2025, 2026, 2027, 2028];
 export default function MonthlyWageSheetPage() {
   const [selectedMonth, setSelectedMonth] = useState<number>(9);
   const [selectedYear, setSelectedYear] = useState<number>(2026);
-  const [activeTab, setActiveTab] = useState<"import" | "slips">("slips");
+  const [activeTab, setActiveTab] = useState<"attendance" | "slips" | "import">("attendance");
 
   const [companyName, setCompanyName] = useState<string>("Company");
   const [companyAddress, setCompanyAddress] = useState<string>("");
 
-  // Tab 1 (Import / Grid) State
+  // Tab 1 & General Wage Rows State
   const [rows, setRows] = useState<LabourRow[]>([]);
   const [summary, setSummary] = useState<SummaryData | null>(null);
   const [importSearch, setImportSearch] = useState<string>("");
@@ -97,7 +101,35 @@ export default function MonthlyWageSheetPage() {
   const [activeSlipSearch, setActiveSlipSearch] = useState<string>("");
   const [selectedSlipForModal, setSelectedSlipForModal] = useState<SalarySlipData | null>(null);
 
+  // Cloud Spreadsheet / Google Sheets State
+  const [googleSheetUrl, setGoogleSheetUrl] = useState<string>("");
+  const [showSheetViewer, setShowSheetViewer] = useState<boolean>(false);
+
+  // Months with saved runs history
+  const [savedHistory, setSavedHistory] = useState<{ month: number; year: number }[]>([]);
+
+  // Daily attendance matrix: { [workerCode]: { [dayNumber]: "P" | "A" | "HD" | "WO" } }
+  const [attendanceGrid, setAttendanceGrid] = useState<Record<string, Record<number, "P" | "A" | "HD" | "WO">>>({});
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Calendar calculations for selected month & year
+  const daysInMonth = useMemo(() => {
+    return new Date(selectedYear, selectedMonth, 0).getDate();
+  }, [selectedMonth, selectedYear]);
+
+  const daysArray = useMemo(() => {
+    return Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  }, [daysInMonth]);
+
+  const isSunday = (day: number) => {
+    return new Date(selectedYear, selectedMonth - 1, day).getDay() === 0;
+  };
+
+  const getDayOfWeek = (day: number) => {
+    const d = new Date(selectedYear, selectedMonth - 1, day);
+    return d.toLocaleDateString("en-US", { weekday: "short" });
+  };
 
   // Load User & Company Info on mount
   useEffect(() => {
@@ -105,15 +137,21 @@ export default function MonthlyWageSheetPage() {
       try {
         const res = await axiosInstance.get("/company/myCompany");
         if (res.data?.data) {
-          setCompanyName(res.data.data.name || "Company");
+          const cName = res.data.data.name || "Company";
+          setCompanyName(cName);
           setCompanyAddress(res.data.data.address || "");
+          const cachedUrl = localStorage.getItem(`hrm_gsheet_url_${cName}`);
+          if (cachedUrl) setGoogleSheetUrl(cachedUrl);
         }
       } catch (e) {
         try {
           const meRes = await axiosInstance.get("/me");
           if (meRes.data?.company) {
-            setCompanyName(meRes.data.company.name || "Company");
+            const cName = meRes.data.company.name || "Company";
+            setCompanyName(cName);
             setCompanyAddress(meRes.data.company.address || "");
+            const cachedUrl = localStorage.getItem(`hrm_gsheet_url_${cName}`);
+            if (cachedUrl) setGoogleSheetUrl(cachedUrl);
           }
         } catch {
           // ignore
@@ -122,59 +160,6 @@ export default function MonthlyWageSheetPage() {
     };
     fetchCompanyInfo();
   }, []);
-
-  // Load saved slips for selected month & year
-  const loadSavedSlips = async (m: number, y: number) => {
-    try {
-      setLoading(true);
-      const res = await axiosInstance.get(`/labour-wage/slips?month=${m}&year=${y}`);
-      if (res.data?.data) {
-        const d = res.data.data;
-        if (d.company?.name) {
-          setCompanyName(d.company.name);
-          setCompanyAddress(d.company.address || "");
-        }
-        if (d.found && d.slips?.length > 0) {
-          setSavedSlips(d.slips);
-          setSavedRunFound(true);
-
-          if (rows.length === 0) {
-            const mappedRows: LabourRow[] = d.slips.map((s: any) => ({
-              code: s.code,
-              name: s.name,
-              fatherName: s.fatherName,
-              esicNo: s.esicNo,
-              doj: s.doj,
-              presentDays: s.presentDays,
-              otDays: s.otDays,
-              rate: s.rate || 376,
-              daysAmount: s.basicAmount,
-              otAmount: s.otAmount,
-              totalGross: s.totalEarnings,
-              pf: s.providentFund,
-              esi: s.esi,
-              ptax: s.professionalTax,
-              netPayable: s.netPayable,
-            }));
-            setRows(mappedRows);
-            recalculateSummary(mappedRows);
-          }
-        } else {
-          setSavedSlips([]);
-          setSavedRunFound(false);
-        }
-      }
-    } catch (err: any) {
-      console.error("loadSavedSlips error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadSavedSlips(selectedMonth, selectedYear);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedMonth, selectedYear]);
 
   // Recalculate Row & Summary Metrics
   const recalculateRow = (r: LabourRow): LabourRow => {
@@ -242,6 +227,83 @@ export default function MonthlyWageSheetPage() {
     });
   };
 
+  // Load Saved Slips for Tab 2
+  const loadSavedSlips = async (m: number, y: number) => {
+    try {
+      const res = await axiosInstance.get(`/labour-wage/slips?month=${m}&year=${y}`);
+      if (res.data?.data) {
+        const d = res.data.data;
+        if (d.company?.name) {
+          setCompanyName(d.company.name);
+          setCompanyAddress(d.company.address || "");
+        }
+        if (d.found && d.slips?.length > 0) {
+          setSavedSlips(d.slips);
+          setSavedRunFound(true);
+        } else {
+          setSavedSlips([]);
+          setSavedRunFound(false);
+        }
+      }
+    } catch (err: any) {
+      console.error("loadSavedSlips error:", err);
+    }
+  };
+
+  // Load Company Workers & Attendance for Tab 1
+  const loadAttendanceOrWorkers = async (m: number, y: number) => {
+    try {
+      setLoading(true);
+      const res = await axiosInstance.get(`/labour-wage/workers?month=${m}&year=${y}`);
+      if (res.data?.data) {
+        const d = res.data.data;
+        if (d.monthsHistory) {
+          setSavedHistory(d.monthsHistory);
+        }
+        setSavedRunFound(d.isSaved);
+
+        if (d.rows && d.rows.length > 0) {
+          setRows(d.rows);
+          setSummary(d.summary);
+
+          // Populate daily attendance matrix
+          const initialGrid: Record<string, Record<number, "P" | "A" | "HD" | "WO">> = {};
+          const daysCount = new Date(y, m, 0).getDate();
+
+          for (const row of d.rows) {
+            const workerMap: Record<number, "P" | "A" | "HD" | "WO"> = {};
+            const targetPresent = Math.round(row.presentDays ?? 26);
+            let pFilled = 0;
+
+            for (let day = 1; day <= daysCount; day++) {
+              const sunday = new Date(y, m - 1, day).getDay() === 0;
+              if (sunday) {
+                workerMap[day] = "WO";
+              } else if (pFilled < targetPresent) {
+                workerMap[day] = "P";
+                pFilled++;
+              } else {
+                workerMap[day] = "A";
+              }
+            }
+            initialGrid[row.code] = workerMap;
+          }
+          setAttendanceGrid(initialGrid);
+        }
+      }
+      await loadSavedSlips(m, y);
+    } catch (err: any) {
+      console.error("loadAttendanceOrWorkers error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAttendanceOrWorkers(selectedMonth, selectedYear);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMonth, selectedYear]);
+
   // Handle cell edit in Live Grid
   const handleCellChange = (index: number, field: keyof LabourRow, value: any) => {
     const updated = [...rows];
@@ -251,6 +313,210 @@ export default function MonthlyWageSheetPage() {
     }
     setRows(updated);
     recalculateSummary(updated);
+  };
+
+  // Toggle single day status in Attendance Matrix
+  const toggleAttendanceCell = (workerCode: string, day: number) => {
+    const workerDays = attendanceGrid[workerCode] || {};
+    const current = workerDays[day] || (isSunday(day) ? "WO" : "P");
+
+    // Cycle order: P -> A -> HD -> WO -> P
+    const nextMap: Record<string, "P" | "A" | "HD" | "WO"> = {
+      P: "A",
+      A: "HD",
+      HD: "WO",
+      WO: "P",
+    };
+    const nextStatus = nextMap[current] || "P";
+
+    const updatedWorkerDays = { ...workerDays, [day]: nextStatus };
+    setAttendanceGrid((prev) => ({
+      ...prev,
+      [workerCode]: updatedWorkerDays,
+    }));
+
+    // Recalculate this worker's present days: P = 1, WO = 1, HD = 0.5, A = 0
+    let newPresent = 0;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const st = updatedWorkerDays[d] || (isSunday(d) ? "WO" : "P");
+      if (st === "P" || st === "WO") newPresent += 1;
+      else if (st === "HD") newPresent += 0.5;
+    }
+
+    const rowIndex = rows.findIndex((r) => r.code === workerCode);
+    if (rowIndex !== -1) {
+      handleCellChange(rowIndex, "presentDays", newPresent);
+    }
+  };
+
+  // Bulk Attendance Actions
+  const handleSetAll26Days = () => {
+    const newGrid: Record<string, Record<number, "P" | "A" | "HD" | "WO">> = {};
+    for (const r of rows) {
+      const workerMap: Record<number, "P" | "A" | "HD" | "WO"> = {};
+      let pCount = 0;
+      for (let d = 1; d <= daysInMonth; d++) {
+        if (isSunday(d)) {
+          workerMap[d] = "WO";
+        } else if (pCount < 26) {
+          workerMap[d] = "P";
+          pCount++;
+        } else {
+          workerMap[d] = "A";
+        }
+      }
+      newGrid[r.code] = workerMap;
+    }
+    setAttendanceGrid(newGrid);
+
+    const updatedRows = rows.map((r) => recalculateRow({ ...r, presentDays: 26 }));
+    setRows(updatedRows);
+    recalculateSummary(updatedRows);
+    setStatusMessage({ type: "success", text: "⚡ Set standard 26 present days for all workers!" });
+  };
+
+  const handleMarkAllTodayP = () => {
+    const today = new Date().getDate();
+    const targetDay = today <= daysInMonth ? today : 1;
+    const newGrid = { ...attendanceGrid };
+
+    for (const r of rows) {
+      const workerMap = { ...(newGrid[r.code] || {}) };
+      workerMap[targetDay] = "P";
+      newGrid[r.code] = workerMap;
+    }
+    setAttendanceGrid(newGrid);
+
+    // Recalculate all rows
+    const updatedRows = rows.map((r) => {
+      const workerDays = newGrid[r.code] || {};
+      let pCount = 0;
+      for (let d = 1; d <= daysInMonth; d++) {
+        const st = workerDays[d] || (isSunday(d) ? "WO" : "P");
+        if (st === "P" || st === "WO") pCount += 1;
+        else if (st === "HD") pCount += 0.5;
+      }
+      return recalculateRow({ ...r, presentDays: pCount });
+    });
+
+    setRows(updatedRows);
+    recalculateSummary(updatedRows);
+    setStatusMessage({ type: "success", text: `🟢 Marked all workers Present for Day ${targetDay}!` });
+  };
+
+  const handleMarkSundaysOff = () => {
+    const newGrid = { ...attendanceGrid };
+    for (const r of rows) {
+      const workerMap = { ...(newGrid[r.code] || {}) };
+      for (let d = 1; d <= daysInMonth; d++) {
+        if (isSunday(d)) workerMap[d] = "WO";
+      }
+      newGrid[r.code] = workerMap;
+    }
+    setAttendanceGrid(newGrid);
+    setStatusMessage({ type: "info", text: "📅 Sundays set to Weekly Off (WO)." });
+  };
+
+  const handleClearAllAttendance = () => {
+    if (!window.confirm("Reset all days in the attendance sheet to Absent for this month?")) return;
+    const newGrid: Record<string, Record<number, "P" | "A" | "HD" | "WO">> = {};
+    for (const r of rows) {
+      const workerMap: Record<number, "P" | "A" | "HD" | "WO"> = {};
+      for (let d = 1; d <= daysInMonth; d++) {
+        workerMap[d] = "A";
+      }
+      newGrid[r.code] = workerMap;
+    }
+    setAttendanceGrid(newGrid);
+
+    const updatedRows = rows.map((r) => recalculateRow({ ...r, presentDays: 0, otDays: 0 }));
+    setRows(updatedRows);
+    recalculateSummary(updatedRows);
+    setStatusMessage({ type: "info", text: "Attendance cleared for all workers." });
+  };
+
+  // Google Sheet Link persistence
+  const handleSaveGoogleSheetUrl = () => {
+    if (!googleSheetUrl.trim()) return;
+    localStorage.setItem(`hrm_gsheet_url_${companyName}`, googleSheetUrl.trim());
+    setStatusMessage({ type: "success", text: "🔗 Google Sheet link saved successfully!" });
+  };
+
+  const getEmbedUrl = (url: string) => {
+    if (!url) return "";
+    if (url.includes("docs.google.com/spreadsheets")) {
+      return url.replace(/\/edit.*$/, "/pubhtml?widget=true&headers=false");
+    }
+    return url;
+  };
+
+  // Export Form XVII West Bengal Wage Register as CSV
+  const handleExportFormXVIICSV = () => {
+    if (rows.length === 0) {
+      alert("No wage data to export.");
+      return;
+    }
+
+    const monthLabel = MONTHS.find((m) => m.value === selectedMonth)?.label || "Month";
+    const headers = [
+      "Sl. No.",
+      "Worker Code",
+      "Name of Workman",
+      "Father/Husband Name",
+      "Designation",
+      "ESIC / IP No.",
+      "Date of Joining",
+      "No. of Days Worked",
+      "OT Days",
+      "Daily Rate",
+      "Basic Wages",
+      "OT Amount",
+      "Gross Total",
+      "Provident Fund (12%)",
+      "Employees Share (E.S.I. 0.75%)",
+      "W.B. Professional Tax",
+      "Total Deductions",
+      "Net Amount Paid",
+    ];
+
+    const csvRows = [headers.join(",")];
+
+    rows.forEach((r, idx) => {
+      const clean = (val: any) => `"${String(val ?? "").replace(/"/g, '""')}"`;
+      csvRows.push(
+        [
+          idx + 1,
+          clean(r.code),
+          clean(r.name),
+          clean(r.fatherName),
+          clean(r.designation || "Workman"),
+          clean(r.esicNo),
+          clean(r.doj),
+          r.presentDays,
+          r.otDays,
+          r.rate,
+          r.daysAmount,
+          r.otAmount,
+          r.totalGross,
+          r.pf,
+          r.esi,
+          r.ptax,
+          r.pf + r.esi + r.ptax,
+          r.netPayable,
+        ].join(",")
+      );
+    });
+
+    const csvContent = csvRows.join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    const fileName = `${companyName.replace(/\s+/g, "_")}_Form_XVII_${monthLabel}_${selectedYear}.csv`;
+    link.setAttribute("href", url);
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   // File Upload Preview
@@ -313,7 +579,7 @@ export default function MonthlyWageSheetPage() {
   // Save to Database
   const handleSaveToDatabase = async () => {
     if (rows.length === 0) {
-      alert("No rows to save. Please upload or load sheet data first.");
+      alert("No rows to save. Please upload or mark attendance first.");
       return;
     }
 
@@ -336,7 +602,7 @@ export default function MonthlyWageSheetPage() {
           type: "success",
           text: `🎉 Successfully saved ${rows.length} worker wage records for ${monthLabel} ${selectedYear}! Slips are now ready.`,
         });
-        await loadSavedSlips(selectedMonth, selectedYear);
+        await loadAttendanceOrWorkers(selectedMonth, selectedYear);
         setActiveTab("slips");
       } else {
         throw new Error(res.data?.message || "Failed to save records.");
@@ -355,17 +621,23 @@ export default function MonthlyWageSheetPage() {
   // Add new blank row
   const handleAddRow = () => {
     const nextNum = rows.length + 1;
-    const prefix = companyName.toLowerCase().includes("vodabox") ? "VD" : "JB";
-    const newCode = `${prefix}${String(nextNum).padStart(3, "0")}`;
+    const prefix = companyName.toLowerCase().includes("vodabox")
+      ? "VD"
+      : companyName.toLowerCase().includes("celebrity")
+      ? "CBPL"
+      : "JB";
+    const newCode = `${prefix}${String(nextNum).padStart(4, "0")}`;
+    const defaultRate = companyName.toLowerCase().includes("celebrity") ? 491 : 376;
     const newRow: LabourRow = recalculateRow({
       code: newCode,
       name: `NEW WORKER ${nextNum}`,
       fatherName: "C/O -",
+      designation: "Workman",
       esicNo: "",
       doj: `01.${String(selectedMonth).padStart(2, "0")}.${selectedYear}`,
       presentDays: 26,
       otDays: 0,
-      rate: 376,
+      rate: defaultRate,
       daysAmount: 0,
       otAmount: 0,
       totalGross: 0,
@@ -375,14 +647,6 @@ export default function MonthlyWageSheetPage() {
       netPayable: 0,
     });
     const updated = [...rows, newRow];
-    setRows(updated);
-    recalculateSummary(updated);
-  };
-
-  // Delete row
-  const handleDeleteRow = (index: number) => {
-    if (!window.confirm("Remove this worker row from the sheet?")) return;
-    const updated = rows.filter((_, i) => i !== index);
     setRows(updated);
     recalculateSummary(updated);
   };
@@ -479,8 +743,8 @@ export default function MonthlyWageSheetPage() {
     return (
       r.code.toLowerCase().includes(q) ||
       r.name.toLowerCase().includes(q) ||
-      r.fatherName.toLowerCase().includes(q) ||
-      r.esicNo.toLowerCase().includes(q)
+      (r.fatherName && r.fatherName.toLowerCase().includes(q)) ||
+      (r.esicNo && r.esicNo.toLowerCase().includes(q))
     );
   });
 
@@ -572,173 +836,133 @@ export default function MonthlyWageSheetPage() {
           <table class="slip-table breakdown-table">
             <thead>
               <tr>
-                <th colspan="2" class="col-group-hdr">Days</th>
-                <th colspan="3" class="col-group-hdr">Earnings</th>
-                <th colspan="2" class="col-group-hdr">Deductions</th>
-                <th class="col-group-hdr net-hdr">Net Payable (Rs.)</th>
+                <th colspan="2" class="col-group-hdr">EARNING DETAILS</th>
+                <th colspan="2" class="col-group-hdr">DEDUCTION DETAILS</th>
+                <th class="col-group-hdr net-hdr">NET PAYABLE AMOUNT</th>
               </tr>
-              <tr class="sub-hdr-row">
-                <th class="sub-hdr">Particulars</th>
-                <th class="sub-hdr text-center">Days</th>
-                <th class="sub-hdr">Particulars</th>
-                <th class="sub-hdr text-end">Rate</th>
-                <th class="sub-hdr text-end">Amount (Rs.)</th>
-                <th class="sub-hdr">Particulars</th>
-                <th class="sub-hdr text-end">Amount (Rs.)</th>
-                <th class="sub-hdr empty-hdr"></th>
+              <tr class="sub-hdr">
+                <th>Component</th>
+                <th>Amount (Rs.)</th>
+                <th>Component</th>
+                <th>Amount (Rs.)</th>
+                <th class="net-hdr">Payable</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>Present</td>
-                <td class="text-center">${slip.presentDays || 0}</td>
-                <td>Basic Wages</td>
-                <td class="text-end">${fmt(slip.rate || 376)}</td>
+                <td>Basic</td>
                 <td class="text-end">${fmt(slip.basicAmount)}</td>
                 <td>Provident Fund</td>
                 <td class="text-end">${fmt(slip.providentFund)}</td>
-                <td rowspan="10" class="net-payable-box">
-                  <div class="net-amount-display">${fmt(slip.netPayable)}</div>
+                <td rowspan="9" class="net-payable-box">
+                  <div class="net-amount-display">Rs. ${fmt(slip.netPayable)}</div>
                 </td>
               </tr>
               <tr>
-                <td>W/O</td>
-                <td></td>
-                <td>OT / OD Wages</td>
-                <td class="text-end">${fmt(slip.rate || 376)}</td>
-                <td class="text-end">${fmt(slip.otAmount)}</td>
+                <td>H.R.A</td>
+                <td class="text-end">${fmt(slip.hrAllowance)}</td>
                 <td>Voluntary Provident Fund</td>
-                <td class="text-end">0.00</td>
+                <td class="text-end">${fmt(slip.voluntaryProvidentFund)}</td>
               </tr>
               <tr>
-                <td>Holidays</td>
-                <td></td>
-                <td>H R Allowance</td>
-                <td class="text-end">0.00</td>
-                <td class="text-end">0.00</td>
-                <td>ESI</td>
+                <td>Special Allowance</td>
+                <td class="text-end">${fmt(slip.specialAllowance)}</td>
+                <td>E.S.I.</td>
                 <td class="text-end">${fmt(slip.esi)}</td>
               </tr>
               <tr>
-                <td>OT/OD</td>
-                <td class="text-center">${slip.otDays || 0}</td>
-                <td>Special Allowance</td>
-                <td class="text-end">0.00</td>
-                <td class="text-end">0.00</td>
+                <td>Personal Allowance</td>
+                <td class="text-end">${fmt(slip.personalAllowance)}</td>
                 <td>Professional Tax</td>
                 <td class="text-end">${fmt(slip.professionalTax)}</td>
               </tr>
               <tr>
-                <td>CL</td>
-                <td></td>
-                <td>Personal Allowance</td>
-                <td class="text-end">0.00</td>
-                <td class="text-end">0.00</td>
-                <td>Alcohol Deduction</td>
-                <td class="text-end">0.00</td>
-              </tr>
-              <tr>
-                <td>SL</td>
-                <td></td>
-                <td>Conv. Allowance</td>
-                <td class="text-end">0.00</td>
-                <td class="text-end">0.00</td>
-                <td>Advance Repayment</td>
-                <td class="text-end">0.00</td>
-              </tr>
-              <tr>
-                <td>PL_CO</td>
-                <td></td>
-                <td>Other Earning</td>
-                <td class="text-end">0.00</td>
-                <td class="text-end">0.00</td>
-                <td></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td>W/P</td>
-                <td></td>
-                <td>Accomodn. Allowance</td>
-                <td class="text-end">0.00</td>
-                <td class="text-end">0.00</td>
-                <td></td>
-                <td></td>
-              </tr>
-              <tr>
-                <td class="fw-bold">Total</td>
-                <td class="text-center fw-bold">${slip.presentDays || 0}</td>
-                <td>Arrear</td>
-                <td class="text-end">0.00</td>
-                <td class="text-end">0.00</td>
-                <td></td>
-                <td></td>
-              </tr>
-              <tr class="total-row">
-                <td class="fw-bold">Paid Days</td>
-                <td class="text-center fw-bold">${slip.presentDays || 0}</td>
-                <td class="fw-bold">Total Earnings</td>
-                <td></td>
-                <td class="text-end fw-bold">${fmt(slip.totalEarnings)}</td>
-                <td class="fw-bold">Total Deductions</td>
-                <td class="text-end fw-bold">${fmt(slip.totalDeductions)}</td>
-              </tr>
-              <tr>
-                <td colspan="2"></td>
+                <td>Conv Allowance</td>
+                <td class="text-end">${fmt(slip.convAllowance)}</td>
                 <td>Salary Advance</td>
-                <td></td>
-                <td class="text-end">0.00</td>
-                <td colspan="2"></td>
-                <td class="text-end fw-bold" style="font-size: 11px;">${fmt(slip.netPayable)}</td>
+                <td class="text-end">${fmt(slip.salaryAdvance)}</td>
+              </tr>
+              <tr>
+                <td>Other Earning</td>
+                <td class="text-end">${fmt(slip.otherEarning)}</td>
+                <td>Alcohol Deduction</td>
+                <td class="text-end">${fmt(slip.alcoholDeduction)}</td>
+              </tr>
+              <tr>
+                <td>Accomodn Allowance</td>
+                <td class="text-end">${fmt(slip.accomodnAllowance)}</td>
+                <td>Advance Repayment</td>
+                <td class="text-end">${fmt(slip.advanceRepayment)}</td>
+              </tr>
+              <tr>
+                <td>OT / OD Amt.</td>
+                <td class="text-end">${fmt(slip.otAmount)}</td>
+                <td>—</td>
+                <td class="text-end">—</td>
+              </tr>
+              <tr>
+                <td>Arrear</td>
+                <td class="text-end">${fmt(slip.arrear)}</td>
+                <td>—</td>
+                <td class="text-end">—</td>
+              </tr>
+              <tr class="total-row fw-bold">
+                <td>Total Earning</td>
+                <td class="text-end">${fmt(slip.totalEarnings)}</td>
+                <td>Total Deduction</td>
+                <td class="text-end">${fmt(slip.totalDeductions)}</td>
+                <td class="text-center font-bold">Net: Rs. ${fmt(slip.netPayable)}</td>
               </tr>
             </tbody>
           </table>
 
-          <table class="slip-table footer-table">
+          <table class="slip-table leave-bank-table">
             <tbody>
               <tr>
-                <td colspan="4" class="leave-title">Leave Balance Details</td>
-                <td colspan="6" class="words-box">
-                  <strong>Rs. (In Words):</strong> ${slip.amountInWords || "Rupees Zero Only"}
-                </td>
+                <td colspan="7" class="leave-title">LEAVE DETAILS</td>
+                <td rowspan="2" class="bank-cell"><strong>Bank:</strong> ${slip.bankName || "—"}</td>
+              </tr>
+              <tr class="leave-col-hdr">
+                <td>PL Opening</td>
+                <td>PL Availed</td>
+                <td>PL Balance</td>
+                <td>Days Worked</td>
+                <td>Holidays</td>
+                <td>WO Days</td>
+                <td>Payable Days</td>
+              </tr>
+              <tr class="text-center">
+                <td>0.00</td>
+                <td>0.00</td>
+                <td>0.00</td>
+                <td>${Number(slip.presentDays || 0).toFixed(2)}</td>
+                <td>0.00</td>
+                <td>0.00</td>
+                <td>${Number(slip.presentDays || 0).toFixed(2)}</td>
+                <td class="bank-cell"><strong>A/c:</strong> ${slip.accountNo || "—"}</td>
               </tr>
               <tr>
-                <td class="leave-col-hdr">Leave</td>
-                <td class="leave-col-hdr">Opening</td>
-                <td class="leave-col-hdr">Availed</td>
-                <td class="leave-col-hdr">Late Ded.</td>
-                <td colspan="3" class="bank-cell">
-                  <strong>Bank Name:</strong> ${slip.bankName || ""}
-                </td>
-                <td colspan="3" class="bank-cell">
-                  <strong>Account No.:</strong> ${slip.accountNo || ""}
+                <td colspan="8" class="words-box">
+                  <strong>Amount in Words:</strong> ${slip.amountInWords || "Rupees Only"}
                 </td>
               </tr>
-              <tr>
-                <td>CL</td><td></td><td></td><td></td>
-                <td colspan="6" rowspan="3" class="empty-filler"></td>
-              </tr>
-              <tr><td>SL</td><td></td><td></td><td></td></tr>
-              <tr><td>PL_CO</td><td></td><td></td><td></td></tr>
             </tbody>
           </table>
 
           <div class="disclaimer">
-            This is a system generated Salary Slip &amp; does not require any Signature &amp; Seal.
+            This is a computer-generated salary slip and does not require an authorized signature.
           </div>
         </div>
       </div>
     `;
   };
 
-  const printSlipsCleanly = (slipsToPrint: SalarySlipData[]) => {
-    if (!slipsToPrint || slipsToPrint.length === 0) {
-      alert("No slips to print.");
-      return;
-    }
+  const printSlipsCleanly = (slipsToPrint: SalarySlipData[], title: string) => {
+    if (slipsToPrint.length === 0) return;
 
-    const printWin = window.open("", "_blank");
+    const printWin = window.open("", "_blank", "width=900,height=900");
     if (!printWin) {
-      alert("Please allow popups to open the print dialog.");
+      alert("Please allow popups in your browser to print salary slips.");
       return;
     }
 
@@ -748,12 +972,12 @@ export default function MonthlyWageSheetPage() {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>Salary Slips - ${companyName} (${monthLabel} ${selectedYear})</title>
         <meta charset="utf-8" />
+        <title>${title}</title>
         <style>
           @page {
             size: A4 portrait;
-            margin: 6mm 6mm 6mm 6mm;
+            margin: 6mm;
           }
           * {
             box-sizing: border-box;
@@ -763,39 +987,38 @@ export default function MonthlyWageSheetPage() {
           html, body {
             margin: 0;
             padding: 0;
-            background: #ffffff;
-            color: #000000;
+            background: #fff;
+            color: #000;
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 10px;
+            font-size: 11px;
           }
           .salary-slip-page {
-            width: 100%;
             page-break-after: always;
-            break-after: page;
             page-break-inside: avoid;
-            break-inside: avoid;
-            padding: 0;
-            margin: 0 0 10px 0;
+            width: 100%;
+            height: 100%;
+            max-width: 198mm;
+            margin: 0 auto 12mm auto;
+            background: #fff;
           }
           .salary-slip-page:last-child {
             page-break-after: auto;
-            break-after: auto;
+            margin-bottom: 0;
           }
           .slip-card {
-            border: 1.5px solid #000;
-            padding: 8px;
+            border: 2px solid #000;
+            padding: 10px 14px;
             background: #fff;
-            width: 100%;
           }
           .slip-header {
             text-align: center;
-            padding-bottom: 4px;
-            border-bottom: 1.5px solid #000;
+            border-bottom: 2px solid #000;
+            padding-bottom: 6px;
             margin-bottom: 6px;
           }
           .company-title {
-            font-size: 19px;
-            font-weight: 900;
+            font-size: 18px;
+            font-weight: 800;
             margin: 0;
             letter-spacing: 0.5px;
             color: #000;
@@ -937,22 +1160,25 @@ export default function MonthlyWageSheetPage() {
           <div className="hero-content">
             <div className="hero-badge">
               <Sparkles size={14} className="sparkle-icon" />
-              Contractor Labour Wages &amp; Slips
+              Contractor Labour Wages &amp; Slips Portal
             </div>
             <h1 className="hero-title">{companyName}</h1>
             <p className="hero-subtitle">
-              Interactive monthly wage sheet management with live spreadsheet preview, automated
-              ESI/PF calculation, and 1-click bulk salary slip printing.
+              Interactive monthly wage sheet management with daily tick-mark attendance matrix, cloud
+              spreadsheet synchronization, Form XVII export, and 1-click clean bulk salary slip printing.
             </p>
           </div>
 
           <div className="hero-controls">
             <div className="month-selector-box">
               <div className="selector-group">
-                <Calendar size={16} className="text-muted" />
                 <select
                   value={selectedMonth}
-                  onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                  onChange={(e) => {
+                    const m = Number(e.target.value);
+                    setSelectedMonth(m);
+                    loadAttendanceOrWorkers(m, selectedYear);
+                  }}
                   className="period-select"
                 >
                   {MONTHS.map((m) => (
@@ -964,7 +1190,11 @@ export default function MonthlyWageSheetPage() {
 
                 <select
                   value={selectedYear}
-                  onChange={(e) => setSelectedYear(Number(e.target.value))}
+                  onChange={(e) => {
+                    const y = Number(e.target.value);
+                    setSelectedYear(y);
+                    loadAttendanceOrWorkers(selectedMonth, y);
+                  }}
                   className="period-select"
                 >
                   {YEARS.map((y) => (
@@ -978,7 +1208,7 @@ export default function MonthlyWageSheetPage() {
               {savedRunFound ? (
                 <>
                   <div className="status-pill pill-live">
-                    <CheckCircle2 size={13} /> Saved in Database ({savedSlips.length} Slips)
+                    <CheckCircle2 size={13} /> Saved in Database ({savedSlips.length || rows.length} Workers)
                   </div>
                   <button
                     type="button"
@@ -992,7 +1222,7 @@ export default function MonthlyWageSheetPage() {
                 </>
               ) : (
                 <div className="status-pill pill-draft">
-                  <SlidersHorizontal size={13} /> Pending Sheet Import
+                  <SlidersHorizontal size={13} /> Draft Mode — Ready to Mark
                 </div>
               )}
             </div>
@@ -1002,297 +1232,145 @@ export default function MonthlyWageSheetPage() {
         {/* Navigation Tabs */}
         <div className="nav-tabs-wrapper">
           <button
+            className={`tab-btn ${activeTab === "attendance" ? "tab-active" : ""}`}
+            onClick={() => setActiveTab("attendance")}
+          >
+            <Calendar size={16} />
+            <span>1. Live Attendance &amp; Wage Sheet</span>
+            {rows.length > 0 && <span className="tab-count-badge cyan">{rows.length} Workers</span>}
+          </button>
+
+          <button
             className={`tab-btn ${activeTab === "slips" ? "tab-active" : ""}`}
             onClick={() => setActiveTab("slips")}
           >
             <Printer size={16} />
-            <span>1. Processed Slips &amp; Bulk Export</span>
-            {savedSlips.length > 0 && <span className="tab-count-badge green">{savedSlips.length}</span>}
+            <span>2. Processed Slips &amp; Bulk Print</span>
+            {savedSlips.length > 0 && <span className="tab-count-badge green">{savedSlips.length} Slips</span>}
           </button>
 
           <button
             className={`tab-btn ${activeTab === "import" ? "tab-active" : ""}`}
             onClick={() => setActiveTab("import")}
           >
-            <FileSpreadsheet size={16} />
-            <span>2. Upload &amp; Live Spreadsheet Grid</span>
-            {rows.length > 0 && <span className="tab-count-badge">{rows.length}</span>}
+            <UploadCloud size={16} />
+            <span>3. Upload Excel / CSV Sheet</span>
           </button>
         </div>
 
         {/* ============================================================== */}
-        {/* TAB 1: PROCESSED SALARY SLIPS & BULK EXPORT */}
+        {/* TAB 1: INTERACTIVE CLOUD ATTENDANCE & LIVE WAGE SHEET */}
         {/* ============================================================== */}
-        {activeTab === "slips" && (
+        {activeTab === "attendance" && (
           <div className="tab-pane-content">
-            {savedSlips.length === 0 ? (
-              <div className="empty-slips-card">
-                <FileSpreadsheet size={48} className="empty-icon" />
-                <h3>No Finalized Slips for {monthLabel} {selectedYear}</h3>
-                <p>
-                  No salary records were found in the database for this month. Upload your Excel or CSV sheet
-                  in Tab 2 and click <strong>&quot;Confirm &amp; Save&quot;</strong> to generate and finalize the salary slips.
-                </p>
-                <button className="btn-go-import" onClick={() => setActiveTab("import")}>
-                  Go to Upload &amp; Preview <ArrowRight size={16} />
-                </button>
+            {/* Horizontal Month Navigator Bar */}
+            <div className="month-navigator-card">
+              <div className="month-nav-label">
+                <Calendar size={15} /> Select Month Tab ({selectedYear}):
               </div>
-            ) : (
-              <div className="slips-manager-card">
-                {/* Slips Action Toolbar */}
-                <div className="slips-toolbar">
-                  <div className="toolbar-info">
-                    <h3 className="toolbar-title">
-                      {monthLabel} {selectedYear} Salary Slips
-                    </h3>
-                    <p className="toolbar-desc">
-                      {savedSlips.length} employees finalized • All slips formatted to official contractor labour standards
-                    </p>
-                  </div>
-
-                  <div className="toolbar-buttons">
+              <div className="month-tabs-strip">
+                {MONTHS.map((m) => {
+                  const isSelected = selectedMonth === m.value;
+                  const isSaved = savedHistory.some(
+                    (h) => h.month === m.value && h.year === selectedYear
+                  );
+                  return (
                     <button
-                      className="btn-bulk-print"
-                      onClick={() => printSlipsCleanly(filteredSlips)}
-                    >
-                      <Printer size={18} />
-                      {activeSlipSearch ? (
-                        <>Print Filtered Slips ({filteredSlips.length})</>
-                      ) : (
-                        <>Print All Slips ({savedSlips.length})</>
-                      )}
-                    </button>
-
-                    <button
-                      className="btn-delete-month"
-                      onClick={handleDeleteMonthData}
-                      disabled={loading}
-                      title={`Permanently delete all saved records for ${monthLabel} ${selectedYear}`}
-                    >
-                      <Trash2 size={16} /> Delete Month Data ({savedSlips.length})
-                    </button>
-                  </div>
-                </div>
-
-                {/* DEDICATED SEARCH BAR FOR PARTICULAR EMPLOYEE SEARCH */}
-                <div className="employee-search-bar-card">
-                  <form onSubmit={handleApplySlipSearch} className="search-form-row">
-                    <div className="search-input-wrapper">
-                      <Search size={18} className="search-lead-icon" />
-                      <input
-                        type="text"
-                        placeholder="Search worker by Name (e.g. Manira), Code (e.g. JB001, VD045), ESIC Number, or Father's Name..."
-                        value={slipSearchInput}
-                        onChange={(e) => {
-                          setSlipSearchInput(e.target.value);
-                          setActiveSlipSearch(e.target.value.trim());
-                        }}
-                        className="employee-search-input"
-                      />
-                      {slipSearchInput && (
-                        <button
-                          type="button"
-                          className="search-clear-btn"
-                          onClick={handleClearSlipSearch}
-                          title="Clear Search"
-                        >
-                          <X size={15} />
-                        </button>
-                      )}
-                    </div>
-
-                    <button type="submit" className="btn-search-submit">
-                      <Search size={15} /> Search
-                    </button>
-
-                    {activeSlipSearch && (
-                      <button
-                        type="button"
-                        className="btn-search-reset"
-                        onClick={handleClearSlipSearch}
-                      >
-                        Show All ({savedSlips.length})
-                      </button>
-                    )}
-                  </form>
-
-                  {/* Search Status / Filter Pill */}
-                  <div className="search-filter-status">
-                    {activeSlipSearch ? (
-                      <span className="filter-pill active">
-                        Filtered: <strong>{filteredSlips.length}</strong> matching &quot;{activeSlipSearch}&quot; (Total: {savedSlips.length})
-                      </span>
-                    ) : (
-                      <span className="filter-pill">
-                        Showing all <strong>{savedSlips.length}</strong> finalized worker salary slips
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Worker Slips List */}
-                <div className="slips-table-wrapper">
-                  <table className="slips-table">
-                    <thead>
-                      <tr>
-                        <th style={{ width: "90px" }}>Code</th>
-                        <th style={{ minWidth: "170px" }}>Worker Name</th>
-                        <th style={{ minWidth: "160px" }}>Father / Husband</th>
-                        <th style={{ width: "120px" }}>ESIC No</th>
-                        <th className="text-center" style={{ width: "70px" }}>Days</th>
-                        <th className="text-center" style={{ width: "65px" }}>OT</th>
-                        <th className="text-end" style={{ width: "110px" }}>Gross Wages</th>
-                        <th className="text-end" style={{ width: "100px" }}>Total Ded.</th>
-                        <th className="text-end" style={{ width: "115px" }}>Net Payable</th>
-                        <th className="text-center" style={{ width: "190px" }}>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredSlips.length === 0 ? (
-                        <tr>
-                          <td colSpan={10} className="text-center py-5 text-muted">
-                            No employees found matching &quot;{activeSlipSearch}&quot;.
-                          </td>
-                        </tr>
-                      ) : (
-                        filteredSlips.map((s, idx) => (
-                          <tr key={idx}>
-                            <td className="code-badge">{s.code}</td>
-                            <td className="worker-name-cell">{s.name}</td>
-                            <td className="text-muted">{s.fatherName || "—"}</td>
-                            <td className="mono">{s.esicNo || "—"}</td>
-                            <td className="text-center font-bold">{s.presentDays}</td>
-                            <td className="text-center">{s.otDays}</td>
-                            <td className="text-end">₹{s.totalEarnings.toLocaleString("en-IN")}</td>
-                            <td className="text-end text-danger">₹{s.totalDeductions.toLocaleString("en-IN")}</td>
-                            <td className="text-end font-bold net-col-text">
-                              ₹{s.netPayable.toLocaleString("en-IN")}
-                            </td>
-                            <td className="text-center">
-                              <div className="action-button-row">
-                                <button
-                                  className="btn-view-slip"
-                                  onClick={() => setSelectedSlipForModal(s)}
-                                  title="View on-screen Slip"
-                                >
-                                  <Eye size={13} /> View
-                                </button>
-                                <button
-                                  className="btn-print-single"
-                                  onClick={() => printSlipsCleanly([s])}
-                                  title="Print single 1-page Salary Slip"
-                                >
-                                  <Printer size={13} /> Print Slip
-                                </button>
-                                <button
-                                  className="btn-delete-single"
-                                  onClick={() => handleDeleteSingleSlip(s)}
-                                  disabled={loading}
-                                  title={`Delete slip for ${s.name}`}
-                                >
-                                  <Trash2 size={13} /> Delete
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ============================================================== */}
-        {/* TAB 2: UPLOAD & LIVE EDITABLE SPREADSHEET GRID */}
-        {/* ============================================================== */}
-        {activeTab === "import" && (
-          <div className="tab-pane-content">
-            {/* Upload Zone & Quick Samples */}
-            <div className="upload-section-card">
-              <div className="upload-dropzone" onClick={() => fileInputRef.current?.click()}>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".xlsx, .xls, .csv"
-                  className="d-none"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) handleFileUpload(f);
-                  }}
-                />
-                <div className="upload-icon-circle">
-                  <UploadCloud size={28} className="upload-icon" />
-                </div>
-                <div className="upload-title">Drop your Excel (.xlsx, .xls) or CSV sheet here</div>
-                <div className="upload-desc">
-                  Supports contractor wage formats with Present Days, OT, Rate ₹376, PF, ESI, P-Tax
-                </div>
-                <button
-                  type="button"
-                  className="btn-browse-file"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    fileInputRef.current?.click();
-                  }}
-                >
-                  Browse Computer
-                </button>
-              </div>
-
-              <div className="quick-actions-bar">
-                <div className="quick-title">Quick Actions &amp; Templates:</div>
-                <div className="quick-btn-group">
-                  <a
-                    href="/api/v1/labour-wage/template"
-                    download="Labour_Wage_Template.xlsx"
-                    className="action-pill-btn"
-                  >
-                    <Download size={14} /> Blank Excel Template
-                  </a>
-
-                  <button
-                    type="button"
-                    className="action-pill-btn sample-btn"
-                    onClick={() =>
-                      loadCompanySample(
-                        companyName.toLowerCase().includes("vodabox") ? "VODABOX" : "JUBILANT"
-                      )
-                    }
-                  >
-                    <Sparkles size={14} /> Load September 2026 Verified Data
-                  </button>
-
-                  {rows.length > 0 && (
-                    <button
+                      key={m.value}
                       type="button"
-                      className="action-pill-btn delete-pill-btn"
-                      onClick={handleClearUploadPreview}
-                      title="Clear uploaded spreadsheet from memory"
+                      className={`month-tab-pill ${isSelected ? "active" : ""}`}
+                      onClick={() => {
+                        setSelectedMonth(m.value);
+                        loadAttendanceOrWorkers(m.value, selectedYear);
+                      }}
                     >
-                      <Trash2 size={14} /> Clear / Delete Sheet
+                      <span className="month-pill-name">
+                        {m.short} &apos;{String(selectedYear).slice(2)}
+                      </span>
+                      {isSaved ? (
+                        <span className="month-pill-status saved" title="Saved & Finalized in DB">
+                          ● Saved
+                        </span>
+                      ) : (
+                        <span className="month-pill-status draft" title="Draft / In Progress">
+                          ○ Draft
+                        </span>
+                      )}
                     </button>
-                  )}
-
-                  {savedRunFound && (
-                    <button
-                      type="button"
-                      className="action-pill-btn delete-db-pill-btn"
-                      onClick={handleDeleteMonthData}
-                      disabled={loading}
-                      title={`Permanently delete saved ${monthLabel} ${selectedYear} records from database`}
-                    >
-                      <Trash2 size={14} /> Delete Saved {monthLabel} Data from DB
-                    </button>
-                  )}
-                </div>
+                  );
+                })}
               </div>
             </div>
 
+            {/* Google Sheets / Cloud Spreadsheet Sync Hub */}
+            <div className="gsheet-hub-card">
+              <div className="gsheet-hub-header">
+                <div className="gsheet-hub-left">
+                  <div className="gsheet-icon-circle">
+                    <FileSpreadsheet size={18} className="text-emerald-400" />
+                  </div>
+                  <div>
+                    <div className="gsheet-hub-title">Google Sheets / Cloud Spreadsheet Sync Hub</div>
+                    <div className="gsheet-hub-subtitle">
+                      Connect your external Google Sheets URL or view it directly in HRM with all monthly tabs.
+                    </div>
+                  </div>
+                </div>
+                <div className="gsheet-hub-actions">
+                  {googleSheetUrl && (
+                    <>
+                      <button
+                        type="button"
+                        className="btn-gsheet-action view-btn"
+                        onClick={() => setShowSheetViewer(!showSheetViewer)}
+                      >
+                        <Eye size={14} /> {showSheetViewer ? "Hide Embedded Sheet" : "Preview Sheet Iframe"}
+                      </button>
+                      <a
+                        href={googleSheetUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-gsheet-action open-btn"
+                      >
+                        <ExternalLink size={14} /> Open in Google Sheets
+                      </a>
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className="gsheet-input-row">
+                <div className="gsheet-input-box">
+                  <Link2 size={16} className="text-slate-400" />
+                  <input
+                    type="url"
+                    className="gsheet-url-input"
+                    placeholder="Paste Google Sheets Share Link (e.g. https://docs.google.com/spreadsheets/d/.../edit)"
+                    value={googleSheetUrl}
+                    onChange={(e) => setGoogleSheetUrl(e.target.value)}
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="btn-gsheet-save"
+                  onClick={handleSaveGoogleSheetUrl}
+                >
+                  Save Link
+                </button>
+              </div>
+
+              {showSheetViewer && googleSheetUrl && (
+                <div className="gsheet-iframe-wrapper">
+                  <iframe
+                    src={getEmbedUrl(googleSheetUrl)}
+                    className="gsheet-iframe"
+                    title="Google Sheet Cloud Viewer"
+                  />
+                </div>
+              )}
+            </div>
+
             {/* KPI Summary Cards */}
-            {summary && rows.length > 0 && (
+            {summary && (
               <div className="metrics-grid">
                 <div className="metric-card">
                   <div className="metric-icon-box blue">
@@ -1348,184 +1426,356 @@ export default function MonthlyWageSheetPage() {
 
                 <div className="metric-card highlight-metric">
                   <div className="metric-icon-box green">
-                    <CheckCircle2 size={20} />
+                    <Coins size={20} />
                   </div>
                   <div className="metric-info">
-                    <div className="metric-val net-val">₹{summary.totalNetPayable.toLocaleString("en-IN")}</div>
-                    <div className="metric-lbl">Total Net Payable</div>
+                    <div className="metric-val">₹{summary.totalNetPayable.toLocaleString("en-IN")}</div>
+                    <div className="metric-lbl">Net Amount Payable</div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Live Interactive Grid */}
-            {rows.length > 0 && (
-              <div className="grid-card">
-                <div className="grid-toolbar">
-                  <div className="search-box">
-                    <Search size={15} className="search-icon" />
-                    <input
-                      type="text"
-                      placeholder="Filter grid by worker name, code or ESIC..."
-                      value={importSearch}
-                      onChange={(e) => setImportSearch(e.target.value)}
-                      className="search-input"
-                    />
+            {/* Daily Attendance Matrix Controls & Action Bar */}
+            <div className="attendance-toolbar-card">
+              <div className="attendance-tools-left">
+                <button
+                  type="button"
+                  className="btn-tool-action preset"
+                  onClick={handleSetAll26Days}
+                  title="Set standard 26 present days (Mon-Sat P, Sun WO)"
+                >
+                  <Sparkles size={14} /> Set All 26 Days P
+                </button>
+                <button
+                  type="button"
+                  className="btn-tool-action green"
+                  onClick={handleMarkAllTodayP}
+                  title="Mark all workers Present for today"
+                >
+                  <CheckCircle2 size={14} /> Mark All Today P
+                </button>
+                <button
+                  type="button"
+                  className="btn-tool-action slate"
+                  onClick={handleMarkSundaysOff}
+                  title="Mark all Sundays as Weekly Off (WO)"
+                >
+                  <Calendar size={14} /> Mark Sundays Off (WO)
+                </button>
+                <button
+                  type="button"
+                  className="btn-tool-action clear"
+                  onClick={handleClearAllAttendance}
+                  title="Reset all days to Absent"
+                >
+                  <Trash2 size={14} /> Clear Month
+                </button>
+              </div>
+
+              <div className="attendance-tools-right">
+                <div className="search-box-attendance">
+                  <Search size={14} className="search-icon-muted" />
+                  <input
+                    type="text"
+                    placeholder="Search code or name..."
+                    value={importSearch}
+                    onChange={(e) => setImportSearch(e.target.value)}
+                    className="attendance-search-input"
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="btn-export-csv"
+                  onClick={handleExportFormXVIICSV}
+                  title="Export Form XVII Contract Labour Register in CSV/Excel"
+                >
+                  <Download size={14} /> Export Form XVII (CSV)
+                </button>
+                <button
+                  type="button"
+                  className="btn-save-attendance-wages"
+                  onClick={handleSaveToDatabase}
+                  disabled={saving || loading || rows.length === 0}
+                >
+                  {saving ? (
+                    <RefreshCw size={16} className="spin" />
+                  ) : (
+                    <CheckCircle2 size={16} />
+                  )}
+                  Save &amp; Finalize Wages
+                </button>
+              </div>
+            </div>
+
+            {/* Interactive Attendance & Wage Matrix Table */}
+            <div className="attendance-matrix-wrapper">
+              {rows.length === 0 ? (
+                <div className="empty-workers-card">
+                  <Users size={40} className="text-slate-400" />
+                  <h4>No Workers Found for {companyName}</h4>
+                  <p>Upload a worker master sheet in Tab 3 or click below to add a worker.</p>
+                  <button className="btn-add-worker-empty" onClick={handleAddRow}>
+                    <Plus size={16} /> Add First Worker
+                  </button>
+                </div>
+              ) : (
+                <div className="matrix-table-scroll">
+                  <table className="attendance-matrix-table">
+                    <thead>
+                      <tr>
+                        <th className="sticky-col col-sl">SL</th>
+                        <th className="sticky-col col-code">CODE</th>
+                        <th className="sticky-col col-name">WORKER NAME</th>
+                        <th className="sticky-col col-desig">DESIGNATION</th>
+                        <th className="sticky-col col-rate">RATE (₹)</th>
+
+                        {/* Calendar Days 1 to 31 */}
+                        {daysArray.map((d) => {
+                          const sun = isSunday(d);
+                          const dow = getDayOfWeek(d);
+                          return (
+                            <th key={d} className={`col-day ${sun ? "sunday" : ""}`}>
+                              <div className="day-number">{d}</div>
+                              <div className="day-dow">{dow}</div>
+                            </th>
+                          );
+                        })}
+
+                        {/* Summary & Wage Columns */}
+                        <th className="col-total col-pdays">P DAYS</th>
+                        <th className="col-total col-ot">OT</th>
+                        <th className="col-total col-gross">GROSS (₹)</th>
+                        <th className="col-total col-pf">PF (12%)</th>
+                        <th className="col-total col-esi">ESI (0.75%)</th>
+                        <th className="col-total col-ptax">P-TAX</th>
+                        <th className="col-total col-net sticky-right">NET PAYABLE (₹)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredImportRows.map((r, idx) => {
+                        const workerDays = attendanceGrid[r.code] || {};
+                        return (
+                          <tr key={r.code || idx}>
+                            <td className="sticky-col col-sl">{idx + 1}</td>
+                            <td className="sticky-col col-code font-mono">{r.code}</td>
+                            <td className="sticky-col col-name">
+                              <div className="w-name">{r.name}</div>
+                              {r.fatherName && <div className="w-father">C/O {r.fatherName}</div>}
+                            </td>
+                            <td className="sticky-col col-desig">{r.designation || "Workman"}</td>
+                            <td className="sticky-col col-rate">
+                              <input
+                                type="number"
+                                className="input-num-cell rate"
+                                value={r.rate}
+                                onChange={(e) => handleCellChange(idx, "rate", Number(e.target.value))}
+                              />
+                            </td>
+
+                            {/* Days 1 to 31 interactive buttons */}
+                            {daysArray.map((d) => {
+                              const status = workerDays[d] || (isSunday(d) ? "WO" : "P");
+                              return (
+                                <td
+                                  key={d}
+                                  className={`cell-day ${isSunday(d) ? "sunday" : ""}`}
+                                  onClick={() => toggleAttendanceCell(r.code, d)}
+                                  title={`Day ${d} (${getDayOfWeek(d)}): Click to toggle status (${status})`}
+                                >
+                                  <span className={`status-badge-cell badge-${status.toLowerCase()}`}>
+                                    {status}
+                                  </span>
+                                </td>
+                              );
+                            })}
+
+                            {/* End totals */}
+                            <td className="col-total col-pdays font-bold text-center">{r.presentDays}</td>
+                            <td className="col-total col-ot">
+                              <input
+                                type="number"
+                                step="0.5"
+                                className="input-num-cell ot"
+                                value={r.otDays}
+                                onChange={(e) => handleCellChange(idx, "otDays", Number(e.target.value))}
+                              />
+                            </td>
+                            <td className="col-total col-gross">₹{r.totalGross.toLocaleString("en-IN")}</td>
+                            <td className="col-total col-pf">₹{r.pf.toLocaleString("en-IN")}</td>
+                            <td className="col-total col-esi">₹{r.esi.toLocaleString("en-IN")}</td>
+                            <td className="col-total col-ptax">₹{r.ptax}</td>
+                            <td className="col-total col-net sticky-right font-bold text-emerald-400">
+                              ₹{r.netPayable.toLocaleString("en-IN")}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ============================================================== */}
+        {/* TAB 2: PROCESSED SALARY SLIPS & BULK EXPORT */}
+        {/* ============================================================== */}
+        {activeTab === "slips" && (
+          <div className="tab-pane-content">
+            {savedSlips.length === 0 ? (
+              <div className="empty-slips-card">
+                <FileSpreadsheet size={48} className="empty-icon" />
+                <h3>No Finalized Slips for {monthLabel} {selectedYear}</h3>
+                <p>
+                  No salary records were found in the database for this month. Mark attendance in Tab 1
+                  and click <strong>&quot;Save &amp; Finalize Wages&quot;</strong> to generate and finalize the salary slips.
+                </p>
+                <button className="btn-go-import" onClick={() => setActiveTab("attendance")}>
+                  Go to Live Attendance Matrix <ArrowRight size={16} />
+                </button>
+              </div>
+            ) : (
+              <div className="slips-manager-card">
+                {/* Slips Action Toolbar */}
+                <div className="slips-toolbar">
+                  <div className="toolbar-info">
+                    <h3 className="toolbar-title">
+                      {monthLabel} {selectedYear} Finalized Wage Slips ({filteredSlips.length} of {savedSlips.length})
+                    </h3>
+                    <p className="toolbar-subtitle">
+                      Review individual slips, search by worker name or code, and print isolated single or bulk slips.
+                    </p>
                   </div>
 
-                  <div className="grid-action-btns">
-                    <button className="tool-btn add-btn" onClick={handleAddRow}>
-                      <Plus size={15} /> Add Worker
-                    </button>
+                  <div className="toolbar-btn-group">
                     <button
-                      className="tool-btn delete-grid-btn"
-                      onClick={handleClearUploadPreview}
-                      title="Clear and discard current spreadsheet preview"
+                      type="button"
+                      className="btn-print-bulk"
+                      onClick={() =>
+                        printSlipsCleanly(
+                          filteredSlips,
+                          `${companyName} - All Slips ${monthLabel} ${selectedYear}`
+                        )
+                      }
+                      title="Print filtered slips cleanly (exact 1 page per worker, zero chatbot/dashboard background)"
                     >
-                      <Trash2 size={14} /> Delete Preview Grid
+                      <Printer size={16} />
+                      {activeSlipSearch ? `Print Filtered Slips (${filteredSlips.length})` : "Print All Slips"}
                     </button>
-                    {savedRunFound && (
-                      <button
-                        className="tool-btn delete-db-btn"
-                        onClick={handleDeleteMonthData}
-                        disabled={loading}
-                        title={`Delete saved records for ${monthLabel} ${selectedYear} from database`}
-                      >
-                        <Trash2 size={14} /> Delete Saved Month from DB
-                      </button>
-                    )}
+
                     <button
-                      className="tool-btn save-btn"
-                      disabled={saving || loading}
-                      onClick={handleSaveToDatabase}
+                      type="button"
+                      className="btn-delete-bulk"
+                      onClick={handleDeleteMonthData}
+                      disabled={loading}
+                      title={`Permanently delete all ${monthLabel} ${selectedYear} records from database`}
                     >
-                      {saving ? (
-                        <>
-                          <RefreshCw size={15} className="spin" /> Saving &amp; Finalizing...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle2 size={16} /> Confirm &amp; Save ({monthLabel} {selectedYear})
-                        </>
-                      )}
+                      <Trash2 size={16} />
+                      Delete Month Data ({savedSlips.length})
                     </button>
                   </div>
                 </div>
 
-                <div className="spreadsheet-wrapper">
-                  <table className="spreadsheet-table">
+                {/* Worker Search Bar */}
+                <form className="slip-search-bar" onSubmit={handleApplySlipSearch}>
+                  <div className="search-input-wrapper">
+                    <Search size={16} className="search-icon" />
+                    <input
+                      type="text"
+                      placeholder="Search worker by Name, Employee Code (e.g. CBPL0065, JB001), ESIC or Father Name..."
+                      value={slipSearchInput}
+                      onChange={(e) => setSlipSearchInput(e.target.value)}
+                      className="slip-search-input"
+                    />
+                    {slipSearchInput && (
+                      <button
+                        type="button"
+                        className="btn-clear-input"
+                        onClick={handleClearSlipSearch}
+                        title="Clear search"
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
+                  <button type="submit" className="btn-search-submit">
+                    Search Worker
+                  </button>
+                  {activeSlipSearch && (
+                    <button
+                      type="button"
+                      className="btn-search-reset"
+                      onClick={handleClearSlipSearch}
+                    >
+                      Show All ({savedSlips.length})
+                    </button>
+                  )}
+                </form>
+
+                {/* Slips Summary Grid */}
+                <div className="slips-table-wrapper">
+                  <table className="slips-summary-table">
                     <thead>
                       <tr>
-                        <th style={{ width: "45px" }}>#</th>
-                        <th style={{ width: "95px" }}>Code</th>
-                        <th style={{ minWidth: "160px" }}>Worker Name</th>
-                        <th style={{ minWidth: "160px" }}>Father / Husband</th>
-                        <th style={{ width: "120px" }}>ESIC No</th>
-                        <th style={{ width: "105px" }}>DOJ</th>
-                        <th style={{ width: "80px" }}>Present</th>
-                        <th style={{ width: "75px" }}>OT/OD</th>
-                        <th style={{ width: "75px" }}>Rate</th>
-                        <th style={{ width: "95px" }} className="text-end">Days Amt</th>
-                        <th style={{ width: "90px" }} className="text-end">OT Amt</th>
-                        <th style={{ width: "105px" }} className="text-end">Total Gross</th>
-                        <th style={{ width: "85px" }} className="text-end">PF (12%)</th>
-                        <th style={{ width: "75px" }} className="text-end">ESI</th>
-                        <th style={{ width: "70px" }} className="text-end">P-Tax</th>
-                        <th style={{ width: "115px" }} className="text-end net-col">Net Payable</th>
-                        <th style={{ width: "50px" }}></th>
+                        <th>#</th>
+                        <th>Code</th>
+                        <th>Worker Name</th>
+                        <th>Father Name</th>
+                        <th>Designation</th>
+                        <th>Days</th>
+                        <th>Gross (₹)</th>
+                        <th>PF (₹)</th>
+                        <th>ESI (₹)</th>
+                        <th>P-Tax</th>
+                        <th>Net Payable (₹)</th>
+                        <th className="text-center">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredImportRows.map((row, idx) => (
-                        <tr key={idx} className="data-row">
-                          <td className="row-num text-center">{idx + 1}</td>
-                          <td>
-                            <input
-                              type="text"
-                              value={row.code}
-                              onChange={(e) => handleCellChange(idx, "code", e.target.value)}
-                              className="cell-input code-input"
-                            />
+                      {filteredSlips.map((slip, i) => (
+                        <tr key={slip.id || slip.code || i}>
+                          <td className="text-muted">{i + 1}</td>
+                          <td className="font-mono font-bold text-sky-400">{slip.code}</td>
+                          <td className="font-bold">{slip.name}</td>
+                          <td className="text-muted">{slip.fatherName || "—"}</td>
+                          <td>{slip.designation || "Labour"}</td>
+                          <td>{slip.presentDays}</td>
+                          <td>₹{slip.totalEarnings?.toLocaleString("en-IN")}</td>
+                          <td>₹{slip.providentFund?.toLocaleString("en-IN")}</td>
+                          <td>₹{slip.esi?.toLocaleString("en-IN")}</td>
+                          <td>₹{slip.professionalTax}</td>
+                          <td className="font-bold text-emerald-400">
+                            ₹{slip.netPayable?.toLocaleString("en-IN")}
                           </td>
-                          <td>
-                            <input
-                              type="text"
-                              value={row.name}
-                              onChange={(e) => handleCellChange(idx, "name", e.target.value)}
-                              className="cell-input name-input"
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="text"
-                              value={row.fatherName}
-                              onChange={(e) => handleCellChange(idx, "fatherName", e.target.value)}
-                              className="cell-input"
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="text"
-                              value={row.esicNo}
-                              onChange={(e) => handleCellChange(idx, "esicNo", e.target.value)}
-                              className="cell-input"
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="text"
-                              value={row.doj}
-                              onChange={(e) => handleCellChange(idx, "doj", e.target.value)}
-                              className="cell-input text-center"
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              step="0.5"
-                              value={row.presentDays}
-                              onChange={(e) => handleCellChange(idx, "presentDays", e.target.value)}
-                              className="cell-input number-input"
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              step="0.125"
-                              value={row.otDays}
-                              onChange={(e) => handleCellChange(idx, "otDays", e.target.value)}
-                              className="cell-input number-input"
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              value={row.rate}
-                              onChange={(e) => handleCellChange(idx, "rate", e.target.value)}
-                              className="cell-input number-input"
-                            />
-                          </td>
-                          <td className="calc-val text-end">₹{row.daysAmount.toLocaleString("en-IN")}</td>
-                          <td className="calc-val text-end">₹{row.otAmount.toLocaleString("en-IN")}</td>
-                          <td className="calc-val text-end font-bold">
-                            ₹{row.totalGross.toLocaleString("en-IN")}
-                          </td>
-                          <td className="calc-val text-end text-danger">
-                            ₹{row.pf.toLocaleString("en-IN")}
-                          </td>
-                          <td className="calc-val text-end text-danger">
-                            ₹{row.esi.toLocaleString("en-IN")}
-                          </td>
-                          <td className="calc-val text-end">₹{row.ptax}</td>
-                          <td className="net-payable-cell text-end">
-                            <span className="net-pill">₹{row.netPayable.toLocaleString("en-IN")}</span>
-                          </td>
-                          <td className="text-center">
+                          <td className="text-center actions-cell">
                             <button
                               type="button"
-                              className="row-del-btn"
-                              title="Delete Row"
-                              onClick={() => handleDeleteRow(idx)}
+                              className="btn-action-view"
+                              onClick={() => setSelectedSlipForModal(slip)}
+                              title="Preview Full Slip"
+                            >
+                              <Eye size={14} /> View
+                            </button>
+                            <button
+                              type="button"
+                              className="btn-action-print"
+                              onClick={() =>
+                                printSlipsCleanly(
+                                  [slip],
+                                  `${companyName} - Slip - ${slip.name} (${slip.code})`
+                                )
+                              }
+                              title="Print clean 1-page A4 slip"
+                            >
+                              <Printer size={14} /> Print
+                            </button>
+                            <button
+                              type="button"
+                              className="btn-action-delete"
+                              onClick={() => handleDeleteSingleSlip(slip)}
+                              title="Delete this worker's slip"
                             >
                               <Trash2 size={14} />
                             </button>
@@ -1535,87 +1785,169 @@ export default function MonthlyWageSheetPage() {
                     </tbody>
                   </table>
                 </div>
-
-                <div className="grid-footer-bar">
-                  <div className="footer-left">
-                    Showing {filteredImportRows.length} of {rows.length} worker entries
-                  </div>
-                  <div className="footer-right">
-                    <button
-                      className="save-action-btn"
-                      disabled={saving || loading}
-                      onClick={handleSaveToDatabase}
-                    >
-                      {saving ? "Saving Data..." : `Confirm & Save ${rows.length} Workers →`}
-                    </button>
-                  </div>
-                </div>
               </div>
             )}
           </div>
         )}
-      </div>
 
-      {/* ============================================================== */}
-      {/* SINGLE SALARY SLIP MODAL */}
-      {/* ============================================================== */}
-      {selectedSlipForModal && (
-        <div className="modal-backdrop" onClick={() => setSelectedSlipForModal(null)}>
-          <div className="modal-card" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-topbar">
-              <div className="modal-title">
-                Salary Slip: <strong>{selectedSlipForModal.name}</strong> ({selectedSlipForModal.code})
-              </div>
-              <div className="modal-actions">
+        {/* ============================================================== */}
+        {/* TAB 3: UPLOAD EXCEL / CSV WAGE SHEET */}
+        {/* ============================================================== */}
+        {activeTab === "import" && (
+          <div className="tab-pane-content">
+            {/* Upload Zone & Quick Samples */}
+            <div className="upload-section-card">
+              <div className="upload-dropzone" onClick={() => fileInputRef.current?.click()}>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xlsx, .xls, .csv"
+                  className="d-none"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleFileUpload(f);
+                  }}
+                />
+                <div className="upload-icon-circle">
+                  <UploadCloud size={28} className="upload-icon" />
+                </div>
+                <div className="upload-title">Drop your Excel (.xlsx, .xls) or CSV sheet here</div>
+                <div className="upload-desc">
+                  Supports contractor wage formats with Present Days, OT, Rate ₹491/₹376, PF, ESI, P-Tax
+                </div>
                 <button
-                  className="modal-print-btn"
-                  onClick={() => printSlipsCleanly([selectedSlipForModal])}
+                  type="button"
+                  className="btn-browse-file"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
                 >
-                  <Printer size={16} /> Print 1-Page Slip
-                </button>
-                <button
-                  className="modal-close-btn"
-                  onClick={() => setSelectedSlipForModal(null)}
-                >
-                  ✕
+                  Browse Computer
                 </button>
               </div>
-            </div>
 
-            <div className="modal-slip-preview">
-              <LabourSalarySlip
-                slip={selectedSlipForModal}
-                companyName={companyName}
-                companyLocation={companyAddress}
-                monthName={monthLabel}
-                year={selectedYear}
-              />
+              <div className="quick-actions-bar">
+                <div className="quick-title">Quick Actions &amp; Templates:</div>
+                <div className="quick-btn-group">
+                  <a
+                    href="/api/v1/labour-wage/template"
+                    download="Labour_Wage_Template.xlsx"
+                    className="action-pill-btn"
+                  >
+                    <Download size={14} /> Blank Excel Template
+                  </a>
+
+                  <button
+                    type="button"
+                    className="action-pill-btn sample-btn"
+                    onClick={() =>
+                      loadCompanySample(
+                        companyName.toLowerCase().includes("vodabox") ? "VODABOX" : "JUBILANT"
+                      )
+                    }
+                  >
+                    <Sparkles size={14} /> Load September 2026 Sample Data
+                  </button>
+
+                  {rows.length > 0 && (
+                    <button
+                      type="button"
+                      className="action-pill-btn delete-pill-btn"
+                      onClick={handleClearUploadPreview}
+                      title="Clear uploaded spreadsheet from memory"
+                    >
+                      <Trash2 size={14} /> Clear / Delete Sheet
+                    </button>
+                  )}
+
+                  {savedRunFound && (
+                    <button
+                      type="button"
+                      className="action-pill-btn delete-db-pill-btn"
+                      onClick={handleDeleteMonthData}
+                      disabled={loading}
+                      title={`Permanently delete saved ${monthLabel} ${selectedYear} records from database`}
+                    >
+                      <Trash2 size={14} /> Delete Saved {monthLabel} Data from DB
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
+        {/* Modal: Single Slip Preview & Print */}
+        {selectedSlipForModal && (
+          <div className="slip-modal-backdrop" onClick={() => setSelectedSlipForModal(null)}>
+            <div className="slip-modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="slip-modal-header">
+                <div className="modal-title-group">
+                  <h3>Salary Slip Preview — {selectedSlipForModal.name}</h3>
+                  <span className="worker-code-badge">{selectedSlipForModal.code}</span>
+                </div>
+                <div className="modal-actions">
+                  <button
+                    type="button"
+                    className="btn-modal-print"
+                    onClick={() =>
+                      printSlipsCleanly(
+                        [selectedSlipForModal],
+                        `${companyName} - Slip - ${selectedSlipForModal.name} (${selectedSlipForModal.code})`
+                      )
+                    }
+                  >
+                    <Printer size={15} /> Print Slip
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-modal-close"
+                    onClick={() => setSelectedSlipForModal(null)}
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              </div>
+
+              <div className="slip-modal-body">
+                <LabourSalarySlip
+                  slip={selectedSlipForModal}
+                  companyName={companyName}
+                  companyLocation={companyAddress}
+                  monthName={monthLabel}
+                  year={selectedYear}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Embedded CSS Styles */}
       <style jsx>{`
         .labour-wage-page {
           padding: 24px;
-          background: #f8fafc;
+          background: #090d16;
           min-height: 100vh;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+          color: #f1f5f9;
         }
 
         /* Hero Card */
         .wage-hero-card {
           background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #334155 100%);
           border-radius: 16px;
-          padding: 28px 32px;
+          padding: 24px 28px;
           color: white;
-          box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
           display: flex;
           justify-content: space-between;
           align-items: center;
           flex-wrap: wrap;
-          gap: 24px;
-          margin-bottom: 24px;
+          gap: 20px;
+          margin-bottom: 20px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
         .hero-badge {
@@ -1629,41 +1961,41 @@ export default function MonthlyWageSheetPage() {
           font-size: 12px;
           font-weight: 600;
           color: #38bdf8;
-          margin-bottom: 12px;
+          margin-bottom: 10px;
           border: 1px solid rgba(56, 189, 248, 0.2);
         }
 
         .hero-title {
-          font-size: 26px;
+          font-size: 24px;
           font-weight: 800;
-          margin: 0 0 8px 0;
+          margin: 0 0 6px 0;
           letter-spacing: -0.5px;
           color: #ffffff;
         }
 
         .hero-subtitle {
           color: #94a3b8;
-          font-size: 13.5px;
+          font-size: 13px;
           margin: 0;
-          max-width: 650px;
+          max-width: 620px;
           line-height: 1.5;
         }
 
         .month-selector-box {
-          background: rgba(255, 255, 255, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.15);
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.12);
           backdrop-filter: blur(12px);
-          padding: 14px 18px;
-          border-radius: 14px;
+          padding: 12px 16px;
+          border-radius: 12px;
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          gap: 8px;
         }
 
         .selector-group {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 8px;
         }
 
         .period-select {
@@ -1671,8 +2003,8 @@ export default function MonthlyWageSheetPage() {
           border: 1px solid #334155;
           color: white;
           border-radius: 8px;
-          padding: 7px 12px;
-          font-size: 13.5px;
+          padding: 6px 10px;
+          font-size: 13px;
           font-weight: 600;
           outline: none;
           cursor: pointer;
@@ -1682,7 +2014,7 @@ export default function MonthlyWageSheetPage() {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          font-size: 12px;
+          font-size: 11.5px;
           font-weight: 600;
           padding: 4px 10px;
           border-radius: 20px;
@@ -1703,13 +2035,13 @@ export default function MonthlyWageSheetPage() {
         .btn-delete-header {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
+          gap: 5px;
           background: rgba(239, 68, 68, 0.2);
           color: #fca5a5;
           border: 1px solid rgba(239, 68, 68, 0.45);
-          padding: 6px 14px;
+          padding: 5px 12px;
           border-radius: 9999px;
-          font-size: 12px;
+          font-size: 11.5px;
           font-weight: 700;
           cursor: pointer;
           transition: all 0.2s;
@@ -1718,16 +2050,14 @@ export default function MonthlyWageSheetPage() {
         .btn-delete-header:hover {
           background: #dc2626;
           color: white;
-          border-color: #dc2626;
-          box-shadow: 0 0 12px rgba(220, 38, 38, 0.5);
         }
 
         /* Nav Tabs */
         .nav-tabs-wrapper {
           display: flex;
-          gap: 12px;
+          gap: 10px;
           margin-bottom: 20px;
-          border-bottom: 2px solid #e2e8f0;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
           padding-bottom: 2px;
         }
 
@@ -1735,12 +2065,12 @@ export default function MonthlyWageSheetPage() {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          padding: 10px 18px;
+          padding: 10px 16px;
           border: none;
           background: transparent;
-          font-size: 14px;
+          font-size: 13.5px;
           font-weight: 600;
-          color: #64748b;
+          color: #94a3b8;
           border-radius: 8px 8px 0 0;
           cursor: pointer;
           position: relative;
@@ -1748,197 +2078,874 @@ export default function MonthlyWageSheetPage() {
         }
 
         .tab-btn:hover {
-          color: #1e293b;
+          color: #e2e8f0;
+          background: rgba(255, 255, 255, 0.04);
         }
 
         .tab-active {
-          color: #0284c7;
-          border-bottom: 3px solid #0284c7;
+          color: #38bdf8 !important;
+          background: rgba(56, 189, 248, 0.08) !important;
+        }
+
+        .tab-active::after {
+          content: "";
+          position: absolute;
+          bottom: -2px;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: #38bdf8;
+          border-radius: 2px;
         }
 
         .tab-count-badge {
-          background: #e2e8f0;
-          color: #334155;
+          font-size: 11px;
           padding: 2px 7px;
           border-radius: 12px;
-          font-size: 11px;
           font-weight: 700;
+        }
+
+        .tab-count-badge.cyan {
+          background: rgba(6, 182, 212, 0.25);
+          color: #22d3ee;
         }
 
         .tab-count-badge.green {
-          background: #dcfce7;
-          color: #15803d;
+          background: rgba(16, 185, 129, 0.25);
+          color: #34d399;
         }
 
-        /* Search Bar Component in Tab 2 */
-        .employee-search-bar-card {
-          background: #f8fafc;
-          border-bottom: 1px solid #e2e8f0;
-          padding: 16px 24px;
-        }
-
-        .search-form-row {
+        /* Month Navigator Strip */
+        .month-navigator-card {
+          background: #111827;
+          border: 1px solid #1f2937;
+          border-radius: 12px;
+          padding: 12px 16px;
+          margin-bottom: 16px;
           display: flex;
-          gap: 10px;
           align-items: center;
+          gap: 14px;
           flex-wrap: wrap;
         }
 
-        .search-input-wrapper {
-          flex: 1;
-          min-width: 280px;
-          position: relative;
+        .month-nav-label {
           display: flex;
           align-items: center;
+          gap: 6px;
+          font-size: 12.5px;
+          font-weight: 700;
+          color: #94a3b8;
+          white-space: nowrap;
         }
 
-        .search-lead-icon {
-          position: absolute;
-          left: 14px;
-          color: #64748b;
-          pointer-events: none;
+        .month-tabs-strip {
+          display: flex;
+          gap: 6px;
+          overflow-x: auto;
+          padding-bottom: 2px;
+          flex: 1;
         }
 
-        .employee-search-input {
-          width: 100%;
-          padding: 10px 38px 10px 42px;
-          background: white;
-          border: 1.5px solid #cbd5e1;
-          border-radius: 10px;
-          font-size: 13.5px;
-          font-weight: 500;
-          color: #0f172a;
-          outline: none;
+        .month-tab-pill {
+          display: inline-flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: #1e293b;
+          border: 1px solid #334155;
+          padding: 6px 12px;
+          border-radius: 8px;
+          cursor: pointer;
+          min-width: 68px;
           transition: all 0.2s;
         }
 
-        .employee-search-input:focus {
-          border-color: #0284c7;
-          box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        .month-tab-pill:hover {
+          background: #334155;
+          border-color: #475569;
         }
 
-        .search-clear-btn {
-          position: absolute;
-          right: 12px;
-          background: #f1f5f9;
-          border: none;
-          color: #64748b;
-          width: 22px;
-          height: 22px;
-          border-radius: 50%;
+        .month-tab-pill.active {
+          background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+          border-color: #38bdf8;
+          box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+        }
+
+        .month-pill-name {
+          font-size: 12px;
+          font-weight: 700;
+          color: #ffffff;
+        }
+
+        .month-pill-status {
+          font-size: 9.5px;
+          margin-top: 1px;
+          font-weight: 600;
+        }
+
+        .month-pill-status.saved {
+          color: #4ade80;
+        }
+
+        .month-pill-status.draft {
+          color: #94a3b8;
+        }
+
+        /* Google Sheets Hub Card */
+        .gsheet-hub-card {
+          background: linear-gradient(135deg, #111827 0%, #1e293b 100%);
+          border: 1px solid rgba(56, 189, 248, 0.2);
+          border-radius: 12px;
+          padding: 14px 18px;
+          margin-bottom: 16px;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .gsheet-hub-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 12px;
+          margin-bottom: 12px;
+        }
+
+        .gsheet-hub-left {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .gsheet-icon-circle {
+          width: 34px;
+          height: 34px;
+          border-radius: 8px;
+          background: rgba(16, 185, 129, 0.15);
           display: flex;
           align-items: center;
           justify-content: center;
-          cursor: pointer;
         }
 
-        .search-clear-btn:hover {
-          background: #e2e8f0;
-          color: #0f172a;
+        .gsheet-hub-title {
+          font-size: 14px;
+          font-weight: 700;
+          color: #ffffff;
         }
 
-        .btn-search-submit {
+        .gsheet-hub-subtitle {
+          font-size: 11.5px;
+          color: #94a3b8;
+        }
+
+        .gsheet-hub-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .btn-gsheet-action {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: #0284c7;
+          padding: 5px 11px;
+          border-radius: 6px;
+          font-size: 11.5px;
+          font-weight: 600;
+          cursor: pointer;
+          text-decoration: none;
+          transition: all 0.2s;
+        }
+
+        .btn-gsheet-action.view-btn {
+          background: rgba(56, 189, 248, 0.15);
+          color: #38bdf8;
+          border: 1px solid rgba(56, 189, 248, 0.3);
+        }
+
+        .btn-gsheet-action.view-btn:hover {
+          background: rgba(56, 189, 248, 0.3);
+        }
+
+        .btn-gsheet-action.open-btn {
+          background: rgba(16, 185, 129, 0.15);
+          color: #34d399;
+          border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-gsheet-action.open-btn:hover {
+          background: rgba(16, 185, 129, 0.3);
+        }
+
+        .gsheet-input-row {
+          display: flex;
+          gap: 10px;
+        }
+
+        .gsheet-input-box {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: #0f172a;
+          border: 1px solid #334155;
+          padding: 6px 12px;
+          border-radius: 8px;
+          flex: 1;
+        }
+
+        .gsheet-url-input {
+          background: transparent;
+          border: none;
+          color: white;
+          font-size: 12.5px;
+          outline: none;
+          width: 100%;
+        }
+
+        .btn-gsheet-save {
+          background: #2563eb;
           color: white;
           border: none;
-          padding: 10px 20px;
-          border-radius: 10px;
-          font-size: 13.5px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .btn-search-submit:hover {
-          background: #0369a1;
-        }
-
-        .btn-search-reset {
-          background: #f1f5f9;
-          border: 1px solid #cbd5e1;
-          color: #475569;
-          padding: 10px 16px;
-          border-radius: 10px;
-          font-size: 13px;
-          font-weight: 600;
-          cursor: pointer;
-        }
-
-        .btn-search-reset:hover {
-          background: #e2e8f0;
-          color: #0f172a;
-        }
-
-        .search-filter-status {
-          margin-top: 10px;
+          padding: 6px 16px;
+          border-radius: 8px;
           font-size: 12.5px;
-          color: #64748b;
-        }
-
-        .filter-pill {
-          display: inline-block;
-          padding: 4px 10px;
-          border-radius: 6px;
-          background: #e2e8f0;
-          color: #334155;
-        }
-
-        .filter-pill.active {
-          background: #e0f2fe;
-          color: #0369a1;
-          border: 1px solid #bae6fd;
-        }
-
-        /* Upload Section */
-        .upload-section-card {
-          background: white;
-          border-radius: 14px;
-          border: 1px solid #e2e8f0;
-          padding: 24px;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-          margin-bottom: 20px;
-        }
-
-        .upload-dropzone {
-          border: 2px dashed #cbd5e1;
-          border-radius: 12px;
-          padding: 36px 20px;
-          text-align: center;
-          background: #f8fafc;
+          font-weight: 600;
           cursor: pointer;
-          transition: all 0.2s;
         }
 
-        .upload-dropzone:hover {
-          border-color: #0284c7;
-          background: #f0f9ff;
+        .btn-gsheet-save:hover {
+          background: #1d4ed8;
         }
 
-        .upload-icon-circle {
-          width: 58px;
-          height: 58px;
-          border-radius: 50%;
-          background: #e0f2fe;
-          color: #0284c7;
+        .gsheet-iframe-wrapper {
+          margin-top: 14px;
+          border-radius: 8px;
+          overflow: hidden;
+          border: 1px solid #334155;
+          height: 480px;
+          background: #ffffff;
+        }
+
+        .gsheet-iframe {
+          width: 100%;
+          height: 100%;
+          border: none;
+        }
+
+        /* KPI Metrics Grid */
+        .metrics-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+          gap: 12px;
+          margin-bottom: 16px;
+        }
+
+        .metric-card {
+          background: #111827;
+          border: 1px solid #1f2937;
+          border-radius: 12px;
+          padding: 14px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .highlight-metric {
+          background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
+          border-color: #10b981;
+        }
+
+        .metric-icon-box {
+          width: 38px;
+          height: 38px;
+          border-radius: 10px;
           display: flex;
           align-items: center;
           justify-content: center;
-          margin: 0 auto 12px;
+        }
+
+        .metric-icon-box.blue { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+        .metric-icon-box.purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
+        .metric-icon-box.amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .metric-icon-box.teal { background: rgba(20, 184, 166, 0.15); color: #2dd4bf; }
+        .metric-icon-box.red { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+        .metric-icon-box.green { background: rgba(16, 185, 129, 0.25); color: #34d399; }
+
+        .metric-val {
+          font-size: 17px;
+          font-weight: 800;
+          color: #ffffff;
+        }
+
+        .metric-lbl {
+          font-size: 11px;
+          color: #94a3b8;
+          font-weight: 500;
+        }
+
+        /* Attendance Action Toolbar */
+        .attendance-toolbar-card {
+          background: #111827;
+          border: 1px solid #1f2937;
+          border-radius: 12px;
+          padding: 12px 16px;
+          margin-bottom: 14px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 12px;
+        }
+
+        .attendance-tools-left {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .btn-tool-action {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 12px;
+          border-radius: 8px;
+          font-size: 11.5px;
+          font-weight: 600;
+          cursor: pointer;
+          border: 1px solid transparent;
+          transition: all 0.2s;
+        }
+
+        .btn-tool-action.preset {
+          background: rgba(168, 85, 247, 0.2);
+          color: #d8b4fe;
+          border-color: rgba(168, 85, 247, 0.35);
+        }
+
+        .btn-tool-action.preset:hover {
+          background: rgba(168, 85, 247, 0.35);
+        }
+
+        .btn-tool-action.green {
+          background: rgba(16, 185, 129, 0.2);
+          color: #6ee7b7;
+          border-color: rgba(16, 185, 129, 0.35);
+        }
+
+        .btn-tool-action.green:hover {
+          background: rgba(16, 185, 129, 0.35);
+        }
+
+        .btn-tool-action.slate {
+          background: rgba(100, 116, 139, 0.2);
+          color: #cbd5e1;
+          border-color: rgba(100, 116, 139, 0.35);
+        }
+
+        .btn-tool-action.slate:hover {
+          background: rgba(100, 116, 139, 0.35);
+        }
+
+        .btn-tool-action.clear {
+          background: rgba(239, 68, 68, 0.15);
+          color: #fca5a5;
+          border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-tool-action.clear:hover {
+          background: #dc2626;
+          color: white;
+        }
+
+        .attendance-tools-right {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+
+        .search-box-attendance {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          background: #0f172a;
+          border: 1px solid #334155;
+          padding: 6px 12px;
+          border-radius: 8px;
+        }
+
+        .attendance-search-input {
+          background: transparent;
+          border: none;
+          color: white;
+          font-size: 12px;
+          outline: none;
+          width: 170px;
+        }
+
+        .btn-export-csv {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: #1e293b;
+          color: #e2e8f0;
+          border: 1px solid #334155;
+          padding: 7px 14px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        .btn-export-csv:hover {
+          background: #334155;
+        }
+
+        .btn-save-attendance-wages {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          color: white;
+          border: none;
+          padding: 7px 16px;
+          border-radius: 8px;
+          font-size: 12.5px;
+          font-weight: 700;
+          cursor: pointer;
+          box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-save-attendance-wages:hover {
+          background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        /* Attendance Matrix Scroll & Table */
+        .attendance-matrix-wrapper {
+          background: #111827;
+          border: 1px solid #1f2937;
+          border-radius: 12px;
+          overflow: hidden;
+        }
+
+        .matrix-table-scroll {
+          overflow-x: auto;
+          max-height: 620px;
+        }
+
+        .attendance-matrix-table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 11.5px;
+          white-space: nowrap;
+        }
+
+        .attendance-matrix-table th {
+          background: #1e293b;
+          color: #94a3b8;
+          font-weight: 700;
+          padding: 8px 6px;
+          border: 1px solid #334155;
+          text-align: center;
+          position: sticky;
+          top: 0;
+          z-index: 10;
+        }
+
+        .attendance-matrix-table td {
+          padding: 6px;
+          border: 1px solid #1f2937;
+          color: #cbd5e1;
+        }
+
+        .attendance-matrix-table tr:hover td {
+          background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Sticky Columns */
+        .sticky-col {
+          position: sticky;
+          background: #111827;
+          z-index: 5;
+        }
+
+        .col-sl { left: 0; width: 34px; text-align: center; }
+        .col-code { left: 34px; width: 85px; }
+        .col-name { left: 119px; width: 170px; }
+        .col-desig { left: 289px; width: 120px; }
+        .col-rate { left: 409px; width: 75px; }
+
+        .attendance-matrix-table th.sticky-col {
+          z-index: 20;
+          background: #1e293b;
+        }
+
+        .w-name {
+          font-weight: 700;
+          color: #f1f5f9;
+        }
+
+        .w-father {
+          font-size: 10px;
+          color: #64748b;
+        }
+
+        .col-day {
+          min-width: 32px;
+          width: 32px;
+          text-align: center;
+          padding: 4px 2px !important;
+        }
+
+        .col-day.sunday {
+          background: #2a1b1b !important;
+          color: #fca5a5 !important;
+        }
+
+        .day-number {
+          font-size: 12px;
+          font-weight: 800;
+        }
+
+        .day-dow {
+          font-size: 8.5px;
+          text-transform: uppercase;
+          opacity: 0.8;
+        }
+
+        .cell-day {
+          min-width: 32px;
+          width: 32px;
+          text-align: center;
+          cursor: pointer;
+          user-select: none;
+          padding: 3px 2px !important;
+        }
+
+        .cell-day.sunday {
+          background: rgba(239, 68, 68, 0.06);
+        }
+
+        .status-badge-cell {
+          display: inline-block;
+          width: 24px;
+          height: 22px;
+          line-height: 22px;
+          border-radius: 4px;
+          font-size: 10px;
+          font-weight: 800;
+          text-align: center;
+          transition: transform 0.1s;
+        }
+
+        .status-badge-cell:hover {
+          transform: scale(1.15);
+        }
+
+        .badge-p {
+          background: rgba(16, 185, 129, 0.25);
+          color: #34d399;
+          border: 1px solid rgba(16, 185, 129, 0.5);
+        }
+
+        .badge-a {
+          background: rgba(239, 68, 68, 0.25);
+          color: #f87171;
+          border: 1px solid rgba(239, 68, 68, 0.5);
+        }
+
+        .badge-hd {
+          background: rgba(245, 158, 11, 0.25);
+          color: #fbbf24;
+          border: 1px solid rgba(245, 158, 11, 0.5);
+        }
+
+        .badge-wo {
+          background: rgba(100, 116, 139, 0.25);
+          color: #94a3b8;
+          border: 1px solid rgba(100, 116, 139, 0.4);
+        }
+
+        .input-num-cell {
+          background: #0f172a;
+          border: 1px solid #334155;
+          color: white;
+          padding: 3px 6px;
+          border-radius: 4px;
+          font-size: 11px;
+          text-align: right;
+        }
+
+        .input-num-cell.rate {
+          width: 65px;
+        }
+
+        .input-num-cell.ot {
+          width: 45px;
+        }
+
+        .col-total {
+          padding: 6px 10px !important;
+          text-align: right;
+        }
+
+        .col-pdays {
+          background: rgba(56, 189, 248, 0.05);
+          color: #38bdf8;
+        }
+
+        .sticky-right {
+          position: sticky;
+          right: 0;
+          background: #111827;
+          z-index: 6;
+          border-left: 2px solid #334155;
+        }
+
+        .attendance-matrix-table th.sticky-right {
+          background: #1e293b;
+          z-index: 25;
+        }
+
+        /* Slips Tab Styling */
+        .slips-manager-card {
+          background: #111827;
+          border: 1px solid #1f2937;
+          border-radius: 14px;
+          padding: 20px;
+        }
+
+        .slips-toolbar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 16px;
+          margin-bottom: 16px;
+          border-bottom: 1px solid #1f2937;
+          padding-bottom: 16px;
+        }
+
+        .toolbar-title {
+          font-size: 16px;
+          font-weight: 700;
+          margin: 0 0 4px 0;
+          color: #ffffff;
+        }
+
+        .toolbar-subtitle {
+          font-size: 12px;
+          color: #94a3b8;
+          margin: 0;
+        }
+
+        .toolbar-btn-group {
+          display: flex;
+          gap: 10px;
+        }
+
+        .btn-print-bulk {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+          color: white;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-size: 12.5px;
+          font-weight: 700;
+          cursor: pointer;
+        }
+
+        .btn-delete-bulk {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: rgba(239, 68, 68, 0.2);
+          color: #fca5a5;
+          border: 1px solid rgba(239, 68, 68, 0.4);
+          padding: 8px 14px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 700;
+          cursor: pointer;
+        }
+
+        .btn-delete-bulk:hover {
+          background: #dc2626;
+          color: white;
+        }
+
+        /* Slip Search Bar */
+        .slip-search-bar {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 16px;
+        }
+
+        .search-input-wrapper {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: #0f172a;
+          border: 1px solid #334155;
+          padding: 8px 14px;
+          border-radius: 8px;
+          flex: 1;
+        }
+
+        .slip-search-input {
+          background: transparent;
+          border: none;
+          color: white;
+          font-size: 13px;
+          outline: none;
+          width: 100%;
+        }
+
+        .btn-search-submit {
+          background: #0284c7;
+          color: white;
+          border: none;
+          padding: 9px 18px;
+          border-radius: 8px;
+          font-size: 12.5px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        .btn-search-reset {
+          background: #334155;
+          color: #cbd5e1;
+          border: none;
+          padding: 9px 14px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        .slips-table-wrapper {
+          overflow-x: auto;
+          max-height: 580px;
+        }
+
+        .slips-summary-table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 12px;
+        }
+
+        .slips-summary-table th {
+          background: #1e293b;
+          color: #94a3b8;
+          padding: 9px 10px;
+          font-weight: 700;
+          text-align: left;
+          border-bottom: 1px solid #334155;
+        }
+
+        .slips-summary-table td {
+          padding: 8px 10px;
+          border-bottom: 1px solid #1f2937;
+        }
+
+        .actions-cell {
+          display: flex;
+          gap: 6px;
+          justify-content: center;
+        }
+
+        .btn-action-view {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          background: #1e293b;
+          color: #38bdf8;
+          border: 1px solid #334155;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-size: 11px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        .btn-action-print {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          background: rgba(16, 185, 129, 0.2);
+          color: #34d399;
+          border: 1px solid rgba(16, 185, 129, 0.4);
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-size: 11px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        .btn-action-delete {
+          display: inline-flex;
+          align-items: center;
+          background: rgba(239, 68, 68, 0.15);
+          color: #fca5a5;
+          border: 1px solid rgba(239, 68, 68, 0.3);
+          padding: 4px 6px;
+          border-radius: 6px;
+          cursor: pointer;
+        }
+
+        .btn-action-delete:hover {
+          background: #dc2626;
+          color: white;
+        }
+
+        /* Upload Tab */
+        .upload-section-card {
+          background: #111827;
+          border: 1px solid #1f2937;
+          border-radius: 14px;
+          padding: 24px;
+        }
+
+        .upload-dropzone {
+          border: 2px dashed #334155;
+          border-radius: 12px;
+          padding: 40px 20px;
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.2s;
+          background: rgba(255, 255, 255, 0.02);
+        }
+
+        .upload-dropzone:hover {
+          border-color: #38bdf8;
+          background: rgba(56, 189, 248, 0.04);
+        }
+
+        .upload-icon-circle {
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          background: rgba(56, 189, 248, 0.1);
+          color: #38bdf8;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 14px auto;
         }
 
         .upload-title {
-          font-size: 16px;
+          font-size: 15px;
           font-weight: 700;
-          color: #1e293b;
-          margin-bottom: 4px;
+          color: #ffffff;
+          margin-bottom: 6px;
         }
 
         .upload-desc {
-          font-size: 13px;
-          color: #64748b;
+          font-size: 12px;
+          color: #94a3b8;
           margin-bottom: 16px;
         }
 
@@ -1948,32 +2955,30 @@ export default function MonthlyWageSheetPage() {
           border: none;
           padding: 8px 20px;
           border-radius: 8px;
-          font-size: 13px;
+          font-size: 12.5px;
           font-weight: 600;
           cursor: pointer;
-          box-shadow: 0 2px 8px rgba(2, 132, 199, 0.25);
         }
 
         .quick-actions-bar {
+          margin-top: 20px;
+          padding-top: 16px;
+          border-top: 1px solid #1f2937;
           display: flex;
-          justify-content: space-between;
           align-items: center;
-          flex-wrap: wrap;
           gap: 12px;
-          margin-top: 18px;
-          padding-top: 14px;
-          border-top: 1px solid #f1f5f9;
+          flex-wrap: wrap;
         }
 
         .quick-title {
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 600;
-          color: #64748b;
+          color: #94a3b8;
         }
 
         .quick-btn-group {
           display: flex;
-          gap: 10px;
+          gap: 8px;
           flex-wrap: wrap;
         }
 
@@ -1981,602 +2986,183 @@ export default function MonthlyWageSheetPage() {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          padding: 6px 14px;
-          background: #f1f5f9;
-          border: 1px solid #e2e8f0;
+          padding: 6px 12px;
           border-radius: 8px;
-          font-size: 12.5px;
+          font-size: 11.5px;
           font-weight: 600;
-          color: #334155;
-          text-decoration: none;
           cursor: pointer;
-          transition: all 0.2s;
+          background: #1e293b;
+          color: #cbd5e1;
+          border: 1px solid #334155;
+          text-decoration: none;
         }
 
         .action-pill-btn:hover {
-          background: #e2e8f0;
-          color: #0f172a;
-        }
-
-        .sample-btn {
-          background: #ecfdf5;
-          border-color: #a7f3d0;
-          color: #065f46;
-        }
-
-        .sample-btn:hover {
-          background: #d1fae5;
-        }
-
-        .delete-pill-btn {
-          background: #fef2f2;
-          border-color: #fecaca;
-          color: #dc2626;
-        }
-
-        .delete-pill-btn:hover {
-          background: #fee2e2;
-          color: #991b1b;
-        }
-
-        .delete-db-pill-btn {
-          background: #450a0a;
-          border-color: #991b1b;
-          color: #fca5a5;
-        }
-
-        .delete-db-pill-btn:hover {
-          background: #b91c1c;
-          color: #ffffff;
-        }
-
-        /* Metrics Grid */
-        .metrics-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-          gap: 14px;
-          margin-bottom: 20px;
-        }
-
-        .metric-card {
-          background: white;
-          border: 1px solid #e2e8f0;
-          border-radius: 12px;
-          padding: 16px;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-        }
-
-        .highlight-metric {
-          background: #f0fdf4;
-          border-color: #86efac;
-        }
-
-        .metric-icon-box {
-          width: 42px;
-          height: 42px;
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .metric-icon-box.blue { background: #dbeafe; color: #1d4ed8; }
-        .metric-icon-box.purple { background: #f3e8ff; color: #7e22ce; }
-        .metric-icon-box.amber { background: #fef3c7; color: #b45309; }
-        .metric-icon-box.teal { background: #ccfbf1; color: #0f766e; }
-        .metric-icon-box.red { background: #fee2e2; color: #b91c1c; }
-        .metric-icon-box.green { background: #dcfce7; color: #15803d; }
-
-        .metric-val {
-          font-size: 18px;
-          font-weight: 800;
-          color: #0f172a;
-          line-height: 1.2;
-        }
-
-        .metric-val.net-val {
-          color: #15803d;
-          font-size: 20px;
-        }
-
-        .metric-lbl {
-          font-size: 11.5px;
-          font-weight: 600;
-          color: #64748b;
-        }
-
-        /* Grid Card */
-        .grid-card {
-          background: white;
-          border: 1px solid #e2e8f0;
-          border-radius: 14px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-          overflow: hidden;
-        }
-
-        .grid-toolbar {
-          padding: 16px 20px;
-          background: #fafafa;
-          border-bottom: 1px solid #e2e8f0;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 14px;
-        }
-
-        .search-box {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: white;
-          border: 1px solid #cbd5e1;
-          border-radius: 8px;
-          padding: 7px 12px;
-          width: 320px;
-        }
-
-        .search-input {
-          border: none;
-          outline: none;
-          font-size: 13px;
-          width: 100%;
-        }
-
-        .grid-action-btns {
-          display: flex;
-          gap: 10px;
-          align-items: center;
-        }
-
-        .tool-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          padding: 7px 14px;
-          border-radius: 8px;
-          font-size: 12.5px;
-          font-weight: 600;
-          cursor: pointer;
-          border: none;
-        }
-
-        .add-btn { background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; }
-        .reset-btn { background: #fee2e2; color: #991b1b; }
-        .delete-grid-btn {
-          background: #fee2e2;
-          color: #991b1b;
-          border: 1px solid #fecaca;
-        }
-        .delete-grid-btn:hover {
-          background: #dc2626;
-          color: white;
-          border-color: #dc2626;
-        }
-        .delete-db-btn {
-          background: #450a0a;
-          color: #fca5a5;
-          border: 1px solid #991b1b;
-        }
-        .delete-db-btn:hover {
-          background: #dc2626;
-          color: white;
-          border-color: #dc2626;
-        }
-        .save-btn {
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-          color: white;
-          box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3);
-        }
-
-        .save-btn:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-
-        /* Spreadsheet Table */
-        .spreadsheet-wrapper {
-          overflow-x: auto;
-          max-height: 560px;
-        }
-
-        .spreadsheet-table {
-          width: 100%;
-          border-collapse: collapse;
-          font-size: 12px;
-        }
-
-        .spreadsheet-table th {
-          position: sticky;
-          top: 0;
-          background: #0f172a;
-          color: white;
-          font-weight: 700;
-          padding: 9px 8px;
-          border: 1px solid #334155;
-          text-align: left;
-          z-index: 10;
-          white-space: nowrap;
-        }
-
-        .spreadsheet-table td {
-          border: 1px solid #e2e8f0;
-          padding: 4px 6px;
-          vertical-align: middle;
-        }
-
-        .data-row:nth-child(even) { background: #f8fafc; }
-        .data-row:hover { background: #f1f5f9; }
-
-        .cell-input {
-          width: 100%;
-          border: 1px solid transparent;
-          background: transparent;
-          font-size: 12px;
-          padding: 4px 6px;
-          border-radius: 4px;
-          color: #0f172a;
-          outline: none;
-          transition: all 0.15s;
-        }
-
-        .cell-input:focus {
-          border-color: #0284c7;
-          background: white;
-          box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
-        }
-
-        .code-input { font-weight: 700; color: #0369a1; }
-        .name-input { font-weight: 600; }
-        .number-input { text-align: right; }
-
-        .calc-val {
-          font-weight: 600;
-          color: #1e293b;
-          white-space: nowrap;
-          padding: 4px 8px;
-        }
-
-        .net-col { background: #064e3b !important; }
-        .net-payable-cell { background: #f0fdf4; }
-
-        .net-pill {
-          display: inline-block;
-          font-weight: 800;
-          color: #047857;
-          font-size: 12.5px;
-        }
-
-        .row-del-btn {
-          border: none;
-          background: transparent;
-          color: #94a3b8;
-          cursor: pointer;
-          padding: 4px;
-          border-radius: 4px;
-        }
-
-        .row-del-btn:hover { color: #dc2626; background: #fee2e2; }
-
-        .grid-footer-bar {
-          padding: 14px 20px;
-          background: #f8fafc;
-          border-top: 1px solid #e2e8f0;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .save-action-btn {
-          background: #10b981;
-          color: white;
-          border: none;
-          padding: 8px 18px;
-          border-radius: 8px;
-          font-weight: 700;
-          font-size: 13.5px;
-          cursor: pointer;
-        }
-
-        /* Slips Tab */
-        .empty-slips-card {
-          background: white;
-          border-radius: 14px;
-          border: 1px solid #e2e8f0;
-          padding: 60px 20px;
-          text-align: center;
-          color: #64748b;
-        }
-
-        .empty-icon { color: #cbd5e1; margin-bottom: 16px; }
-        .btn-go-import {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          background: #0284c7;
-          color: white;
-          border: none;
-          padding: 9px 20px;
-          border-radius: 8px;
-          font-size: 13.5px;
-          font-weight: 600;
-          cursor: pointer;
-          margin-top: 14px;
-        }
-
-        .slips-manager-card {
-          background: white;
-          border: 1px solid #e2e8f0;
-          border-radius: 14px;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-          overflow: hidden;
-        }
-
-        .slips-toolbar {
-          padding: 20px 24px;
-          border-bottom: 1px solid #e2e8f0;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 16px;
-        }
-
-        .toolbar-title {
-          font-size: 18px;
-          font-weight: 800;
-          color: #0f172a;
-          margin: 0 0 4px 0;
-        }
-
-        .toolbar-desc {
-          font-size: 13px;
-          color: #64748b;
-          margin: 0;
-        }
-
-        .btn-bulk-print {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-          color: white;
-          border: none;
-          padding: 10px 22px;
-          border-radius: 10px;
-          font-size: 14px;
-          font-weight: 700;
-          cursor: pointer;
-          box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
-          transition: all 0.2s;
-        }
-
-        .btn-bulk-print:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 6px 18px rgba(2, 132, 199, 0.4);
-        }
-
-        .btn-delete-month {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 10px;
-          font-size: 14px;
-          font-weight: 700;
-          cursor: pointer;
-          box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
-          transition: all 0.2s;
-        }
-
-        .btn-delete-month:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45);
-        }
-
-        .slips-table-wrapper {
-          overflow-x: auto;
-        }
-
-        .slips-table {
-          width: 100%;
-          border-collapse: collapse;
-          font-size: 13px;
-        }
-
-        .slips-table th {
-          background: #f8fafc;
-          padding: 10px 14px;
-          border-bottom: 2px solid #e2e8f0;
-          font-weight: 700;
-          color: #334155;
-          text-align: left;
-        }
-
-        .slips-table td {
-          padding: 10px 14px;
-          border-bottom: 1px solid #f1f5f9;
-        }
-
-        .code-badge { font-weight: 700; color: #0284c7; }
-        .worker-name-cell { font-weight: 700; color: #0f172a; }
-        .net-col-text { color: #059669; font-size: 14px; }
-
-        .action-button-row {
-          display: flex;
-          gap: 6px;
-          justify-content: center;
-          align-items: center;
-        }
-
-        .btn-view-slip {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          background: #f0f9ff;
-          color: #0284c7;
-          border: 1px solid #bae6fd;
-          padding: 5px 10px;
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.15s;
-        }
-
-        .btn-view-slip:hover {
-          background: #0284c7;
-          color: white;
-        }
-
-        .btn-print-single {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          background: #f8fafc;
-          color: #334155;
-          border: 1px solid #cbd5e1;
-          padding: 5px 10px;
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.15s;
-        }
-
-        .btn-print-single:hover {
-          background: #0f172a;
-          color: white;
-          border-color: #0f172a;
-        }
-
-        .btn-delete-single {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          background: #fff1f2;
-          color: #e11d48;
-          border: 1px solid #fecdd3;
-          padding: 5px 10px;
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.15s;
-        }
-
-        .btn-delete-single:hover {
-          background: #e11d48;
-          color: white;
-          border-color: #e11d48;
-        }
-
-        /* Modal Styles */
-        .modal-backdrop {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(15, 23, 42, 0.75);
-          backdrop-filter: blur(4px);
-          z-index: 9999;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 20px;
-        }
-
-        .modal-card {
-          background: white;
-          border-radius: 16px;
-          width: 100%;
-          max-width: 1080px;
-          max-height: 94vh;
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-topbar {
-          padding: 14px 20px;
-          border-bottom: 1px solid #e2e8f0;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          background: #0f172a;
-          color: white;
-        }
-
-        .modal-title { font-size: 15px; font-weight: 600; }
-        .modal-actions { display: flex; gap: 10px; align-items: center; }
-
-        .modal-print-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          background: #0284c7;
-          color: white;
-          border: none;
-          padding: 7px 16px;
-          border-radius: 6px;
-          font-size: 12.5px;
-          font-weight: 600;
-          cursor: pointer;
-        }
-
-        .modal-print-btn:hover { background: #0369a1; }
-
-        .modal-close-btn {
-          border: none;
-          background: rgba(255, 255, 255, 0.1);
-          color: white;
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          cursor: pointer;
-        }
-
-        .modal-slip-preview {
-          padding: 20px;
-          overflow-y: auto;
-          background: #f8fafc;
+          background: #334155;
         }
 
         /* Status Banner */
         .status-banner {
           position: fixed;
-          top: 24px;
-          right: 24px;
-          z-index: 10000;
+          top: 20px;
+          right: 20px;
           padding: 12px 18px;
           border-radius: 10px;
           display: flex;
           align-items: center;
           gap: 12px;
-          font-size: 13.5px;
+          z-index: 9999;
+          font-size: 13px;
           font-weight: 600;
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
         }
 
-        .alert-banner-success { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
-        .alert-banner-error { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-        .alert-banner-info { background: #e0f2fe; color: #075985; border: 1px solid #7dd3fc; }
+        .alert-banner-success {
+          background: #064e3b;
+          color: #a7f3d0;
+          border: 1px solid #10b981;
+        }
+
+        .alert-banner-error {
+          background: #7f1d1d;
+          color: #fecaca;
+          border: 1px solid #ef4444;
+        }
+
+        .alert-banner-info {
+          background: #1e3a8a;
+          color: #bfdbfe;
+          border: 1px solid #3b82f6;
+        }
 
         .status-close {
-          border: none;
           background: transparent;
+          border: none;
+          color: inherit;
           font-size: 18px;
           cursor: pointer;
-          color: inherit;
+          padding: 0 4px;
         }
+
+        /* Modal */
+        .slip-modal-backdrop {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.8);
+          backdrop-filter: blur(4px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 20px;
+        }
+
+        .slip-modal-content {
+          background: #ffffff;
+          border-radius: 12px;
+          max-width: 900px;
+          width: 100%;
+          max-height: 90vh;
+          overflow-y: auto;
+          color: #000000;
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        .slip-modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 14px 20px;
+          border-bottom: 1px solid #e2e8f0;
+          background: #f8fafc;
+          border-radius: 12px 12px 0 0;
+        }
+
+        .modal-title-group {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .modal-title-group h3 {
+          margin: 0;
+          font-size: 16px;
+          font-weight: 700;
+          color: #0f172a;
+        }
+
+        .worker-code-badge {
+          background: #e0f2fe;
+          color: #0369a1;
+          font-size: 11px;
+          padding: 2px 8px;
+          border-radius: 6px;
+          font-weight: 700;
+        }
+
+        .modal-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .btn-modal-print {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: #0284c7;
+          color: white;
+          border: none;
+          padding: 6px 14px;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        .btn-modal-close {
+          background: transparent;
+          border: none;
+          color: #64748b;
+          cursor: pointer;
+        }
+
+        .slip-modal-body {
+          padding: 20px;
+        }
+
+        .empty-slips-card, .empty-workers-card {
+          text-align: center;
+          padding: 40px 20px;
+          color: #94a3b8;
+        }
+
+        .empty-slips-card h3, .empty-workers-card h4 {
+          color: #ffffff;
+          margin: 12px 0 6px 0;
+        }
+
+        .btn-go-import, .btn-add-worker-empty {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          margin-top: 14px;
+          background: #0284c7;
+          color: white;
+          border: none;
+          padding: 8px 18px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        .d-none { display: none; }
+        .spin { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
       `}</style>
     </div>
   );
