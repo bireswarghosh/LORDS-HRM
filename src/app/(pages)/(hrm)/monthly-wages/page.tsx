@@ -104,6 +104,7 @@ export default function MonthlyWageSheetPage() {
   // Cloud Spreadsheet / Google Sheets State
   const [googleSheetUrl, setGoogleSheetUrl] = useState<string>("");
   const [showSheetViewer, setShowSheetViewer] = useState<boolean>(false);
+  const [syncingSheet, setSyncingSheet] = useState<boolean>(false);
 
   // Months with saved runs history
   const [savedHistory, setSavedHistory] = useState<{ month: number; year: number }[]>([]);
@@ -435,11 +436,61 @@ export default function MonthlyWageSheetPage() {
     setStatusMessage({ type: "info", text: "Attendance cleared for all workers." });
   };
 
-  // Google Sheet Link persistence
+  // Google Sheet Link persistence & Live Sync
   const handleSaveGoogleSheetUrl = () => {
     if (!googleSheetUrl.trim()) return;
     localStorage.setItem(`hrm_gsheet_url_${companyName}`, googleSheetUrl.trim());
     setStatusMessage({ type: "success", text: "🔗 Google Sheet link saved successfully!" });
+  };
+
+  const handleSyncGoogleSheet = async (overrideUrl?: string) => {
+    const targetUrl = (overrideUrl || googleSheetUrl).trim();
+    if (!targetUrl) {
+      alert("Please enter a Google Sheets URL or click 'Try Demo Google Sheet'.");
+      return;
+    }
+
+    try {
+      setSyncingSheet(true);
+      setStatusMessage({ type: "info", text: "Connecting to Google Sheet & extracting attendance data..." });
+
+      const res = await axiosInstance.post("/labour-wage/import-google-sheet", {
+        url: targetUrl,
+        month: selectedMonth,
+        year: selectedYear,
+      });
+
+      if (res.data?.success && res.data.data?.rows) {
+        const d = res.data.data;
+        setRows(d.rows);
+        setSummary(d.summary);
+        if (d.attendanceGrid) {
+          setAttendanceGrid(d.attendanceGrid);
+        }
+        if (targetUrl) {
+          setGoogleSheetUrl(targetUrl);
+          localStorage.setItem(`hrm_gsheet_url_${companyName}`, targetUrl);
+        }
+        setStatusMessage({
+          type: "success",
+          text: `🎉 Successfully synced ${d.rows.length} worker records from Google Sheet! Live preview ready.`,
+        });
+      } else {
+        throw new Error(res.data?.message || "Failed to sync Google Sheet.");
+      }
+    } catch (err: any) {
+      console.error("handleSyncGoogleSheet error:", err);
+      setStatusMessage({
+        type: "error",
+        text: err?.response?.data?.message || err?.message || "Error syncing Google Sheet.",
+      });
+    } finally {
+      setSyncingSheet(false);
+    }
+  };
+
+  const handleLoadDemoGoogleSheet = () => {
+    handleSyncGoogleSheet("https://docs.google.com/spreadsheets/d/celebrity-brewing-october-2026-demo/edit");
   };
 
   const getEmbedUrl = (url: string) => {
@@ -1317,6 +1368,27 @@ export default function MonthlyWageSheetPage() {
                   </div>
                 </div>
                 <div className="gsheet-hub-actions">
+                  <button
+                    type="button"
+                    className="btn-gsheet-action sync-btn"
+                    onClick={() => handleSyncGoogleSheet()}
+                    disabled={syncingSheet}
+                    title="Pull latest attendance and overtime from this Google Sheet"
+                  >
+                    {syncingSheet ? <RefreshCw size={14} className="spin" /> : <RefreshCw size={14} />}
+                    <span>{syncingSheet ? "Syncing..." : "Pull & Sync Attendance"}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn-gsheet-action demo-btn"
+                    onClick={handleLoadDemoGoogleSheet}
+                    disabled={syncingSheet}
+                    title="Load verified sample Google Sheet with realistic attendance"
+                  >
+                    <Sparkles size={14} /> <span>Try Demo Sheet</span>
+                  </button>
+
                   {googleSheetUrl && (
                     <>
                       <button
@@ -1791,10 +1863,87 @@ export default function MonthlyWageSheetPage() {
         )}
 
         {/* ============================================================== */}
-        {/* TAB 3: UPLOAD EXCEL / CSV WAGE SHEET */}
+        {/* TAB 3: UPLOAD EXCEL / CSV WAGE SHEET & GOOGLE SHEETS SYNC */}
         {/* ============================================================== */}
         {activeTab === "import" && (
           <div className="tab-pane-content">
+            {/* Top Cloud Sync: Google Sheets Direct Import */}
+            <div className="gsheet-import-card">
+              <div className="gsheet-import-header">
+                <div className="gsheet-import-badge">
+                  <FileSpreadsheet size={16} /> GOOGLE SHEETS LIVE CLOUD SYNC
+                </div>
+                <div className="gsheet-demo-pill">
+                  1-Click Live Demonstration
+                </div>
+              </div>
+              <h3 className="gsheet-import-title">
+                Import Directly from Google Sheets or Cloud Spreadsheets
+              </h3>
+              <p className="gsheet-import-desc">
+                Paste your Google Sheets link to instantly pull worker attendance, overtime, and calculate wages in real-time. Supports both Day-by-Day (1..31) and Summary wage formats.
+              </p>
+
+              <div className="gsheet-import-form">
+                <div className="gsheet-url-input-wrap">
+                  <Link2 size={18} className="gsheet-link-icon" />
+                  <input
+                    type="url"
+                    className="gsheet-main-input"
+                    placeholder="Paste Google Sheets Share Link (e.g. https://docs.google.com/spreadsheets/d/.../edit)"
+                    value={googleSheetUrl}
+                    onChange={(e) => setGoogleSheetUrl(e.target.value)}
+                  />
+                  {googleSheetUrl && (
+                    <button
+                      type="button"
+                      className="gsheet-clear-url-btn"
+                      onClick={() => setGoogleSheetUrl("")}
+                      title="Clear URL"
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+
+                <div className="gsheet-import-buttons">
+                  <button
+                    type="button"
+                    className="btn-gsheet-pull"
+                    onClick={() => handleSyncGoogleSheet()}
+                    disabled={syncingSheet}
+                  >
+                    {syncingSheet ? (
+                      <RefreshCw size={16} className="spin" />
+                    ) : (
+                      <RefreshCw size={16} />
+                    )}
+                    <span>{syncingSheet ? "Pulling Data..." : "Pull & Sync from Google Sheet"}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn-gsheet-demo"
+                    onClick={handleLoadDemoGoogleSheet}
+                    disabled={syncingSheet}
+                    title="Load verified demonstration Google Sheet with realistic attendance for Celebrity Brewing"
+                  >
+                    <Sparkles size={16} />
+                    <span>Try Celebrity Demo Sheet (Instant Preview)</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="gsheet-tip-box">
+                💡 <strong>Google Sheets Sharing Tip:</strong> Open your Google Sheet, click <strong>Share</strong> (top right), set General Access to <strong>&quot;Anyone with the link can view&quot;</strong>, then paste the link here.
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="upload-divider">
+              <span>OR DROP LOCAL EXCEL / CSV FILE</span>
+            </div>
+
             {/* Upload Zone & Quick Samples */}
             <div className="upload-section-card">
               <div className="upload-dropzone" onClick={() => fileInputRef.current?.click()}>
@@ -1850,6 +1999,15 @@ export default function MonthlyWageSheetPage() {
                     <Sparkles size={14} /> Load September 2026 Sample Data
                   </button>
 
+                  <button
+                    type="button"
+                    className="action-pill-btn demo-pill-btn"
+                    onClick={handleLoadDemoGoogleSheet}
+                    disabled={syncingSheet}
+                  >
+                    <Sparkles size={14} /> Load Celebrity Demo Sheet
+                  </button>
+
                   {rows.length > 0 && (
                     <button
                       type="button"
@@ -1875,6 +2033,200 @@ export default function MonthlyWageSheetPage() {
                 </div>
               </div>
             </div>
+
+            {/* Spreadsheet Preview & Live Recalculation Table */}
+            {rows.length > 0 && (
+              <div className="import-preview-section">
+                <div className="preview-section-header">
+                  <div className="preview-title-group">
+                    <div className="preview-main-title">
+                      Spreadsheet Preview &amp; Live Recalculation
+                    </div>
+                    <div className="preview-subtitle">
+                      {rows.length} worker records loaded for {monthLabel} {selectedYear}. You can edit daily rate, present days, or OT directly in the table.
+                    </div>
+                  </div>
+
+                  <div className="preview-top-actions">
+                    <button
+                      type="button"
+                      className="btn-preview-switch-attendance"
+                      onClick={() => setActiveTab("attendance")}
+                    >
+                      <Calendar size={15} /> Open in Day-by-Day Matrix (Tab 1)
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn-preview-save-db"
+                      onClick={handleSaveToDatabase}
+                      disabled={saving}
+                    >
+                      {saving ? <RefreshCw size={15} className="spin" /> : <CheckCircle2 size={15} />}
+                      Save &amp; Finalize Wages
+                    </button>
+                  </div>
+                </div>
+
+                {/* Preview KPI Summary */}
+                {summary && (
+                  <div className="preview-kpi-bar">
+                    <div className="kpi-pill">
+                      <span className="kpi-label">Workers:</span>
+                      <span className="kpi-value">{summary.totalWorkers}</span>
+                    </div>
+                    <div className="kpi-pill">
+                      <span className="kpi-label">Present Days:</span>
+                      <span className="kpi-value">{summary.totalPresentDays.toLocaleString("en-IN")}</span>
+                    </div>
+                    <div className="kpi-pill">
+                      <span className="kpi-label">Total OT:</span>
+                      <span className="kpi-value">{summary.totalOtDays}</span>
+                    </div>
+                    <div className="kpi-pill">
+                      <span className="kpi-label">Gross Wages:</span>
+                      <span className="kpi-value">₹{summary.totalGross.toLocaleString("en-IN")}</span>
+                    </div>
+                    <div className="kpi-pill">
+                      <span className="kpi-label">Total Deductions:</span>
+                      <span className="kpi-value">₹{summary.totalDeductions.toLocaleString("en-IN")}</span>
+                    </div>
+                    <div className="kpi-pill highlight">
+                      <span className="kpi-label">Net Payable:</span>
+                      <span className="kpi-value text-emerald-400">₹{summary.totalNetPayable.toLocaleString("en-IN")}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Filter / Search Bar */}
+                <div className="preview-search-row">
+                  <div className="preview-search-box">
+                    <Search size={16} className="text-slate-400" />
+                    <input
+                      type="text"
+                      className="preview-search-input"
+                      placeholder="Search preview by worker name, code, designation..."
+                      value={importSearch}
+                      onChange={(e) => setImportSearch(e.target.value)}
+                    />
+                    {importSearch && (
+                      <button
+                        type="button"
+                        className="clear-search-btn"
+                        onClick={() => setImportSearch("")}
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
+                  <div className="preview-search-count">
+                    Showing {filteredImportRows.length} of {rows.length} workers
+                  </div>
+                </div>
+
+                {/* Table */}
+                <div className="preview-table-wrapper">
+                  <table className="preview-table">
+                    <thead>
+                      <tr>
+                        <th className="col-idx">#</th>
+                        <th className="col-code">CODE</th>
+                        <th className="col-name">WORKER NAME</th>
+                        <th className="col-father">FATHER / HUSBAND</th>
+                        <th className="col-desig">DESIGNATION</th>
+                        <th className="col-rate text-right">RATE (₹)</th>
+                        <th className="col-pdays text-center">P DAYS</th>
+                        <th className="col-ot text-center">OT DAYS</th>
+                        <th className="col-gross text-right">GROSS (₹)</th>
+                        <th className="col-pf text-right">PF (12%)</th>
+                        <th className="col-esi text-right">ESI (0.75%)</th>
+                        <th className="col-ptax text-right">P-TAX</th>
+                        <th className="col-net text-right">NET PAYABLE (₹)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredImportRows.map((r, idx) => (
+                        <tr key={r.code || idx}>
+                          <td className="col-idx">{idx + 1}</td>
+                          <td className="col-code font-mono">{r.code}</td>
+                          <td className="col-name font-medium">
+                            <div className="p-w-name">{r.name}</div>
+                            {r.esicNo && <div className="p-w-esic">ESI: {r.esicNo}</div>}
+                          </td>
+                          <td className="col-father text-slate-400">{r.fatherName || "—"}</td>
+                          <td className="col-desig">{r.designation || "Workman"}</td>
+                          <td className="col-rate">
+                            <input
+                              type="number"
+                              className="preview-inline-input"
+                              value={r.rate}
+                              onChange={(e) => handleCellChange(idx, "rate", Number(e.target.value))}
+                            />
+                          </td>
+                          <td className="col-pdays">
+                            <input
+                              type="number"
+                              step="0.5"
+                              className="preview-inline-input text-center"
+                              value={r.presentDays}
+                              onChange={(e) => handleCellChange(idx, "presentDays", Number(e.target.value))}
+                            />
+                          </td>
+                          <td className="col-ot">
+                            <input
+                              type="number"
+                              step="0.5"
+                              className="preview-inline-input text-center"
+                              value={r.otDays}
+                              onChange={(e) => handleCellChange(idx, "otDays", Number(e.target.value))}
+                            />
+                          </td>
+                          <td className="col-gross text-right font-medium">₹{r.totalGross.toLocaleString("en-IN")}</td>
+                          <td className="col-pf text-right">₹{r.pf.toLocaleString("en-IN")}</td>
+                          <td className="col-esi text-right">₹{r.esi.toLocaleString("en-IN")}</td>
+                          <td className="col-ptax text-right">₹{r.ptax}</td>
+                          <td className="col-net text-right font-bold text-emerald-400">
+                            ₹{r.netPayable.toLocaleString("en-IN")}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Bottom Action Footer */}
+                <div className="preview-footer-actions">
+                  <div className="footer-left">
+                    <button
+                      type="button"
+                      className="btn-footer-export"
+                      onClick={handleExportFormXVIICSV}
+                    >
+                      <Download size={15} /> Export Form XVII (CSV)
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-footer-clear"
+                      onClick={handleClearUploadPreview}
+                    >
+                      <Trash2 size={15} /> Clear Preview
+                    </button>
+                  </div>
+
+                  <div className="footer-right">
+                    <button
+                      type="button"
+                      className="btn-footer-finalize"
+                      onClick={handleSaveToDatabase}
+                      disabled={saving}
+                    >
+                      {saving ? <RefreshCw size={16} className="spin" /> : <CheckCircle2 size={16} />}
+                      Save &amp; Finalize Wages to Neon DB
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -2264,6 +2616,27 @@ export default function MonthlyWageSheetPage() {
 
         .btn-gsheet-action.view-btn:hover {
           background: rgba(56, 189, 248, 0.3);
+        }
+
+        .btn-gsheet-action.sync-btn {
+          background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+          color: #ffffff;
+          border: 1px solid #34d399;
+          box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+        }
+
+        .btn-gsheet-action.sync-btn:hover {
+          background: linear-gradient(135deg, #047857 0%, #059669 100%);
+        }
+
+        .btn-gsheet-action.demo-btn {
+          background: rgba(168, 85, 247, 0.18);
+          color: #c084fc;
+          border: 1px solid rgba(168, 85, 247, 0.35);
+        }
+
+        .btn-gsheet-action.demo-btn:hover {
+          background: rgba(168, 85, 247, 0.3);
         }
 
         .btn-gsheet-action.open-btn {
@@ -2999,6 +3372,457 @@ export default function MonthlyWageSheetPage() {
 
         .action-pill-btn:hover {
           background: #334155;
+        }
+
+        .action-pill-btn.demo-pill-btn {
+          background: rgba(168, 85, 247, 0.15);
+          color: #c084fc;
+          border-color: rgba(168, 85, 247, 0.35);
+        }
+
+        .action-pill-btn.demo-pill-btn:hover {
+          background: rgba(168, 85, 247, 0.28);
+        }
+
+        /* Google Sheets Import Card in Tab 3 */
+        .gsheet-import-card {
+          background: linear-gradient(135deg, #064e3b 0%, #0f172a 60%, #1e293b 100%);
+          border: 1px solid rgba(16, 185, 129, 0.35);
+          border-radius: 14px;
+          padding: 24px;
+          margin-bottom: 20px;
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+        }
+
+        .gsheet-import-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+        }
+
+        .gsheet-import-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: rgba(16, 185, 129, 0.2);
+          color: #34d399;
+          font-size: 11.5px;
+          font-weight: 700;
+          padding: 4px 10px;
+          border-radius: 20px;
+          border: 1px solid rgba(16, 185, 129, 0.4);
+          letter-spacing: 0.5px;
+        }
+
+        .gsheet-demo-pill {
+          background: rgba(168, 85, 247, 0.2);
+          color: #d8b4fe;
+          font-size: 11px;
+          font-weight: 600;
+          padding: 3px 10px;
+          border-radius: 12px;
+          border: 1px solid rgba(168, 85, 247, 0.4);
+        }
+
+        .gsheet-import-title {
+          font-size: 18px;
+          font-weight: 800;
+          color: #ffffff;
+          margin: 0 0 6px 0;
+        }
+
+        .gsheet-import-desc {
+          font-size: 13px;
+          color: #cbd5e1;
+          margin: 0 0 18px 0;
+          line-height: 1.5;
+        }
+
+        .gsheet-import-form {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .gsheet-url-input-wrap {
+          display: flex;
+          align-items: center;
+          background: rgba(15, 23, 42, 0.8);
+          border: 1px solid rgba(52, 211, 153, 0.3);
+          border-radius: 10px;
+          padding: 10px 14px;
+          gap: 10px;
+          transition: border-color 0.2s;
+        }
+
+        .gsheet-url-input-wrap:focus-within {
+          border-color: #34d399;
+          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+
+        .gsheet-link-icon {
+          color: #34d399;
+          flex-shrink: 0;
+        }
+
+        .gsheet-main-input {
+          background: transparent;
+          border: none;
+          color: #ffffff;
+          font-size: 13.5px;
+          outline: none;
+          width: 100%;
+        }
+
+        .gsheet-main-input::placeholder {
+          color: #64748b;
+        }
+
+        .gsheet-clear-url-btn {
+          background: transparent;
+          border: none;
+          color: #94a3b8;
+          cursor: pointer;
+        }
+
+        .gsheet-import-buttons {
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+
+        .btn-gsheet-pull {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+          color: #ffffff;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+          transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        .btn-gsheet-pull:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(16, 185, 129, 0.45);
+        }
+
+        .btn-gsheet-demo {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+          color: #ffffff;
+          border: none;
+          padding: 10px 18px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(168, 85, 247, 0.35);
+          transition: transform 0.15s;
+        }
+
+        .btn-gsheet-demo:hover:not(:disabled) {
+          transform: translateY(-1px);
+        }
+
+        .gsheet-tip-box {
+          margin-top: 14px;
+          padding: 10px 14px;
+          background: rgba(0, 0, 0, 0.25);
+          border-radius: 8px;
+          font-size: 12px;
+          color: #94a3b8;
+          border-left: 3px solid #34d399;
+          line-height: 1.5;
+        }
+
+        .upload-divider {
+          display: flex;
+          align-items: center;
+          text-align: center;
+          margin: 20px 0;
+          color: #64748b;
+          font-size: 11.5px;
+          font-weight: 700;
+          letter-spacing: 1px;
+        }
+
+        .upload-divider::before,
+        .upload-divider::after {
+          content: "";
+          flex: 1;
+          border-bottom: 1px solid #1f2937;
+        }
+
+        .upload-divider span {
+          padding: 0 16px;
+        }
+
+        /* Import Preview Section in Tab 3 */
+        .import-preview-section {
+          margin-top: 24px;
+          background: #111827;
+          border: 1px solid #1f2937;
+          border-radius: 14px;
+          padding: 24px;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .preview-section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 14px;
+          margin-bottom: 18px;
+          padding-bottom: 14px;
+          border-bottom: 1px solid #1f2937;
+        }
+
+        .preview-main-title {
+          font-size: 18px;
+          font-weight: 800;
+          color: #ffffff;
+        }
+
+        .preview-subtitle {
+          font-size: 12px;
+          color: #94a3b8;
+          margin-top: 4px;
+        }
+
+        .preview-top-actions {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+
+        .btn-preview-switch-attendance {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: #1e293b;
+          color: #38bdf8;
+          border: 1px solid #334155;
+          padding: 8px 14px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        .btn-preview-switch-attendance:hover {
+          background: #334155;
+        }
+
+        .btn-preview-save-db {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+          color: white;
+          border: none;
+          padding: 8px 18px;
+          border-radius: 8px;
+          font-size: 12.5px;
+          font-weight: 700;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .preview-kpi-bar {
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+          margin-bottom: 16px;
+        }
+
+        .kpi-pill {
+          background: #0f172a;
+          border: 1px solid #1e293b;
+          border-radius: 8px;
+          padding: 6px 12px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 12px;
+        }
+
+        .kpi-pill.highlight {
+          border-color: rgba(16, 185, 129, 0.4);
+          background: rgba(16, 185, 129, 0.1);
+        }
+
+        .kpi-label {
+          color: #94a3b8;
+          font-weight: 500;
+        }
+
+        .kpi-value {
+          color: #ffffff;
+          font-weight: 700;
+        }
+
+        .preview-search-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 14px;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+
+        .preview-search-box {
+          display: flex;
+          align-items: center;
+          background: #0f172a;
+          border: 1px solid #334155;
+          border-radius: 8px;
+          padding: 6px 12px;
+          gap: 8px;
+          flex: 1;
+          max-width: 450px;
+        }
+
+        .preview-search-input {
+          background: transparent;
+          border: none;
+          color: #ffffff;
+          font-size: 12.5px;
+          outline: none;
+          width: 100%;
+        }
+
+        .preview-search-count {
+          font-size: 12px;
+          color: #94a3b8;
+        }
+
+        .preview-table-wrapper {
+          overflow-x: auto;
+          max-height: 520px;
+          border: 1px solid #1f2937;
+          border-radius: 10px;
+          margin-bottom: 16px;
+        }
+
+        .preview-table {
+          width: 100%;
+          border-collapse: collapse;
+          font-size: 12px;
+        }
+
+        .preview-table th {
+          background: #1e293b;
+          color: #94a3b8;
+          padding: 9px 10px;
+          font-weight: 700;
+          border-bottom: 1px solid #334155;
+          position: sticky;
+          top: 0;
+          z-index: 5;
+        }
+
+        .preview-table td {
+          padding: 7px 10px;
+          border-bottom: 1px solid #1f2937;
+        }
+
+        .preview-table tr:hover {
+          background: rgba(255, 255, 255, 0.02);
+        }
+
+        .preview-inline-input {
+          background: #0f172a;
+          border: 1px solid #334155;
+          color: #ffffff;
+          font-size: 11.5px;
+          padding: 3px 6px;
+          border-radius: 4px;
+          width: 60px;
+          outline: none;
+        }
+
+        .preview-inline-input:focus {
+          border-color: #38bdf8;
+        }
+
+        .p-w-name {
+          font-weight: 600;
+          color: #ffffff;
+        }
+
+        .p-w-esic {
+          font-size: 10.5px;
+          color: #64748b;
+          font-family: monospace;
+        }
+
+        .preview-footer-actions {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 12px;
+          padding-top: 14px;
+          border-top: 1px solid #1f2937;
+        }
+
+        .footer-left {
+          display: flex;
+          gap: 8px;
+        }
+
+        .btn-footer-export {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: #1e293b;
+          color: #cbd5e1;
+          border: 1px solid #334155;
+          padding: 8px 14px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        .btn-footer-clear {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: rgba(239, 68, 68, 0.15);
+          color: #fca5a5;
+          border: 1px solid rgba(239, 68, 68, 0.3);
+          padding: 8px 14px;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+        }
+
+        .btn-footer-finalize {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+          color: #ffffff;
+          border: none;
+          padding: 10px 22px;
+          border-radius: 8px;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
         }
 
         /* Status Banner */
