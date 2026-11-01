@@ -82,6 +82,7 @@ export default function MonthlyWageSheetPage() {
   const [selectedMonth, setSelectedMonth] = useState<number>(9);
   const [selectedYear, setSelectedYear] = useState<number>(2026);
   const [activeTab, setActiveTab] = useState<"attendance" | "slips" | "import">("attendance");
+  const [viewMode, setViewMode] = useState<"wages" | "attendance" | "full">("wages");
 
   const [companyName, setCompanyName] = useState<string>("Company");
   const [companyAddress, setCompanyAddress] = useState<string>("");
@@ -768,6 +769,28 @@ export default function MonthlyWageSheetPage() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Unified Clear / Delete Sheet Handler (Both for Draft & DB)
+  const handleClearOrDeleteSheet = async () => {
+    if (savedRunFound) {
+      const monthLabel = MONTHS.find((m) => m.value === selectedMonth)?.label || "Month";
+      const confirmMsg = `⚠️ ARE YOU SURE?\n\nDo you want to permanently delete all saved wage records for ${monthLabel} ${selectedYear} for ${companyName} from the database?\n\nThis will completely reset this month's payroll so you can upload fresh or re-test with dummy sheets.`;
+      if (!window.confirm(confirmMsg)) return;
+      await handleDeleteMonthData();
+    } else {
+      if (rows.length === 0) {
+        setStatusMessage({ type: "info", text: "Sheet preview is already clean and empty." });
+        return;
+      }
+      if (window.confirm("Clear all currently previewed/uploaded workers and reset the table to empty?")) {
+        setRows([]);
+        setSummary(null);
+        setAttendanceGrid({});
+        if (fileInputRef.current) fileInputRef.current.value = "";
+        setStatusMessage({ type: "info", text: "Sheet cleared successfully. Ready for fresh upload." });
+      }
     }
   };
 
@@ -1537,11 +1560,11 @@ export default function MonthlyWageSheetPage() {
                 </button>
                 <button
                   type="button"
-                  className="btn-tool-action clear"
-                  onClick={handleClearAllAttendance}
-                  title="Reset all days to Absent"
+                  className="btn-tool-action delete-reset-btn"
+                  onClick={handleClearOrDeleteSheet}
+                  title={savedRunFound ? `Permanently delete saved ${monthLabel} ${selectedYear} records from database` : "Clear preview table"}
                 >
-                  <Trash2 size={14} /> Clear Month
+                  <Trash2 size={14} /> {savedRunFound ? `Delete ${monthLabel} Data (DB)` : "Clear / Reset Sheet"}
                 </button>
               </div>
 
@@ -1580,63 +1603,105 @@ export default function MonthlyWageSheetPage() {
               </div>
             </div>
 
+            {/* Sub-View Switcher Bar */}
+            <div className="view-mode-bar">
+              <div className="view-mode-buttons">
+                <button
+                  type="button"
+                  className={`view-mode-btn ${viewMode === "wages" ? "active" : ""}`}
+                  onClick={() => setViewMode("wages")}
+                  title="Focus on Wages, Overtime, Deductions and Net Payout (Fits cleanly without horizontal scroll)"
+                >
+                  <Coins size={15} />
+                  <span>💰 Wages &amp; Salary Register</span>
+                  <span className="view-mode-tag">Fits on Screen</span>
+                </button>
+                <button
+                  type="button"
+                  className={`view-mode-btn ${viewMode === "attendance" ? "active" : ""}`}
+                  onClick={() => setViewMode("attendance")}
+                  title="Focus on Day 1 to 31 Attendance Ticks"
+                >
+                  <Calendar size={15} />
+                  <span>📅 Daily Attendance Matrix (1–31)</span>
+                </button>
+                <button
+                  type="button"
+                  className={`view-mode-btn ${viewMode === "full" ? "active" : ""}`}
+                  onClick={() => setViewMode("full")}
+                  title="View all Attendance and Wage columns side-by-side"
+                >
+                  <SlidersHorizontal size={15} />
+                  <span>📑 Full Combined Register</span>
+                </button>
+              </div>
+
+              {viewMode === "attendance" && (
+                <div className="matrix-legend-row">
+                  <span className="legend-chip badge-p">P = Present (1.0)</span>
+                  <span className="legend-chip badge-wo">WO = Off (1.0)</span>
+                  <span className="legend-chip badge-hd">HD = Half (0.5)</span>
+                  <span className="legend-chip badge-a">A = Absent (0.0)</span>
+                  <span className="legend-chip badge-nh">NH/FH = Holiday</span>
+                </div>
+              )}
+            </div>
+
             {/* Interactive Attendance & Wage Matrix Table */}
             <div className="attendance-matrix-wrapper">
               {rows.length === 0 ? (
                 <div className="empty-workers-card">
-                  <Users size={40} className="text-slate-400" />
+                  <Users size={44} className="text-slate-400" />
                   <h4>No Workers Found for {companyName}</h4>
-                  <p>Upload a worker master sheet in Tab 3 or click below to add a worker.</p>
-                  <button className="btn-add-worker-empty" onClick={handleAddRow}>
-                    <Plus size={16} /> Add First Worker
-                  </button>
+                  <p>Upload a worker attendance sheet in Tab 3 or click below to load the verified October 2026 sample data.</p>
+                  <div className="empty-btn-group">
+                    <button className="btn-add-worker-empty" onClick={handleAddRow}>
+                      <Plus size={16} /> Add First Worker
+                    </button>
+                    <button
+                      className="btn-demo-load-empty"
+                      onClick={handleLoadDemoGoogleSheet}
+                      disabled={syncingSheet}
+                    >
+                      <Sparkles size={16} /> ⚡ 1-Click Load October 2026 Sample (154 Workers)
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className="matrix-table-scroll">
-                  <table className="attendance-matrix-table">
-                    <thead>
-                      <tr>
-                        <th className="sticky-col col-sl">SL</th>
-                        <th className="sticky-col col-code">CODE</th>
-                        <th className="sticky-col col-name">WORKER NAME</th>
-                        <th className="sticky-col col-desig">DESIGNATION</th>
-                        <th className="sticky-col col-rate">RATE (₹)</th>
-
-                        {/* Calendar Days 1 to 31 */}
-                        {daysArray.map((d) => {
-                          const sun = isSunday(d);
-                          const dow = getDayOfWeek(d);
-                          return (
-                            <th key={d} className={`col-day ${sun ? "sunday" : ""}`}>
-                              <div className="day-number">{d}</div>
-                              <div className="day-dow">{dow}</div>
-                            </th>
-                          );
-                        })}
-
-                        {/* Summary & Wage Columns */}
-                        <th className="col-total col-pdays">P DAYS</th>
-                        <th className="col-total col-ot">OT</th>
-                        <th className="col-total col-gross">GROSS (₹)</th>
-                        <th className="col-total col-pf">PF (12%)</th>
-                        <th className="col-total col-esi">ESI (0.75%)</th>
-                        <th className="col-total col-ptax">P-TAX</th>
-                        <th className="col-total col-net sticky-right">NET PAYABLE (₹)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredImportRows.map((r, idx) => {
-                        const workerDays = attendanceGrid[r.code] || {};
-                        return (
+                  {/* VIEW 1: CLEAN WAGES & PAYOUT REGISTER (FITS ON SCREEN) */}
+                  {viewMode === "wages" && (
+                    <table className="attendance-matrix-table wages-register-table">
+                      <thead>
+                        <tr>
+                          <th className="sticky-col col-sl">SL</th>
+                          <th className="sticky-col col-code">EMP CODE</th>
+                          <th className="sticky-col col-name">WORKMAN NAME</th>
+                          <th className="col-desig">DESIGNATION</th>
+                          <th className="col-rate text-right">RATE (₹)</th>
+                          <th className="col-pdays text-center">P DAYS</th>
+                          <th className="col-ot text-center">OT DAYS</th>
+                          <th className="col-daysamt text-right">BASIC WAGES (₹)</th>
+                          <th className="col-otamt text-right">OT WAGES (₹)</th>
+                          <th className="col-gross text-right">GROSS (₹)</th>
+                          <th className="col-pf text-right">PF 12% (₹)</th>
+                          <th className="col-esi text-right">ESI 0.75% (₹)</th>
+                          <th className="col-ptax text-right">P-TAX (₹)</th>
+                          <th className="col-net text-right sticky-right">NET PAYABLE (₹)</th>
+                          <th className="col-actions text-center sticky-right-action">ACTION</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredImportRows.map((r, idx) => (
                           <tr key={r.code || idx}>
                             <td className="sticky-col col-sl">{idx + 1}</td>
-                            <td className="sticky-col col-code font-mono">{r.code}</td>
+                            <td className="sticky-col col-code font-mono font-bold text-slate-800">{r.code}</td>
                             <td className="sticky-col col-name">
                               <div className="w-name">{r.name}</div>
                               {r.fatherName && <div className="w-father">C/O {r.fatherName}</div>}
                             </td>
-                            <td className="sticky-col col-desig">{r.designation || "Workman"}</td>
-                            <td className="sticky-col col-rate">
+                            <td className="col-desig">{r.designation || "Workman"}</td>
+                            <td className="col-rate text-right">
                               <input
                                 type="number"
                                 className="input-num-cell rate"
@@ -1644,27 +1709,10 @@ export default function MonthlyWageSheetPage() {
                                 onChange={(e) => handleCellChange(idx, "rate", Number(e.target.value))}
                               />
                             </td>
-
-                            {/* Days 1 to 31 interactive buttons */}
-                            {daysArray.map((d) => {
-                              const status = workerDays[d] || (isSunday(d) ? "WO" : "P");
-                              return (
-                                <td
-                                  key={d}
-                                  className={`cell-day ${isSunday(d) ? "sunday" : ""}`}
-                                  onClick={() => toggleAttendanceCell(r.code, d)}
-                                  title={`Day ${d} (${getDayOfWeek(d)}): Click to toggle status (${status})`}
-                                >
-                                  <span className={`status-badge-cell badge-${status.toLowerCase()}`}>
-                                    {status}
-                                  </span>
-                                </td>
-                              );
-                            })}
-
-                            {/* End totals */}
-                            <td className="col-total col-pdays font-bold text-center">{r.presentDays}</td>
-                            <td className="col-total col-ot">
+                            <td className="col-pdays text-center font-bold text-blue-700 bg-blue-50/50">
+                              {r.presentDays}
+                            </td>
+                            <td className="col-ot text-center">
                               <input
                                 type="number"
                                 step="0.5"
@@ -1673,18 +1721,201 @@ export default function MonthlyWageSheetPage() {
                                 onChange={(e) => handleCellChange(idx, "otDays", Number(e.target.value))}
                               />
                             </td>
-                            <td className="col-total col-gross">₹{r.totalGross.toLocaleString("en-IN")}</td>
-                            <td className="col-total col-pf">₹{r.pf.toLocaleString("en-IN")}</td>
-                            <td className="col-total col-esi">₹{r.esi.toLocaleString("en-IN")}</td>
-                            <td className="col-total col-ptax">₹{r.ptax}</td>
-                            <td className="col-total col-net sticky-right font-bold text-emerald-400">
+                            <td className="col-daysamt text-right font-mono">₹{r.daysAmount.toLocaleString("en-IN")}</td>
+                            <td className="col-otamt text-right font-mono">₹{r.otAmount.toLocaleString("en-IN")}</td>
+                            <td className="col-gross text-right font-mono font-bold text-slate-900 bg-slate-50/60">
+                              ₹{r.totalGross.toLocaleString("en-IN")}
+                            </td>
+                            <td className="col-pf text-right font-mono text-rose-600">₹{r.pf.toLocaleString("en-IN")}</td>
+                            <td className="col-esi text-right font-mono text-amber-600">₹{r.esi.toLocaleString("en-IN")}</td>
+                            <td className="col-ptax text-right font-mono text-slate-700">₹{r.ptax}</td>
+                            <td className="col-net text-right sticky-right font-mono font-extrabold text-emerald-700 bg-emerald-50/80">
                               ₹{r.netPayable.toLocaleString("en-IN")}
                             </td>
+                            <td className="col-actions text-center sticky-right-action">
+                              <button
+                                type="button"
+                                className="btn-row-action slip-btn"
+                                onClick={() => setSelectedSlipForModal(r as any)}
+                                title={`View Salary Slip for ${r.name}`}
+                              >
+                                <Eye size={13} /> Slip
+                              </button>
+                            </td>
                           </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+
+                  {/* VIEW 2: DAILY ATTENDANCE MATRIX (DAYS 1 TO 31 TICKS) */}
+                  {viewMode === "attendance" && (
+                    <table className="attendance-matrix-table daily-matrix-table">
+                      <thead>
+                        <tr>
+                          <th className="sticky-col col-sl">SL</th>
+                          <th className="sticky-col col-code">CODE</th>
+                          <th className="sticky-col col-name">WORKER NAME</th>
+                          <th className="col-desig">DESIGNATION</th>
+
+                          {/* Calendar Days 1 to 31 */}
+                          {daysArray.map((d) => {
+                            const sun = isSunday(d);
+                            const dow = getDayOfWeek(d);
+                            return (
+                              <th key={d} className={`col-day ${sun ? "sunday" : ""}`}>
+                                <div className="day-number">{d}</div>
+                                <div className="day-dow">{dow}</div>
+                              </th>
+                            );
+                          })}
+
+                          <th className="col-total col-pdays sticky-right-att font-bold text-center">P DAYS</th>
+                          <th className="col-total col-ot text-center">OT DAYS</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredImportRows.map((r, idx) => {
+                          const workerDays = attendanceGrid[r.code] || {};
+                          return (
+                            <tr key={r.code || idx}>
+                              <td className="sticky-col col-sl">{idx + 1}</td>
+                              <td className="sticky-col col-code font-mono font-bold text-slate-800">{r.code}</td>
+                              <td className="sticky-col col-name">
+                                <div className="w-name">{r.name}</div>
+                                {r.fatherName && <div className="w-father">C/O {r.fatherName}</div>}
+                              </td>
+                              <td className="col-desig">{r.designation || "Workman"}</td>
+
+                              {/* Days 1 to 31 interactive buttons */}
+                              {daysArray.map((d) => {
+                                const status = workerDays[d] || (isSunday(d) ? "WO" : "P");
+                                return (
+                                  <td
+                                    key={d}
+                                    className={`cell-day ${isSunday(d) ? "sunday" : ""}`}
+                                    onClick={() => toggleAttendanceCell(r.code, d)}
+                                    title={`Day ${d} (${getDayOfWeek(d)}): Click to toggle status (${status})`}
+                                  >
+                                    <span className={`status-badge-cell badge-${status.toLowerCase()}`}>
+                                      {status}
+                                    </span>
+                                  </td>
+                                );
+                              })}
+
+                              <td className="col-total col-pdays font-bold text-center text-blue-700 bg-blue-50/70 sticky-right-att">
+                                {r.presentDays}
+                              </td>
+                              <td className="col-total col-ot text-center">
+                                <input
+                                  type="number"
+                                  step="0.5"
+                                  className="input-num-cell ot"
+                                  value={r.otDays}
+                                  onChange={(e) => handleCellChange(idx, "otDays", Number(e.target.value))}
+                                />
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
+
+                  {/* VIEW 3: FULL COMBINED REGISTER */}
+                  {viewMode === "full" && (
+                    <table className="attendance-matrix-table full-matrix-table">
+                      <thead>
+                        <tr>
+                          <th className="sticky-col col-sl">SL</th>
+                          <th className="sticky-col col-code">CODE</th>
+                          <th className="sticky-col col-name">WORKER NAME</th>
+                          <th className="sticky-col col-desig">DESIGNATION</th>
+                          <th className="sticky-col col-rate">RATE (₹)</th>
+
+                          {/* Calendar Days 1 to 31 */}
+                          {daysArray.map((d) => {
+                            const sun = isSunday(d);
+                            const dow = getDayOfWeek(d);
+                            return (
+                              <th key={d} className={`col-day ${sun ? "sunday" : ""}`}>
+                                <div className="day-number">{d}</div>
+                                <div className="day-dow">{dow}</div>
+                              </th>
+                            );
+                          })}
+
+                          {/* Summary & Wage Columns */}
+                          <th className="col-total col-pdays">P DAYS</th>
+                          <th className="col-total col-ot">OT</th>
+                          <th className="col-total col-gross">GROSS (₹)</th>
+                          <th className="col-total col-pf">PF (12%)</th>
+                          <th className="col-total col-esi">ESI (0.75%)</th>
+                          <th className="col-total col-ptax">P-TAX</th>
+                          <th className="col-total col-net sticky-right">NET PAYABLE (₹)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredImportRows.map((r, idx) => {
+                          const workerDays = attendanceGrid[r.code] || {};
+                          return (
+                            <tr key={r.code || idx}>
+                              <td className="sticky-col col-sl">{idx + 1}</td>
+                              <td className="sticky-col col-code font-mono font-bold">{r.code}</td>
+                              <td className="sticky-col col-name">
+                                <div className="w-name">{r.name}</div>
+                                {r.fatherName && <div className="w-father">C/O {r.fatherName}</div>}
+                              </td>
+                              <td className="sticky-col col-desig">{r.designation || "Workman"}</td>
+                              <td className="sticky-col col-rate">
+                                <input
+                                  type="number"
+                                  className="input-num-cell rate"
+                                  value={r.rate}
+                                  onChange={(e) => handleCellChange(idx, "rate", Number(e.target.value))}
+                                />
+                              </td>
+
+                              {daysArray.map((d) => {
+                                const status = workerDays[d] || (isSunday(d) ? "WO" : "P");
+                                return (
+                                  <td
+                                    key={d}
+                                    className={`cell-day ${isSunday(d) ? "sunday" : ""}`}
+                                    onClick={() => toggleAttendanceCell(r.code, d)}
+                                    title={`Day ${d} (${getDayOfWeek(d)}): Click to toggle status (${status})`}
+                                  >
+                                    <span className={`status-badge-cell badge-${status.toLowerCase()}`}>
+                                      {status}
+                                    </span>
+                                  </td>
+                                );
+                              })}
+
+                              <td className="col-total col-pdays font-bold text-center">{r.presentDays}</td>
+                              <td className="col-total col-ot">
+                                <input
+                                  type="number"
+                                  step="0.5"
+                                  className="input-num-cell ot"
+                                  value={r.otDays}
+                                  onChange={(e) => handleCellChange(idx, "otDays", Number(e.target.value))}
+                                />
+                              </td>
+                              <td className="col-total col-gross font-mono">₹{r.totalGross.toLocaleString("en-IN")}</td>
+                              <td className="col-total col-pf font-mono text-rose-600">₹{r.pf.toLocaleString("en-IN")}</td>
+                              <td className="col-total col-esi font-mono text-amber-600">₹{r.esi.toLocaleString("en-IN")}</td>
+                              <td className="col-total col-ptax font-mono">₹{r.ptax}</td>
+                              <td className="col-total col-net sticky-right font-mono font-extrabold text-emerald-700 bg-emerald-50">
+                                ₹{r.netPayable.toLocaleString("en-IN")}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
               )}
             </div>
@@ -1977,59 +2208,44 @@ export default function MonthlyWageSheetPage() {
               </div>
 
               <div className="quick-actions-bar">
-                <div className="quick-title">Quick Actions &amp; Templates:</div>
+                <div className="quick-title">Client Templates &amp; Quick Actions:</div>
                 <div className="quick-btn-group">
                   <a
-                    href="/api/v1/labour-wage/template"
-                    download="Labour_Wage_Template.xlsx"
-                    className="action-pill-btn"
+                    href="/sample-sheets/Template_muster_Client_Format.xlsx"
+                    download="Template_muster_Client_Format.xlsx"
+                    className="action-pill-btn client-template-btn"
+                    title="Download Official 3-Sheet Client Muster Template (Contractor Master, Employee Master, Attendance)"
                   >
-                    <Download size={14} /> Blank Excel Template
+                    <Download size={14} /> 📥 Official Client Template (.xlsx)
                   </a>
 
-                  <button
-                    type="button"
-                    className="action-pill-btn sample-btn"
-                    onClick={() =>
-                      loadCompanySample(
-                        companyName.toLowerCase().includes("vodabox") ? "VODABOX" : "JUBILANT"
-                      )
-                    }
+                  <a
+                    href="/sample-sheets/Celebrity_Brewing_October_2026_Attendance.xlsx"
+                    download="Celebrity_Brewing_October_2026_Attendance.xlsx"
+                    className="action-pill-btn"
+                    title="Download Pre-filled October 2026 Sheet for Celebrity Brewing (154 Workers)"
                   >
-                    <Sparkles size={14} /> Load September 2026 Sample Data
-                  </button>
+                    <FileSpreadsheet size={14} /> October 2026 Sample (.xlsx)
+                  </a>
 
                   <button
                     type="button"
                     className="action-pill-btn demo-pill-btn"
                     onClick={handleLoadDemoGoogleSheet}
                     disabled={syncingSheet}
+                    title="Load verified October 2026 Celebrity Brewing 154-worker dataset with 1 click"
                   >
-                    <Sparkles size={14} /> Load Celebrity Demo Sheet
+                    <Sparkles size={14} /> ⚡ 1-Click Load October 2026 Data
                   </button>
 
-                  {rows.length > 0 && (
-                    <button
-                      type="button"
-                      className="action-pill-btn delete-pill-btn"
-                      onClick={handleClearUploadPreview}
-                      title="Clear uploaded spreadsheet from memory"
-                    >
-                      <Trash2 size={14} /> Clear / Delete Sheet
-                    </button>
-                  )}
-
-                  {savedRunFound && (
-                    <button
-                      type="button"
-                      className="action-pill-btn delete-db-pill-btn"
-                      onClick={handleDeleteMonthData}
-                      disabled={loading}
-                      title={`Permanently delete saved ${monthLabel} ${selectedYear} records from database`}
-                    >
-                      <Trash2 size={14} /> Delete Saved {monthLabel} Data from DB
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    className="action-pill-btn delete-pill-btn"
+                    onClick={handleClearOrDeleteSheet}
+                    title="Clear uploaded spreadsheet or delete database records to reset"
+                  >
+                    <Trash2 size={14} /> 🗑️ Clear / Delete Sheet
+                  </button>
                 </div>
               </div>
             </div>
@@ -2278,205 +2494,210 @@ export default function MonthlyWageSheetPage() {
 
       {/* Embedded CSS Styles */}
       <style jsx>{`
+        /* =====================================================================
+           ULTRA-PREMIUM LIGHT CORPORATE HRM THEME (ZERO DARK/BLACK SECTIONS)
+           ===================================================================== */
         .labour-wage-page {
-          padding: 24px;
-          background: #090d16;
+          padding: 24px 30px;
+          background: #f8fafc;
           min-height: 100vh;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-          color: #f1f5f9;
+          color: #0f172a;
         }
 
         /* Hero Card */
         .wage-hero-card {
-          background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #334155 100%);
+          background: #ffffff;
           border-radius: 16px;
           padding: 24px 28px;
-          color: white;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+          color: #0f172a;
+          box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
           display: flex;
           justify-content: space-between;
           align-items: center;
           flex-wrap: wrap;
           gap: 20px;
-          margin-bottom: 20px;
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          margin-bottom: 22px;
+          border: 1px solid #e2e8f0;
+          position: relative;
+          overflow: hidden;
+        }
+        .wage-hero-card::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 4px;
+          background: linear-gradient(90deg, #2563eb, #6366f1, #8b5cf6, #06b6d4);
         }
 
         .hero-badge {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: rgba(255, 255, 255, 0.12);
-          backdrop-filter: blur(8px);
+          background: #eff6ff;
           padding: 5px 12px;
           border-radius: 30px;
           font-size: 12px;
-          font-weight: 600;
-          color: #38bdf8;
+          font-weight: 700;
+          color: #2563eb;
           margin-bottom: 10px;
-          border: 1px solid rgba(56, 189, 248, 0.2);
+          border: 1px solid #bfdbfe;
         }
 
         .hero-title {
-          font-size: 24px;
-          font-weight: 800;
+          font-size: 26px;
+          font-weight: 900;
           margin: 0 0 6px 0;
           letter-spacing: -0.5px;
-          color: #ffffff;
+          color: #0f172a;
         }
 
         .hero-subtitle {
-          color: #94a3b8;
-          font-size: 13px;
+          color: #64748b;
+          font-size: 13.5px;
           margin: 0;
-          max-width: 620px;
-          line-height: 1.5;
+          max-width: 760px;
+          line-height: 1.55;
         }
 
         .month-selector-box {
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          backdrop-filter: blur(12px);
-          padding: 12px 16px;
-          border-radius: 12px;
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          align-items: flex-end;
+          gap: 10px;
         }
 
         .selector-group {
           display: flex;
-          align-items: center;
           gap: 8px;
+          background: #f1f5f9;
+          padding: 5px;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
         }
 
         .period-select {
-          background: #0f172a;
-          border: 1px solid #334155;
-          color: white;
+          background: #ffffff;
+          border: 1px solid #cbd5e1;
+          color: #0f172a;
+          padding: 7px 14px;
           border-radius: 8px;
-          padding: 6px 10px;
-          font-size: 13px;
-          font-weight: 600;
-          outline: none;
+          font-size: 13.5px;
+          font-weight: 700;
           cursor: pointer;
+          outline: none;
+          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+        .period-select:focus {
+          border-color: #2563eb;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
 
         .status-pill {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          font-size: 11.5px;
-          font-weight: 600;
-          padding: 4px 10px;
-          border-radius: 20px;
+          padding: 6px 14px;
+          border-radius: 30px;
+          font-size: 12px;
+          font-weight: 700;
         }
-
         .pill-live {
-          background: rgba(16, 185, 129, 0.2);
-          color: #34d399;
-          border: 1px solid rgba(52, 211, 153, 0.3);
+          background: #ecfdf5;
+          color: #059669;
+          border: 1px solid #a7f3d0;
         }
-
         .pill-draft {
-          background: rgba(245, 158, 11, 0.2);
-          color: #fbbf24;
-          border: 1px solid rgba(251, 191, 36, 0.3);
+          background: #fffbeb;
+          color: #b45309;
+          border: 1px solid #fde68a;
         }
 
         .btn-delete-header {
           display: inline-flex;
           align-items: center;
-          gap: 5px;
-          background: rgba(239, 68, 68, 0.2);
-          color: #fca5a5;
-          border: 1px solid rgba(239, 68, 68, 0.45);
-          padding: 5px 12px;
-          border-radius: 9999px;
-          font-size: 11.5px;
+          gap: 6px;
+          background: #fef2f2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+          padding: 6px 14px;
+          border-radius: 8px;
+          font-size: 12px;
           font-weight: 700;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: all 0.15s ease;
+        }
+        .btn-delete-header:hover:not(:disabled) {
+          background: #fee2e2;
+          border-color: #f87171;
         }
 
-        .btn-delete-header:hover {
-          background: #dc2626;
-          color: white;
-        }
-
-        /* Nav Tabs */
+        /* Navigation Tabs */
         .nav-tabs-wrapper {
           display: flex;
-          gap: 10px;
+          gap: 8px;
+          background: #ffffff;
+          padding: 6px;
+          border-radius: 14px;
+          border: 1px solid #e2e8f0;
           margin-bottom: 20px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-          padding-bottom: 2px;
+          box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
+          flex-wrap: wrap;
         }
 
         .tab-btn {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          padding: 10px 16px;
-          border: none;
-          background: transparent;
+          padding: 10px 20px;
+          border-radius: 10px;
           font-size: 13.5px;
           font-weight: 600;
-          color: #94a3b8;
-          border-radius: 8px 8px 0 0;
+          color: #64748b;
+          background: transparent;
+          border: none;
           cursor: pointer;
-          position: relative;
-          transition: all 0.2s;
+          transition: all 0.15s ease;
         }
-
         .tab-btn:hover {
-          color: #e2e8f0;
-          background: rgba(255, 255, 255, 0.04);
+          color: #0f172a;
+          background: #f8fafc;
         }
-
-        .tab-active {
-          color: #38bdf8 !important;
-          background: rgba(56, 189, 248, 0.08) !important;
-        }
-
-        .tab-active::after {
-          content: "";
-          position: absolute;
-          bottom: -2px;
-          left: 0;
-          right: 0;
-          height: 2px;
-          background: #38bdf8;
-          border-radius: 2px;
+        .tab-btn.tab-active {
+          background: #eff6ff;
+          color: #1d4ed8;
+          font-weight: 800;
+          box-shadow: 0 1px 4px rgba(37, 99, 235, 0.1);
         }
 
         .tab-count-badge {
           font-size: 11px;
-          padding: 2px 7px;
-          border-radius: 12px;
-          font-weight: 700;
+          font-weight: 800;
+          padding: 2px 8px;
+          border-radius: 999px;
         }
-
         .tab-count-badge.cyan {
-          background: rgba(6, 182, 212, 0.25);
-          color: #22d3ee;
+          background: #e0f2fe;
+          color: #0284c7;
         }
-
         .tab-count-badge.green {
-          background: rgba(16, 185, 129, 0.25);
-          color: #34d399;
+          background: #dcfce7;
+          color: #15803d;
         }
 
         /* Month Navigator Strip */
         .month-navigator-card {
-          background: #111827;
-          border: 1px solid #1f2937;
-          border-radius: 12px;
-          padding: 12px 16px;
-          margin-bottom: 16px;
+          background: #ffffff;
+          border-radius: 14px;
+          padding: 14px 18px;
+          margin-bottom: 18px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
           display: flex;
           align-items: center;
-          gap: 14px;
+          gap: 16px;
           flex-wrap: wrap;
         }
 
@@ -2486,7 +2707,9 @@ export default function MonthlyWageSheetPage() {
           gap: 6px;
           font-size: 12.5px;
           font-weight: 700;
-          color: #94a3b8;
+          color: #475569;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
           white-space: nowrap;
         }
 
@@ -2494,8 +2717,8 @@ export default function MonthlyWageSheetPage() {
           display: flex;
           gap: 6px;
           overflow-x: auto;
-          padding-bottom: 2px;
           flex: 1;
+          padding-bottom: 2px;
         }
 
         .month-tab-pill {
@@ -2503,150 +2726,136 @@ export default function MonthlyWageSheetPage() {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          background: #1e293b;
-          border: 1px solid #334155;
-          padding: 6px 12px;
-          border-radius: 8px;
+          padding: 7px 14px;
+          border-radius: 10px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          color: #475569;
           cursor: pointer;
-          min-width: 68px;
-          transition: all 0.2s;
+          min-width: 78px;
+          transition: all 0.15s ease;
         }
-
         .month-tab-pill:hover {
-          background: #334155;
-          border-color: #475569;
+          background: #f1f5f9;
+          border-color: #cbd5e1;
         }
-
         .month-tab-pill.active {
-          background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-          border-color: #38bdf8;
-          box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+          background: #eff6ff;
+          border-color: #3b82f6;
+          color: #1d4ed8;
+          font-weight: 800;
+          box-shadow: 0 2px 6px rgba(37, 99, 235, 0.12);
         }
 
         .month-pill-name {
           font-size: 12px;
           font-weight: 700;
-          color: #ffffff;
         }
-
         .month-pill-status {
-          font-size: 9.5px;
-          margin-top: 1px;
+          font-size: 10px;
+          margin-top: 2px;
           font-weight: 600;
         }
-
         .month-pill-status.saved {
-          color: #4ade80;
+          color: #059669;
         }
-
         .month-pill-status.draft {
           color: #94a3b8;
         }
 
-        /* Google Sheets Hub Card */
+        /* Google Sheets Sync Hub Card */
         .gsheet-hub-card {
-          background: linear-gradient(135deg, #111827 0%, #1e293b 100%);
-          border: 1px solid rgba(56, 189, 248, 0.2);
-          border-radius: 12px;
-          padding: 14px 18px;
-          margin-bottom: 16px;
-          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+          background: #ffffff;
+          border-radius: 14px;
+          padding: 18px 22px;
+          margin-bottom: 20px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
         }
 
         .gsheet-hub-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          gap: 16px;
           flex-wrap: wrap;
-          gap: 12px;
-          margin-bottom: 12px;
+          margin-bottom: 14px;
         }
 
         .gsheet-hub-left {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
         }
 
         .gsheet-icon-circle {
-          width: 34px;
-          height: 34px;
-          border-radius: 8px;
-          background: rgba(16, 185, 129, 0.15);
+          width: 38px;
+          height: 38px;
+          border-radius: 10px;
+          background: #ecfdf5;
           display: flex;
           align-items: center;
           justify-content: center;
+          border: 1px solid #a7f3d0;
+          color: #059669;
         }
 
         .gsheet-hub-title {
-          font-size: 14px;
-          font-weight: 700;
-          color: #ffffff;
+          font-size: 15px;
+          font-weight: 800;
+          color: #0f172a;
         }
 
         .gsheet-hub-subtitle {
-          font-size: 11.5px;
-          color: #94a3b8;
+          font-size: 12.5px;
+          color: #64748b;
+          margin-top: 2px;
         }
 
         .gsheet-hub-actions {
           display: flex;
-          align-items: center;
           gap: 8px;
+          flex-wrap: wrap;
         }
 
         .btn-gsheet-action {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          padding: 5px 11px;
-          border-radius: 6px;
-          font-size: 11.5px;
-          font-weight: 600;
+          padding: 7px 14px;
+          border-radius: 8px;
+          font-size: 12.5px;
+          font-weight: 700;
           cursor: pointer;
+          border: 1px solid transparent;
+          transition: all 0.15s ease;
           text-decoration: none;
-          transition: all 0.2s;
         }
-
-        .btn-gsheet-action.view-btn {
-          background: rgba(56, 189, 248, 0.15);
-          color: #38bdf8;
-          border: 1px solid rgba(56, 189, 248, 0.3);
-        }
-
-        .btn-gsheet-action.view-btn:hover {
-          background: rgba(56, 189, 248, 0.3);
-        }
-
         .btn-gsheet-action.sync-btn {
-          background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-          color: #ffffff;
-          border: 1px solid #34d399;
-          box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
+          background: #ecfdf5;
+          color: #059669;
+          border-color: #a7f3d0;
         }
-
-        .btn-gsheet-action.sync-btn:hover {
-          background: linear-gradient(135deg, #047857 0%, #059669 100%);
+        .btn-gsheet-action.sync-btn:hover:not(:disabled) {
+          background: #d1fae5;
         }
-
         .btn-gsheet-action.demo-btn {
-          background: rgba(168, 85, 247, 0.18);
-          color: #c084fc;
-          border: 1px solid rgba(168, 85, 247, 0.35);
+          background: #eff6ff;
+          color: #2563eb;
+          border-color: #bfdbfe;
         }
-
         .btn-gsheet-action.demo-btn:hover {
-          background: rgba(168, 85, 247, 0.3);
+          background: #dbeafe;
         }
-
+        .btn-gsheet-action.view-btn {
+          background: #f8fafc;
+          color: #475569;
+          border-color: #e2e8f0;
+        }
         .btn-gsheet-action.open-btn {
-          background: rgba(16, 185, 129, 0.15);
-          color: #34d399;
-          border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .btn-gsheet-action.open-btn:hover {
-          background: rgba(16, 185, 129, 0.3);
+          background: #f8fafc;
+          color: #475569;
+          border-color: #e2e8f0;
         }
 
         .gsheet-input-row {
@@ -2657,120 +2866,214 @@ export default function MonthlyWageSheetPage() {
         .gsheet-input-box {
           display: flex;
           align-items: center;
-          gap: 8px;
-          background: #0f172a;
-          border: 1px solid #334155;
-          padding: 6px 12px;
-          border-radius: 8px;
+          gap: 10px;
           flex: 1;
+          background: #f8fafc;
+          border: 1px solid #cbd5e1;
+          padding: 8px 14px;
+          border-radius: 10px;
+          transition: border-color 0.15s;
+        }
+        .gsheet-input-box:focus-within {
+          border-color: #2563eb;
+          background: #ffffff;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
         }
 
         .gsheet-url-input {
+          flex: 1;
           background: transparent;
           border: none;
-          color: white;
-          font-size: 12.5px;
           outline: none;
-          width: 100%;
+          color: #0f172a;
+          font-size: 13px;
         }
 
         .btn-gsheet-save {
-          background: #2563eb;
-          color: white;
+          background: #0f172a;
+          color: #ffffff;
           border: none;
-          padding: 6px 16px;
-          border-radius: 8px;
-          font-size: 12.5px;
-          font-weight: 600;
+          padding: 8px 18px;
+          border-radius: 10px;
+          font-size: 13px;
+          font-weight: 700;
           cursor: pointer;
         }
-
         .btn-gsheet-save:hover {
-          background: #1d4ed8;
+          background: #1e293b;
         }
 
         .gsheet-iframe-wrapper {
           margin-top: 14px;
-          border-radius: 8px;
+          border-radius: 10px;
           overflow: hidden;
-          border: 1px solid #334155;
+          border: 1px solid #e2e8f0;
           height: 480px;
-          background: #ffffff;
         }
-
         .gsheet-iframe {
           width: 100%;
           height: 100%;
           border: none;
         }
 
-        /* KPI Metrics Grid */
+        /* KPI Metric Cards */
         .metrics-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-          gap: 12px;
-          margin-bottom: 16px;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 14px;
+          margin-bottom: 22px;
         }
 
         .metric-card {
-          background: #111827;
-          border: 1px solid #1f2937;
-          border-radius: 12px;
-          padding: 14px;
+          background: #ffffff;
+          border-radius: 14px;
+          padding: 16px 18px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 14px;
         }
-
-        .highlight-metric {
-          background: linear-gradient(135deg, #064e3b 0%, #065f46 100%);
-          border-color: #10b981;
+        .metric-card.highlight-metric {
+          border-color: #a7f3d0;
+          background: #f0fdf4;
         }
 
         .metric-icon-box {
-          width: 38px;
-          height: 38px;
-          border-radius: 10px;
+          width: 44px;
+          height: 44px;
+          border-radius: 12px;
           display: flex;
           align-items: center;
           justify-content: center;
+          flex-shrink: 0;
+        }
+        .metric-icon-box.blue {
+          background: #eff6ff;
+          color: #2563eb;
+        }
+        .metric-icon-box.purple {
+          background: #faf5ff;
+          color: #7c3aed;
+        }
+        .metric-icon-box.amber {
+          background: #fffbeb;
+          color: #d97706;
+        }
+        .metric-icon-box.teal {
+          background: #f0fdfa;
+          color: #0d9488;
+        }
+        .metric-icon-box.red {
+          background: #fef2f2;
+          color: #dc2626;
+        }
+        .metric-icon-box.green {
+          background: #ecfdf5;
+          color: #059669;
         }
 
-        .metric-icon-box.blue { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
-        .metric-icon-box.purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; }
-        .metric-icon-box.amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
-        .metric-icon-box.teal { background: rgba(20, 184, 166, 0.15); color: #2dd4bf; }
-        .metric-icon-box.red { background: rgba(239, 68, 68, 0.15); color: #f87171; }
-        .metric-icon-box.green { background: rgba(16, 185, 129, 0.25); color: #34d399; }
-
         .metric-val {
-          font-size: 17px;
+          font-size: 19px;
           font-weight: 800;
-          color: #ffffff;
+          color: #0f172a;
+          letter-spacing: -0.3px;
         }
 
         .metric-lbl {
-          font-size: 11px;
-          color: #94a3b8;
-          font-weight: 500;
+          font-size: 11.5px;
+          color: #64748b;
+          font-weight: 600;
+          margin-top: 2px;
         }
 
-        /* Attendance Action Toolbar */
-        .attendance-toolbar-card {
-          background: #111827;
-          border: 1px solid #1f2937;
-          border-radius: 12px;
-          padding: 12px 16px;
-          margin-bottom: 14px;
+        /* Sub-View Switcher Bar */
+        .view-mode-bar {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          gap: 14px;
           flex-wrap: wrap;
-          gap: 12px;
+          margin-bottom: 12px;
+          background: #ffffff;
+          padding: 8px 14px;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
         }
 
-        .attendance-tools-left {
+        .view-mode-buttons {
           display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        .view-mode-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 16px;
+          border-radius: 9px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          color: #475569;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .view-mode-btn:hover {
+          background: #f1f5f9;
+          color: #0f172a;
+        }
+        .view-mode-btn.active {
+          background: #eff6ff;
+          color: #1d4ed8;
+          border-color: #3b82f6;
+          box-shadow: 0 2px 8px rgba(37, 99, 235, 0.14);
+        }
+
+        .view-mode-tag {
+          font-size: 10px;
+          font-weight: 800;
+          padding: 2px 7px;
+          border-radius: 999px;
+          background: #dcfce7;
+          color: #166534;
+        }
+
+        .matrix-legend-row {
+          display: flex;
+          gap: 6px;
+          flex-wrap: wrap;
+        }
+
+        .legend-chip {
+          font-size: 11px;
+          font-weight: 700;
+          padding: 3px 8px;
+          border-radius: 6px;
+        }
+
+        /* Attendance Matrix Toolbar */
+        .attendance-toolbar-card {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 14px;
+          flex-wrap: wrap;
+          background: #ffffff;
+          border-radius: 14px;
+          padding: 14px 18px;
+          margin-bottom: 12px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
+        }
+
+        .attendance-tools-left,
+        .attendance-tools-right {
+          display: flex;
+          align-items: center;
           gap: 8px;
           flex-wrap: wrap;
         }
@@ -2779,79 +3082,64 @@ export default function MonthlyWageSheetPage() {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          padding: 6px 12px;
+          padding: 7px 13px;
           border-radius: 8px;
-          font-size: 11.5px;
-          font-weight: 600;
+          font-size: 12px;
+          font-weight: 700;
           cursor: pointer;
-          border: 1px solid transparent;
-          transition: all 0.2s;
+          border: 1px solid #e2e8f0;
+          background: #f8fafc;
+          color: #475569;
+          transition: all 0.15s ease;
         }
-
+        .btn-tool-action:hover {
+          background: #f1f5f9;
+          color: #0f172a;
+        }
         .btn-tool-action.preset {
-          background: rgba(168, 85, 247, 0.2);
-          color: #d8b4fe;
-          border-color: rgba(168, 85, 247, 0.35);
+          background: #eff6ff;
+          color: #2563eb;
+          border-color: #bfdbfe;
         }
-
-        .btn-tool-action.preset:hover {
-          background: rgba(168, 85, 247, 0.35);
-        }
-
         .btn-tool-action.green {
-          background: rgba(16, 185, 129, 0.2);
-          color: #6ee7b7;
-          border-color: rgba(16, 185, 129, 0.35);
+          background: #ecfdf5;
+          color: #059669;
+          border-color: #a7f3d0;
         }
-
-        .btn-tool-action.green:hover {
-          background: rgba(16, 185, 129, 0.35);
-        }
-
         .btn-tool-action.slate {
-          background: rgba(100, 116, 139, 0.2);
-          color: #cbd5e1;
-          border-color: rgba(100, 116, 139, 0.35);
+          background: #f8fafc;
+          color: #475569;
         }
-
-        .btn-tool-action.slate:hover {
-          background: rgba(100, 116, 139, 0.35);
+        .btn-tool-action.delete-reset-btn {
+          background: #fef2f2;
+          color: #dc2626;
+          border-color: #fecaca;
         }
-
-        .btn-tool-action.clear {
-          background: rgba(239, 68, 68, 0.15);
-          color: #fca5a5;
-          border-color: rgba(239, 68, 68, 0.3);
-        }
-
-        .btn-tool-action.clear:hover {
-          background: #dc2626;
-          color: white;
-        }
-
-        .attendance-tools-right {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          flex-wrap: wrap;
+        .btn-tool-action.delete-reset-btn:hover {
+          background: #fee2e2;
+          border-color: #f87171;
         }
 
         .search-box-attendance {
           display: flex;
           align-items: center;
-          gap: 6px;
-          background: #0f172a;
-          border: 1px solid #334155;
+          gap: 8px;
+          background: #f8fafc;
+          border: 1px solid #cbd5e1;
           padding: 6px 12px;
           border-radius: 8px;
         }
+        .search-box-attendance:focus-within {
+          border-color: #2563eb;
+          background: #ffffff;
+        }
 
         .attendance-search-input {
-          background: transparent;
           border: none;
-          color: white;
-          font-size: 12px;
+          background: transparent;
           outline: none;
+          font-size: 12.5px;
+          color: #0f172a;
           width: 170px;
         }
 
@@ -2859,494 +3147,430 @@ export default function MonthlyWageSheetPage() {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: #1e293b;
-          color: #e2e8f0;
-          border: 1px solid #334155;
           padding: 7px 14px;
           border-radius: 8px;
           font-size: 12px;
-          font-weight: 600;
+          font-weight: 700;
+          background: #f8fafc;
+          color: #0284c7;
+          border: 1px solid #bae6fd;
           cursor: pointer;
         }
-
         .btn-export-csv:hover {
-          background: #334155;
+          background: #e0f2fe;
         }
 
         .btn-save-attendance-wages {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-          color: white;
-          border: none;
-          padding: 7px 16px;
+          gap: 7px;
+          padding: 8px 18px;
           border-radius: 8px;
-          font-size: 12.5px;
-          font-weight: 700;
+          font-size: 13px;
+          font-weight: 800;
+          background: #2563eb;
+          color: #ffffff;
+          border: none;
           cursor: pointer;
-          box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+          box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+          transition: all 0.15s ease;
+        }
+        .btn-save-attendance-wages:hover:not(:disabled) {
+          background: #1d4ed8;
+          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+        }
+        .btn-save-attendance-wages:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
 
-        .btn-save-attendance-wages:hover {
-          background: linear-gradient(135deg, #059669 0%, #047857 100%);
-        }
-
-        /* Attendance Matrix Scroll & Table */
+        /* Matrix Table Wrapper & Styles */
         .attendance-matrix-wrapper {
-          background: #111827;
-          border: 1px solid #1f2937;
-          border-radius: 12px;
+          background: #ffffff;
+          border-radius: 14px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
           overflow: hidden;
         }
 
         .matrix-table-scroll {
           overflow-x: auto;
-          max-height: 620px;
+          max-height: 720px;
+          position: relative;
         }
 
         .attendance-matrix-table {
           width: 100%;
-          border-collapse: collapse;
-          font-size: 11.5px;
-          white-space: nowrap;
+          border-collapse: separate;
+          border-spacing: 0;
+          font-size: 12px;
+          text-align: left;
         }
 
-        .attendance-matrix-table th {
-          background: #1e293b;
-          color: #94a3b8;
-          font-weight: 700;
-          padding: 8px 6px;
-          border: 1px solid #334155;
-          text-align: center;
+        .attendance-matrix-table thead th {
+          background: #f8fafc;
+          color: #475569;
+          font-weight: 800;
+          font-size: 11px;
+          padding: 10px 12px;
+          border-bottom: 2px solid #e2e8f0;
+          letter-spacing: 0.4px;
+          text-transform: uppercase;
+          white-space: nowrap;
           position: sticky;
           top: 0;
           z-index: 10;
         }
 
-        .attendance-matrix-table td {
-          padding: 6px;
-          border: 1px solid #1f2937;
-          color: #cbd5e1;
+        .attendance-matrix-table tbody td {
+          padding: 10px 12px;
+          border-bottom: 1px solid #f1f5f9;
+          color: #1e293b;
+          background: #ffffff;
+          white-space: nowrap;
+          vertical-align: middle;
         }
 
-        .attendance-matrix-table tr:hover td {
-          background: rgba(255, 255, 255, 0.03);
+        .attendance-matrix-table tbody tr:nth-child(even) td {
+          background: #fcfcfd;
+        }
+
+        .attendance-matrix-table tbody tr:hover td {
+          background: #eff6ff !important;
         }
 
         /* Sticky Columns */
         .sticky-col {
           position: sticky;
-          background: #111827;
+          background: #ffffff;
           z-index: 5;
         }
+        .attendance-matrix-table thead th.sticky-col {
+          background: #f8fafc;
+          z-index: 15;
+        }
 
-        .col-sl { left: 0; width: 34px; text-align: center; }
-        .col-code { left: 34px; width: 85px; }
-        .col-name { left: 119px; width: 170px; }
-        .col-desig { left: 289px; width: 120px; }
-        .col-rate { left: 409px; width: 75px; }
-
-        .attendance-matrix-table th.sticky-col {
-          z-index: 20;
-          background: #1e293b;
+        .col-sl {
+          left: 0;
+          width: 44px;
+          min-width: 44px;
+          text-align: center;
+        }
+        .col-code {
+          left: 44px;
+          width: 95px;
+          min-width: 95px;
+        }
+        .col-name {
+          left: 139px;
+          min-width: 170px;
+          border-right: 2px solid #e2e8f0;
         }
 
         .w-name {
           font-weight: 700;
-          color: #f1f5f9;
+          color: #0f172a;
         }
-
         .w-father {
-          font-size: 10px;
+          font-size: 10.5px;
           color: #64748b;
-        }
-
-        .col-day {
-          min-width: 32px;
-          width: 32px;
-          text-align: center;
-          padding: 4px 2px !important;
-        }
-
-        .col-day.sunday {
-          background: #2a1b1b !important;
-          color: #fca5a5 !important;
-        }
-
-        .day-number {
-          font-size: 12px;
-          font-weight: 800;
-        }
-
-        .day-dow {
-          font-size: 8.5px;
-          text-transform: uppercase;
-          opacity: 0.8;
-        }
-
-        .cell-day {
-          min-width: 32px;
-          width: 32px;
-          text-align: center;
-          cursor: pointer;
-          user-select: none;
-          padding: 3px 2px !important;
-        }
-
-        .cell-day.sunday {
-          background: rgba(239, 68, 68, 0.06);
-        }
-
-        .status-badge-cell {
-          display: inline-block;
-          width: 24px;
-          height: 22px;
-          line-height: 22px;
-          border-radius: 4px;
-          font-size: 10px;
-          font-weight: 800;
-          text-align: center;
-          transition: transform 0.1s;
-        }
-
-        .status-badge-cell:hover {
-          transform: scale(1.15);
-        }
-
-        .badge-p {
-          background: rgba(16, 185, 129, 0.25);
-          color: #34d399;
-          border: 1px solid rgba(16, 185, 129, 0.5);
-        }
-
-        .badge-a {
-          background: rgba(239, 68, 68, 0.25);
-          color: #f87171;
-          border: 1px solid rgba(239, 68, 68, 0.5);
-        }
-
-        .badge-hd {
-          background: rgba(245, 158, 11, 0.25);
-          color: #fbbf24;
-          border: 1px solid rgba(245, 158, 11, 0.5);
-        }
-
-        .badge-wo {
-          background: rgba(100, 116, 139, 0.25);
-          color: #94a3b8;
-          border: 1px solid rgba(100, 116, 139, 0.4);
-        }
-
-        .input-num-cell {
-          background: #0f172a;
-          border: 1px solid #334155;
-          color: white;
-          padding: 3px 6px;
-          border-radius: 4px;
-          font-size: 11px;
-          text-align: right;
-        }
-
-        .input-num-cell.rate {
-          width: 65px;
-        }
-
-        .input-num-cell.ot {
-          width: 45px;
-        }
-
-        .col-total {
-          padding: 6px 10px !important;
-          text-align: right;
-        }
-
-        .col-pdays {
-          background: rgba(56, 189, 248, 0.05);
-          color: #38bdf8;
+          margin-top: 2px;
         }
 
         .sticky-right {
           position: sticky;
           right: 0;
-          background: #111827;
+          border-left: 2px solid #a7f3d0;
+          background: #ecfdf5 !important;
           z-index: 6;
-          border-left: 2px solid #334155;
+        }
+        .attendance-matrix-table thead th.sticky-right {
+          background: #d1fae5 !important;
+          z-index: 16;
+          color: #065f46;
         }
 
-        .attendance-matrix-table th.sticky-right {
-          background: #1e293b;
-          z-index: 25;
+        .sticky-right-action {
+          position: sticky;
+          right: 0;
+          background: #ffffff;
+          z-index: 6;
+          border-left: 1px solid #e2e8f0;
+        }
+        .attendance-matrix-table thead th.sticky-right-action {
+          background: #f8fafc;
+          z-index: 16;
         }
 
-        /* Slips Tab Styling */
-        .slips-manager-card {
-          background: #111827;
-          border: 1px solid #1f2937;
-          border-radius: 14px;
-          padding: 20px;
+        .sticky-right-att {
+          position: sticky;
+          right: 80px;
+          background: #eff6ff !important;
+          border-left: 2px solid #bfdbfe;
+          z-index: 6;
+        }
+        .attendance-matrix-table thead th.sticky-right-att {
+          background: #dbeafe !important;
+          z-index: 16;
+          color: #1e40af;
         }
 
-        .slips-toolbar {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 16px;
-          margin-bottom: 16px;
-          border-bottom: 1px solid #1f2937;
-          padding-bottom: 16px;
+        /* Day Columns */
+        .col-day {
+          width: 34px;
+          min-width: 34px;
+          padding: 6px 2px !important;
+          text-align: center;
+          border-left: 1px solid #f1f5f9;
+        }
+        .col-day.sunday {
+          background: #fef2f2 !important;
+          color: #dc2626 !important;
         }
 
-        .toolbar-title {
-          font-size: 16px;
-          font-weight: 700;
-          margin: 0 0 4px 0;
-          color: #ffffff;
+        .day-number {
+          font-size: 11px;
+          font-weight: 800;
         }
-
-        .toolbar-subtitle {
-          font-size: 12px;
+        .day-dow {
+          font-size: 9px;
           color: #94a3b8;
-          margin: 0;
+          font-weight: 600;
         }
 
-        .toolbar-btn-group {
+        .cell-day {
+          padding: 4px 2px !important;
+          text-align: center;
+          cursor: pointer;
+          user-select: none;
+          border-left: 1px solid #f8fafc;
+        }
+        .cell-day.sunday {
+          background: #fff5f5;
+        }
+
+        .status-badge-cell {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 28px;
+          height: 24px;
+          border-radius: 6px;
+          font-size: 11px;
+          font-weight: 800;
+          line-height: 1;
+        }
+
+        .badge-p {
+          background: #ecfdf5;
+          color: #059669;
+          border: 1px solid #a7f3d0;
+        }
+        .badge-wo {
+          background: #eff6ff;
+          color: #0284c7;
+          border: 1px solid #bae6fd;
+        }
+        .badge-hd {
+          background: #fffbeb;
+          color: #d97706;
+          border: 1px solid #fde68a;
+        }
+        .badge-a {
+          background: #fef2f2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+        }
+        .badge-nh,
+        .badge-fh,
+        .badge-np,
+        .badge-fp {
+          background: #faf5ff;
+          color: #7c3aed;
+          border: 1px solid #e9d5ff;
+        }
+
+        .input-num-cell {
+          background: #ffffff;
+          border: 1px solid #cbd5e1;
+          border-radius: 6px;
+          padding: 4px 8px;
+          color: #0f172a;
+          font-size: 12px;
+          font-weight: 700;
+          text-align: right;
+          outline: none;
+          box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+        .input-num-cell:focus {
+          border-color: #2563eb;
+          box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+        }
+        .input-num-cell.rate {
+          width: 75px;
+        }
+        .input-num-cell.ot {
+          width: 60px;
+          text-align: center;
+        }
+
+        .btn-row-action.slip-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          background: #eff6ff;
+          color: #2563eb;
+          border: 1px solid #bfdbfe;
+          padding: 4px 10px;
+          border-radius: 6px;
+          font-size: 11.5px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .btn-row-action.slip-btn:hover {
+          background: #dbeafe;
+          border-color: #93c5fd;
+        }
+
+        /* Empty Workers Card */
+        .empty-workers-card {
+          padding: 48px 24px;
+          text-align: center;
           display: flex;
-          gap: 10px;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
+        }
+        .empty-workers-card h4 {
+          font-size: 18px;
+          font-weight: 800;
+          margin: 0;
+          color: #0f172a;
+        }
+        .empty-workers-card p {
+          color: #64748b;
+          font-size: 13.5px;
+          margin: 0;
+          max-width: 480px;
+        }
+        .empty-btn-group {
+          display: flex;
+          gap: 12px;
+          margin-top: 10px;
+          flex-wrap: wrap;
+          justify-content: center;
         }
 
-        .btn-print-bulk {
+        .btn-add-worker-empty {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-          color: white;
-          border: none;
+          background: #f1f5f9;
+          color: #334155;
+          border: 1px solid #cbd5e1;
           padding: 8px 16px;
           border-radius: 8px;
-          font-size: 12.5px;
+          font-size: 13px;
           font-weight: 700;
           cursor: pointer;
         }
-
-        .btn-delete-bulk {
+        .btn-demo-load-empty {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: rgba(239, 68, 68, 0.2);
-          color: #fca5a5;
-          border: 1px solid rgba(239, 68, 68, 0.4);
-          padding: 8px 14px;
-          border-radius: 8px;
-          font-size: 12px;
-          font-weight: 700;
-          cursor: pointer;
-        }
-
-        .btn-delete-bulk:hover {
-          background: #dc2626;
-          color: white;
-        }
-
-        /* Slip Search Bar */
-        .slip-search-bar {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 16px;
-        }
-
-        .search-input-wrapper {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: #0f172a;
-          border: 1px solid #334155;
-          padding: 8px 14px;
-          border-radius: 8px;
-          flex: 1;
-        }
-
-        .slip-search-input {
-          background: transparent;
-          border: none;
-          color: white;
-          font-size: 13px;
-          outline: none;
-          width: 100%;
-        }
-
-        .btn-search-submit {
-          background: #0284c7;
-          color: white;
+          background: #2563eb;
+          color: #ffffff;
           border: none;
           padding: 9px 18px;
           border-radius: 8px;
-          font-size: 12.5px;
-          font-weight: 600;
+          font-size: 13px;
+          font-weight: 800;
           cursor: pointer;
+          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+        .btn-demo-load-empty:hover {
+          background: #1d4ed8;
         }
 
-        .btn-search-reset {
-          background: #334155;
-          color: #cbd5e1;
-          border: none;
-          padding: 9px 14px;
-          border-radius: 8px;
-          font-size: 12px;
-          font-weight: 600;
-          cursor: pointer;
-        }
-
-        .slips-table-wrapper {
-          overflow-x: auto;
-          max-height: 580px;
-        }
-
-        .slips-summary-table {
-          width: 100%;
-          border-collapse: collapse;
-          font-size: 12px;
-        }
-
-        .slips-summary-table th {
-          background: #1e293b;
-          color: #94a3b8;
-          padding: 9px 10px;
-          font-weight: 700;
-          text-align: left;
-          border-bottom: 1px solid #334155;
-        }
-
-        .slips-summary-table td {
-          padding: 8px 10px;
-          border-bottom: 1px solid #1f2937;
-        }
-
-        .actions-cell {
-          display: flex;
-          gap: 6px;
-          justify-content: center;
-        }
-
-        .btn-action-view {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          background: #1e293b;
-          color: #38bdf8;
-          border: 1px solid #334155;
-          padding: 4px 8px;
-          border-radius: 6px;
-          font-size: 11px;
-          font-weight: 600;
-          cursor: pointer;
-        }
-
-        .btn-action-print {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          background: rgba(16, 185, 129, 0.2);
-          color: #34d399;
-          border: 1px solid rgba(16, 185, 129, 0.4);
-          padding: 4px 8px;
-          border-radius: 6px;
-          font-size: 11px;
-          font-weight: 600;
-          cursor: pointer;
-        }
-
-        .btn-action-delete {
-          display: inline-flex;
-          align-items: center;
-          background: rgba(239, 68, 68, 0.15);
-          color: #fca5a5;
-          border: 1px solid rgba(239, 68, 68, 0.3);
-          padding: 4px 6px;
-          border-radius: 6px;
-          cursor: pointer;
-        }
-
-        .btn-action-delete:hover {
-          background: #dc2626;
-          color: white;
-        }
-
-        /* Upload Tab */
+        /* Tab 3 Upload Styles */
         .upload-section-card {
-          background: #111827;
-          border: 1px solid #1f2937;
+          background: #ffffff;
           border-radius: 14px;
           padding: 24px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+          margin-bottom: 24px;
         }
 
         .upload-dropzone {
-          border: 2px dashed #334155;
+          border: 2px dashed #cbd5e1;
+          background: #f8fafc;
           border-radius: 12px;
-          padding: 40px 20px;
+          padding: 40px 24px;
           text-align: center;
           cursor: pointer;
-          transition: all 0.2s;
-          background: rgba(255, 255, 255, 0.02);
+          transition: all 0.2s ease;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
         }
-
         .upload-dropzone:hover {
-          border-color: #38bdf8;
-          background: rgba(56, 189, 248, 0.04);
+          background: #eff6ff;
+          border-color: #3b82f6;
         }
 
         .upload-icon-circle {
-          width: 56px;
-          height: 56px;
-          border-radius: 50%;
-          background: rgba(56, 189, 248, 0.1);
-          color: #38bdf8;
+          width: 52px;
+          height: 52px;
+          border-radius: 16px;
+          background: #e0f2fe;
+          color: #0284c7;
           display: flex;
           align-items: center;
           justify-content: center;
-          margin: 0 auto 14px auto;
         }
 
         .upload-title {
-          font-size: 15px;
-          font-weight: 700;
-          color: #ffffff;
-          margin-bottom: 6px;
+          font-size: 16px;
+          font-weight: 800;
+          color: #0f172a;
         }
 
         .upload-desc {
-          font-size: 12px;
-          color: #94a3b8;
-          margin-bottom: 16px;
+          font-size: 13px;
+          color: #64748b;
+          max-width: 540px;
         }
 
         .btn-browse-file {
-          background: #0284c7;
-          color: white;
+          background: #2563eb;
+          color: #ffffff;
           border: none;
-          padding: 8px 20px;
+          padding: 9px 22px;
           border-radius: 8px;
-          font-size: 12.5px;
-          font-weight: 600;
+          font-size: 13px;
+          font-weight: 700;
           cursor: pointer;
+          margin-top: 6px;
         }
 
         .quick-actions-bar {
           margin-top: 20px;
-          padding-top: 16px;
-          border-top: 1px solid #1f2937;
+          padding-top: 18px;
+          border-top: 1px dashed #e2e8f0;
           display: flex;
           align-items: center;
-          gap: 12px;
+          justify-content: space-between;
+          gap: 14px;
           flex-wrap: wrap;
         }
 
         .quick-title {
-          font-size: 12px;
-          font-weight: 600;
-          color: #94a3b8;
+          font-size: 13px;
+          font-weight: 700;
+          color: #475569;
         }
 
         .quick-btn-group {
@@ -3359,523 +3583,253 @@ export default function MonthlyWageSheetPage() {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          padding: 6px 12px;
+          background: #f8fafc;
+          color: #475569;
+          border: 1px solid #cbd5e1;
+          padding: 7px 14px;
           border-radius: 8px;
-          font-size: 11.5px;
-          font-weight: 600;
-          cursor: pointer;
-          background: #1e293b;
-          color: #cbd5e1;
-          border: 1px solid #334155;
+          font-size: 12px;
+          font-weight: 700;
           text-decoration: none;
+          cursor: pointer;
+          transition: all 0.15s ease;
         }
-
         .action-pill-btn:hover {
-          background: #334155;
+          background: #f1f5f9;
+          color: #0f172a;
         }
-
+        .action-pill-btn.client-template-btn {
+          background: #eff6ff;
+          color: #1d4ed8;
+          border-color: #93c5fd;
+        }
         .action-pill-btn.demo-pill-btn {
-          background: rgba(168, 85, 247, 0.15);
-          color: #c084fc;
-          border-color: rgba(168, 85, 247, 0.35);
+          background: #ecfdf5;
+          color: #047857;
+          border-color: #a7f3d0;
+        }
+        .action-pill-btn.delete-pill-btn {
+          background: #fef2f2;
+          color: #dc2626;
+          border-color: #fecaca;
+        }
+        .action-pill-btn.delete-pill-btn:hover {
+          background: #fee2e2;
+          border-color: #f87171;
         }
 
-        .action-pill-btn.demo-pill-btn:hover {
-          background: rgba(168, 85, 247, 0.28);
+        .upload-divider {
+          text-align: center;
+          position: relative;
+          margin: 24px 0 16px 0;
         }
-
-        /* Google Sheets Import Card in Tab 3 */
-        .gsheet-import-card {
-          background: linear-gradient(135deg, #064e3b 0%, #0f172a 60%, #1e293b 100%);
-          border: 1px solid rgba(16, 185, 129, 0.35);
-          border-radius: 14px;
-          padding: 24px;
-          margin-bottom: 20px;
-          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
-        }
-
-        .gsheet-import-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 12px;
-        }
-
-        .gsheet-import-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          background: rgba(16, 185, 129, 0.2);
-          color: #34d399;
-          font-size: 11.5px;
-          font-weight: 700;
-          padding: 4px 10px;
-          border-radius: 20px;
-          border: 1px solid rgba(16, 185, 129, 0.4);
-          letter-spacing: 0.5px;
-        }
-
-        .gsheet-demo-pill {
-          background: rgba(168, 85, 247, 0.2);
-          color: #d8b4fe;
-          font-size: 11px;
-          font-weight: 600;
-          padding: 3px 10px;
-          border-radius: 12px;
-          border: 1px solid rgba(168, 85, 247, 0.4);
-        }
-
-        .gsheet-import-title {
-          font-size: 18px;
-          font-weight: 800;
-          color: #ffffff;
-          margin: 0 0 6px 0;
-        }
-
-        .gsheet-import-desc {
-          font-size: 13px;
-          color: #cbd5e1;
-          margin: 0 0 18px 0;
-          line-height: 1.5;
-        }
-
-        .gsheet-import-form {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .gsheet-url-input-wrap {
-          display: flex;
-          align-items: center;
-          background: rgba(15, 23, 42, 0.8);
-          border: 1px solid rgba(52, 211, 153, 0.3);
-          border-radius: 10px;
-          padding: 10px 14px;
-          gap: 10px;
-          transition: border-color 0.2s;
-        }
-
-        .gsheet-url-input-wrap:focus-within {
-          border-color: #34d399;
-          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
-        }
-
-        .gsheet-link-icon {
-          color: #34d399;
-          flex-shrink: 0;
-        }
-
-        .gsheet-main-input {
-          background: transparent;
-          border: none;
-          color: #ffffff;
-          font-size: 13.5px;
-          outline: none;
-          width: 100%;
-        }
-
-        .gsheet-main-input::placeholder {
-          color: #64748b;
-        }
-
-        .gsheet-clear-url-btn {
-          background: transparent;
-          border: none;
+        .upload-divider span {
+          background: #f8fafc;
+          padding: 0 16px;
           color: #94a3b8;
-          cursor: pointer;
-        }
-
-        .gsheet-import-buttons {
-          display: flex;
-          gap: 10px;
-          flex-wrap: wrap;
-        }
-
-        .btn-gsheet-pull {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-          color: #ffffff;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 8px;
-          font-size: 13px;
-          font-weight: 700;
-          cursor: pointer;
-          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
-          transition: transform 0.15s, box-shadow 0.15s;
-        }
-
-        .btn-gsheet-pull:hover:not(:disabled) {
-          transform: translateY(-1px);
-          box-shadow: 0 6px 16px rgba(16, 185, 129, 0.45);
-        }
-
-        .btn-gsheet-demo {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-          color: #ffffff;
-          border: none;
-          padding: 10px 18px;
-          border-radius: 8px;
-          font-size: 13px;
-          font-weight: 700;
-          cursor: pointer;
-          box-shadow: 0 4px 12px rgba(168, 85, 247, 0.35);
-          transition: transform 0.15s;
-        }
-
-        .btn-gsheet-demo:hover:not(:disabled) {
-          transform: translateY(-1px);
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.5px;
         }
 
         .gsheet-tip-box {
           margin-top: 14px;
+          background: #f0fdf4;
+          border: 1px solid #bbf7d0;
+          border-radius: 10px;
           padding: 10px 14px;
-          background: rgba(0, 0, 0, 0.25);
-          border-radius: 8px;
-          font-size: 12px;
-          color: #94a3b8;
-          border-left: 3px solid #34d399;
-          line-height: 1.5;
+          font-size: 12.5px;
+          color: #166534;
         }
 
-        .upload-divider {
-          display: flex;
-          align-items: center;
-          text-align: center;
-          margin: 20px 0;
-          color: #64748b;
-          font-size: 11.5px;
-          font-weight: 700;
-          letter-spacing: 1px;
-        }
-
-        .upload-divider::before,
-        .upload-divider::after {
-          content: "";
-          flex: 1;
-          border-bottom: 1px solid #1f2937;
-        }
-
-        .upload-divider span {
-          padding: 0 16px;
-        }
-
-        /* Import Preview Section in Tab 3 */
-        .import-preview-section {
-          margin-top: 24px;
-          background: #111827;
-          border: 1px solid #1f2937;
+        /* Tab 2 Slips Manager */
+        .slips-manager-card {
+          background: #ffffff;
           border-radius: 14px;
-          padding: 24px;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          padding: 22px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
         }
 
-        .preview-section-header {
+        .slips-toolbar {
           display: flex;
           justify-content: space-between;
           align-items: center;
+          gap: 16px;
           flex-wrap: wrap;
-          gap: 14px;
-          margin-bottom: 18px;
-          padding-bottom: 14px;
-          border-bottom: 1px solid #1f2937;
+          margin-bottom: 20px;
+          padding-bottom: 16px;
+          border-bottom: 1px solid #f1f5f9;
         }
 
-        .preview-main-title {
-          font-size: 18px;
+        .toolbar-title {
+          font-size: 17px;
           font-weight: 800;
-          color: #ffffff;
+          color: #0f172a;
+          margin: 0;
         }
 
-        .preview-subtitle {
-          font-size: 12px;
-          color: #94a3b8;
-          margin-top: 4px;
+        .toolbar-subtitle {
+          font-size: 12.5px;
+          color: #64748b;
+          margin: 4px 0 0 0;
         }
 
-        .preview-top-actions {
+        .slips-actions {
           display: flex;
-          align-items: center;
           gap: 10px;
           flex-wrap: wrap;
         }
 
-        .btn-preview-switch-attendance {
+        .btn-print-bulk {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
-          background: #1e293b;
-          color: #38bdf8;
-          border: 1px solid #334155;
-          padding: 8px 14px;
-          border-radius: 8px;
-          font-size: 12px;
-          font-weight: 600;
-          cursor: pointer;
-        }
-
-        .btn-preview-switch-attendance:hover {
-          background: #334155;
-        }
-
-        .btn-preview-save-db {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-          color: white;
+          gap: 8px;
+          background: #2563eb;
+          color: #ffffff;
           border: none;
           padding: 8px 18px;
           border-radius: 8px;
-          font-size: 12.5px;
+          font-size: 13px;
           font-weight: 700;
           cursor: pointer;
-          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+          box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+        }
+        .btn-print-bulk:hover:not(:disabled) {
+          background: #1d4ed8;
         }
 
-        .preview-kpi-bar {
-          display: flex;
-          gap: 10px;
-          flex-wrap: wrap;
-          margin-bottom: 16px;
-        }
-
-        .kpi-pill {
-          background: #0f172a;
-          border: 1px solid #1e293b;
-          border-radius: 8px;
-          padding: 6px 12px;
-          display: flex;
+        .btn-delete-bulk {
+          display: inline-flex;
           align-items: center;
           gap: 8px;
-          font-size: 12px;
-        }
-
-        .kpi-pill.highlight {
-          border-color: rgba(16, 185, 129, 0.4);
-          background: rgba(16, 185, 129, 0.1);
-        }
-
-        .kpi-label {
-          color: #94a3b8;
-          font-weight: 500;
-        }
-
-        .kpi-value {
-          color: #ffffff;
+          background: #fef2f2;
+          color: #dc2626;
+          border: 1px solid #fecaca;
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-size: 13px;
           font-weight: 700;
+          cursor: pointer;
+        }
+        .btn-delete-bulk:hover:not(:disabled) {
+          background: #fee2e2;
+          border-color: #f87171;
         }
 
-        .preview-search-row {
+        .slips-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+          gap: 14px;
+        }
+
+        .slip-card-item {
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          padding: 16px;
+          box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+          transition: all 0.15s ease;
+        }
+        .slip-card-item:hover {
+          border-color: #cbd5e1;
+          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+        }
+
+        .slip-card-top {
           display: flex;
           justify-content: space-between;
-          align-items: center;
-          margin-bottom: 14px;
-          gap: 12px;
-          flex-wrap: wrap;
+          align-items: flex-start;
+          margin-bottom: 12px;
         }
 
-        .preview-search-box {
-          display: flex;
-          align-items: center;
-          background: #0f172a;
-          border: 1px solid #334155;
-          border-radius: 8px;
-          padding: 6px 12px;
-          gap: 8px;
-          flex: 1;
-          max-width: 450px;
+        .slip-worker-name {
+          font-size: 14px;
+          font-weight: 800;
+          color: #0f172a;
         }
-
-        .preview-search-input {
-          background: transparent;
-          border: none;
-          color: #ffffff;
-          font-size: 12.5px;
-          outline: none;
-          width: 100%;
-        }
-
-        .preview-search-count {
-          font-size: 12px;
-          color: #94a3b8;
-        }
-
-        .preview-table-wrapper {
-          overflow-x: auto;
-          max-height: 520px;
-          border: 1px solid #1f2937;
-          border-radius: 10px;
-          margin-bottom: 16px;
-        }
-
-        .preview-table {
-          width: 100%;
-          border-collapse: collapse;
-          font-size: 12px;
-        }
-
-        .preview-table th {
-          background: #1e293b;
-          color: #94a3b8;
-          padding: 9px 10px;
-          font-weight: 700;
-          border-bottom: 1px solid #334155;
-          position: sticky;
-          top: 0;
-          z-index: 5;
-        }
-
-        .preview-table td {
-          padding: 7px 10px;
-          border-bottom: 1px solid #1f2937;
-        }
-
-        .preview-table tr:hover {
-          background: rgba(255, 255, 255, 0.02);
-        }
-
-        .preview-inline-input {
-          background: #0f172a;
-          border: 1px solid #334155;
-          color: #ffffff;
-          font-size: 11.5px;
-          padding: 3px 6px;
-          border-radius: 4px;
-          width: 60px;
-          outline: none;
-        }
-
-        .preview-inline-input:focus {
-          border-color: #38bdf8;
-        }
-
-        .p-w-name {
-          font-weight: 600;
-          color: #ffffff;
-        }
-
-        .p-w-esic {
-          font-size: 10.5px;
-          color: #64748b;
+        .slip-worker-code {
+          font-size: 11px;
           font-family: monospace;
-        }
-
-        .preview-footer-actions {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 12px;
-          padding-top: 14px;
-          border-top: 1px solid #1f2937;
-        }
-
-        .footer-left {
-          display: flex;
-          gap: 8px;
-        }
-
-        .btn-footer-export {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          background: #1e293b;
-          color: #cbd5e1;
-          border: 1px solid #334155;
-          padding: 8px 14px;
-          border-radius: 8px;
-          font-size: 12px;
+          color: #64748b;
           font-weight: 600;
-          cursor: pointer;
+          margin-top: 2px;
         }
 
-        .btn-footer-clear {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          background: rgba(239, 68, 68, 0.15);
-          color: #fca5a5;
-          border: 1px solid rgba(239, 68, 68, 0.3);
-          padding: 8px 14px;
-          border-radius: 8px;
-          font-size: 12px;
-          font-weight: 600;
-          cursor: pointer;
-        }
-
-        .btn-footer-finalize {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-          color: #ffffff;
-          border: none;
-          padding: 10px 22px;
-          border-radius: 8px;
+        .slip-net-pill {
           font-size: 13px;
+          font-weight: 800;
+          color: #059669;
+          background: #ecfdf5;
+          padding: 3px 10px;
+          border-radius: 20px;
+          border: 1px solid #a7f3d0;
+        }
+
+        .slip-stats-row {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 8px;
+          background: #f8fafc;
+          padding: 8px 10px;
+          border-radius: 8px;
+          margin-bottom: 12px;
+          text-align: center;
+        }
+
+        .slip-stat-lbl {
+          font-size: 10px;
+          color: #64748b;
+          text-transform: uppercase;
+          font-weight: 700;
+        }
+        .slip-stat-val {
+          font-size: 12px;
+          font-weight: 800;
+          color: #0f172a;
+          margin-top: 2px;
+        }
+
+        .slip-card-actions {
+          display: flex;
+          gap: 8px;
+        }
+
+        .btn-slip-view {
+          flex: 1;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          background: #eff6ff;
+          color: #2563eb;
+          border: 1px solid #bfdbfe;
+          padding: 6px 12px;
+          border-radius: 7px;
+          font-size: 12px;
           font-weight: 700;
           cursor: pointer;
-          box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
         }
-
-        /* Status Banner */
-        .status-banner {
-          position: fixed;
-          top: 20px;
-          right: 20px;
-          padding: 12px 18px;
-          border-radius: 10px;
-          display: flex;
+        .btn-slip-print {
+          display: inline-flex;
           align-items: center;
-          gap: 12px;
-          z-index: 9999;
-          font-size: 13px;
-          font-weight: 600;
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-        }
-
-        .alert-banner-success {
-          background: #064e3b;
-          color: #a7f3d0;
-          border: 1px solid #10b981;
-        }
-
-        .alert-banner-error {
-          background: #7f1d1d;
-          color: #fecaca;
-          border: 1px solid #ef4444;
-        }
-
-        .alert-banner-info {
-          background: #1e3a8a;
-          color: #bfdbfe;
-          border: 1px solid #3b82f6;
-        }
-
-        .status-close {
-          background: transparent;
-          border: none;
-          color: inherit;
-          font-size: 18px;
+          justify-content: center;
+          gap: 6px;
+          background: #f8fafc;
+          color: #475569;
+          border: 1px solid #e2e8f0;
+          padding: 6px 12px;
+          border-radius: 7px;
+          font-size: 12px;
+          font-weight: 700;
           cursor: pointer;
-          padding: 0 4px;
         }
 
-        /* Modal */
-        .slip-modal-backdrop {
+        /* Modal Styles */
+        .modal-overlay {
           position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.8);
+          inset: 0;
+          background: rgba(15, 23, 42, 0.6);
           backdrop-filter: blur(4px);
           display: flex;
           align-items: center;
@@ -3884,109 +3838,101 @@ export default function MonthlyWageSheetPage() {
           padding: 20px;
         }
 
-        .slip-modal-content {
+        .modal-content-card {
           background: #ffffff;
-          border-radius: 12px;
-          max-width: 900px;
+          border-radius: 16px;
+          max-width: 840px;
           width: 100%;
           max-height: 90vh;
           overflow-y: auto;
-          color: #000000;
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+          border: 1px solid #e2e8f0;
         }
 
-        .slip-modal-header {
+        .modal-header-bar {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 14px 20px;
+          padding: 16px 22px;
           border-bottom: 1px solid #e2e8f0;
           background: #f8fafc;
-          border-radius: 12px 12px 0 0;
         }
 
-        .modal-title-group {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-
-        .modal-title-group h3 {
-          margin: 0;
+        .modal-header-title {
           font-size: 16px;
-          font-weight: 700;
+          font-weight: 800;
           color: #0f172a;
         }
 
-        .worker-code-badge {
-          background: #e0f2fe;
-          color: #0369a1;
-          font-size: 11px;
-          padding: 2px 8px;
-          border-radius: 6px;
-          font-weight: 700;
-        }
-
-        .modal-actions {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .btn-modal-print {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          background: #0284c7;
-          color: white;
-          border: none;
-          padding: 6px 14px;
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: 600;
-          cursor: pointer;
-        }
-
-        .btn-modal-close {
+        .modal-close-btn {
           background: transparent;
           border: none;
           color: #64748b;
           cursor: pointer;
         }
 
-        .slip-modal-body {
-          padding: 20px;
+        .spin {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
         }
 
-        .empty-slips-card, .empty-workers-card {
-          text-align: center;
-          padding: 40px 20px;
-          color: #94a3b8;
-        }
-
-        .empty-slips-card h3, .empty-workers-card h4 {
-          color: #ffffff;
-          margin: 12px 0 6px 0;
-        }
-
-        .btn-go-import, .btn-add-worker-empty {
-          display: inline-flex;
+        .status-banner {
+          display: flex;
+          justify-content: space-between;
           align-items: center;
-          gap: 6px;
-          margin-top: 14px;
-          background: #0284c7;
-          color: white;
-          border: none;
-          padding: 8px 18px;
-          border-radius: 8px;
+          padding: 10px 16px;
+          border-radius: 10px;
+          margin-bottom: 16px;
           font-size: 13px;
           font-weight: 600;
-          cursor: pointer;
+        }
+        .alert-banner-success {
+          background: #ecfdf5;
+          color: #047857;
+          border: 1px solid #a7f3d0;
+        }
+        .alert-banner-error {
+          background: #fef2f2;
+          color: #b91c1c;
+          border: 1px solid #fecaca;
+        }
+        .alert-banner-info {
+          background: #eff6ff;
+          color: #1d4ed8;
+          border: 1px solid #bfdbfe;
         }
 
-        .d-none { display: none; }
-        .spin { animation: spin 1s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .status-close {
+          background: transparent;
+          border: none;
+          font-size: 18px;
+          cursor: pointer;
+          color: currentColor;
+          line-height: 1;
+        }
+
+        .text-right {
+          text-align: right;
+        }
+        .text-center {
+          text-align: center;
+        }
+        .font-mono {
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        }
+        .font-bold {
+          font-weight: 700;
+        }
+        .font-extrabold {
+          font-weight: 800;
+        }
       `}</style>
     </div>
   );
