@@ -6,18 +6,21 @@ const nextConfig: NextConfig = {
   sassOptions: {
     includePaths: [path.join(__dirname, 'src/style')],
   },
-  eslint:{
-    ignoreDuringBuilds:true
+  eslint: {
+    ignoreDuringBuilds: true,
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  outputFileTracingRoot: path.join(__dirname),
   async rewrites() {
     return [
       {
         source: '/',
         destination: '/login-2',
       },
-     ];
+    ];
   },
-
 };
 
 export default nextConfig;

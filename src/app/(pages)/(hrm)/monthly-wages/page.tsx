@@ -535,6 +535,23 @@ export default function MonthlyWageSheetPage() {
     handleSyncGoogleSheet("demo");
   };
 
+  // Copy 154 Workers TSV for 1-click paste into Google Sheets
+  const handleCopy154WorkersToClipboard = async () => {
+    try {
+      const res = await fetch("/sample-sheets/Celebrity_Brewing_Attendance_154_Workers.tsv");
+      if (!res.ok) throw new Error("Failed to load sample dataset");
+      const text = await res.text();
+      await navigator.clipboard.writeText(text);
+      setStatusMessage({
+        type: "success",
+        text: "📋 Copied 154 workers table to clipboard! Open your Google Sheet, click cell A1, and press Ctrl + V.",
+      });
+      alert("📋 Copied 154 Workers Attendance Table!\n\nNext Step:\n1. Open your Google Sheet\n2. Click cell A1\n3. Press Ctrl + V to paste all 154 workers!\n4. Return here & click 'Pull & Sync Attendance'.");
+    } catch (e) {
+      alert("Please download the template using the 'Download 154-Worker Excel Template' button.");
+    }
+  };
+
   const getEmbedUrl = (url: string) => {
     if (!url) return "";
     if (url.includes("docs.google.com/spreadsheets")) {
@@ -1442,6 +1459,24 @@ export default function MonthlyWageSheetPage() {
                     {syncingSheet ? <RefreshCw size={14} className="spin" /> : <RefreshCw size={14} />}
                     <span>{syncingSheet ? "Syncing..." : "Pull & Sync Attendance"}</span>
                   </button>
+
+                  <button
+                    type="button"
+                    className="btn-gsheet-action copy-btn"
+                    onClick={handleCopy154WorkersToClipboard}
+                    title="Copy 154 workers attendance grid to clipboard for 1-click Ctrl+V paste into Google Sheets"
+                  >
+                    <FileSpreadsheet size={14} /> <span>📋 Copy 154 Workers Table</span>
+                  </button>
+
+                  <a
+                    href="/sample-sheets/Celebrity_Brewing_Client_Template_With_154_Workers.xlsx"
+                    download="Celebrity_Brewing_154_Workers_Template.xlsx"
+                    className="btn-gsheet-action download-btn"
+                    title="Download complete 3-sheet Excel template pre-filled with 154 Celebrity Brewing workers"
+                  >
+                    <Download size={14} /> <span>📥 154-Worker Template (.xlsx)</span>
+                  </a>
 
                   <button
                     type="button"
@@ -2968,6 +3003,29 @@ export default function MonthlyWageSheetPage() {
         .btn-gsheet-action.sync-btn:hover:not(:disabled) {
           background: #d1fae5;
         }
+        .btn-gsheet-action.copy-btn {
+          background: #eff6ff;
+          color: #1d4ed8;
+          border-color: #bfdbfe;
+        }
+
+        .btn-gsheet-action.copy-btn:hover {
+          background: #dbeafe;
+          border-color: #93c5fd;
+        }
+
+        .btn-gsheet-action.download-btn {
+          background: #f0fdf4;
+          color: #15803d;
+          border-color: #bbf7d0;
+          text-decoration: none;
+        }
+
+        .btn-gsheet-action.download-btn:hover {
+          background: #dcfce7;
+          border-color: #86efac;
+        }
+
         .btn-gsheet-action.demo-btn {
           background: #eff6ff;
           color: #2563eb;
