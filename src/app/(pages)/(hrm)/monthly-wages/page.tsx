@@ -143,12 +143,14 @@ export default function MonthlyWageSheetPage() {
           setCompanyName(cName);
           setCompanyAddress(res.data.data.address || "");
           const cachedUrl = localStorage.getItem(`hrm_gsheet_url_${cName}`);
-          if (cachedUrl) {
-            if (cachedUrl.includes("celebrity-brewing-october-2026-demo") || cachedUrl.toLowerCase().includes("demo")) {
-              localStorage.removeItem(`hrm_gsheet_url_${cName}`);
-            } else {
-              setGoogleSheetUrl(cachedUrl);
-            }
+          const celebrityGSheet = "https://docs.google.com/spreadsheets/d/1Kh3ERuDkmhJeQPQtYXqWAaHhTRfYP1cbi6bAuFFDiKI/edit?gid=0#gid=0";
+          if (cachedUrl && !cachedUrl.includes("celebrity-brewing-october-2026-demo") && !cachedUrl.toLowerCase().includes("demo")) {
+            setGoogleSheetUrl(cachedUrl);
+          } else if (cName.toUpperCase().includes("CELEBRITY")) {
+            setGoogleSheetUrl(celebrityGSheet);
+            localStorage.setItem(`hrm_gsheet_url_${cName}`, celebrityGSheet);
+          } else {
+            localStorage.removeItem(`hrm_gsheet_url_${cName}`);
           }
         }
       } catch (e) {
@@ -159,13 +161,15 @@ export default function MonthlyWageSheetPage() {
             setCompanyName(cName);
             setCompanyAddress(meRes.data.company.address || "");
             const cachedUrl = localStorage.getItem(`hrm_gsheet_url_${cName}`);
-            if (cachedUrl) {
-            if (cachedUrl.includes("celebrity-brewing-october-2026-demo") || cachedUrl.toLowerCase().includes("demo")) {
-              localStorage.removeItem(`hrm_gsheet_url_${cName}`);
-            } else {
+            const celebrityGSheet = "https://docs.google.com/spreadsheets/d/1Kh3ERuDkmhJeQPQtYXqWAaHhTRfYP1cbi6bAuFFDiKI/edit?gid=0#gid=0";
+            if (cachedUrl && !cachedUrl.includes("celebrity-brewing-october-2026-demo") && !cachedUrl.toLowerCase().includes("demo")) {
               setGoogleSheetUrl(cachedUrl);
+            } else if (cName.toUpperCase().includes("CELEBRITY")) {
+              setGoogleSheetUrl(celebrityGSheet);
+              localStorage.setItem(`hrm_gsheet_url_${cName}`, celebrityGSheet);
+            } else {
+              localStorage.removeItem(`hrm_gsheet_url_${cName}`);
             }
-          }
           }
         } catch {
           // ignore
@@ -471,8 +475,8 @@ export default function MonthlyWageSheetPage() {
     const isDemo =
       !targetUrl ||
       targetUrl === "demo" ||
-      targetUrl.toLowerCase().includes("demo") ||
-      targetUrl.toLowerCase().includes("celebrity");
+      targetUrl.toLowerCase() === "demo" ||
+      targetUrl.includes("celebrity-brewing-october-2026-demo");
 
     if (!targetUrl && !isDemo) {
       alert("Please enter a valid Google Sheets share link or click 'Load Sample Data'.");
@@ -496,6 +500,22 @@ export default function MonthlyWageSheetPage() {
 
       if (res.data?.success && res.data.data?.rows) {
         const d = res.data.data;
+        if (d.rows.length === 0) {
+          setStatusMessage({
+            type: "warning",
+            text: "⚠️ Google Sheet connected, but 0 workers found! The sheet currently only contains headers.",
+          });
+          alert(
+            "⚠️ Google Sheet Connected, but 0 Worker Rows Found!\n\n" +
+            "Your Google Sheet currently only contains the header line and no worker attendance records.\n\n" +
+            "To populate it with Celebrity Brewing's 154 workers in 5 seconds:\n" +
+            "1. Click the '📋 Copy 154 Workers Table' button\n" +
+            "2. Open your Google Sheet and click cell A1\n" +
+            "3. Press Ctrl + V to paste all 154 workers\n" +
+            "4. Return here and click 'Pull & Sync Attendance' again!"
+          );
+          return;
+        }
         setRows(d.rows);
         setSummary(d.summary);
         if (d.attendanceGrid) {
@@ -555,7 +575,7 @@ export default function MonthlyWageSheetPage() {
   const getEmbedUrl = (url: string) => {
     if (!url) return "";
     if (url.includes("docs.google.com/spreadsheets")) {
-      return url.replace(/\/edit.*$/, "/pubhtml?widget=true&headers=false");
+      return url.replace(/\/edit.*$/, "/htmlembed?widget=true");
     }
     return url;
   };
