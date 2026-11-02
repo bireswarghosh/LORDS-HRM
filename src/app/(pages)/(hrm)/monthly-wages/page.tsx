@@ -143,7 +143,13 @@ export default function MonthlyWageSheetPage() {
           setCompanyName(cName);
           setCompanyAddress(res.data.data.address || "");
           const cachedUrl = localStorage.getItem(`hrm_gsheet_url_${cName}`);
-          if (cachedUrl) setGoogleSheetUrl(cachedUrl);
+          if (cachedUrl) {
+            if (cachedUrl.includes("celebrity-brewing-october-2026-demo") || cachedUrl.toLowerCase().includes("demo")) {
+              localStorage.removeItem(`hrm_gsheet_url_${cName}`);
+            } else {
+              setGoogleSheetUrl(cachedUrl);
+            }
+          }
         }
       } catch (e) {
         try {
@@ -153,7 +159,13 @@ export default function MonthlyWageSheetPage() {
             setCompanyName(cName);
             setCompanyAddress(meRes.data.company.address || "");
             const cachedUrl = localStorage.getItem(`hrm_gsheet_url_${cName}`);
-            if (cachedUrl) setGoogleSheetUrl(cachedUrl);
+            if (cachedUrl) {
+            if (cachedUrl.includes("celebrity-brewing-october-2026-demo") || cachedUrl.toLowerCase().includes("demo")) {
+              localStorage.removeItem(`hrm_gsheet_url_${cName}`);
+            } else {
+              setGoogleSheetUrl(cachedUrl);
+            }
+          }
           }
         } catch {
           // ignore
@@ -437,6 +449,15 @@ export default function MonthlyWageSheetPage() {
     setStatusMessage({ type: "info", text: "Attendance cleared for all workers." });
   };
 
+  // Check if current URL is a genuine Google Sheet share link with valid ID
+  const isRealGSheet = Boolean(
+    googleSheetUrl &&
+    googleSheetUrl.includes("docs.google.com/spreadsheets/d/") &&
+    !googleSheetUrl.toLowerCase().includes("demo") &&
+    !googleSheetUrl.toLowerCase().includes("celebrity-brewing-october") &&
+    (googleSheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)?.[1]?.length ?? 0) >= 20
+  );
+
   // Google Sheet Link persistence & Live Sync
   const handleSaveGoogleSheetUrl = () => {
     if (!googleSheetUrl.trim()) return;
@@ -445,18 +466,30 @@ export default function MonthlyWageSheetPage() {
   };
 
   const handleSyncGoogleSheet = async (overrideUrl?: string) => {
-    const targetUrl = (overrideUrl || googleSheetUrl).trim();
-    if (!targetUrl) {
-      alert("Please enter a Google Sheets URL or click 'Try Demo Google Sheet'.");
+    const rawTarget = overrideUrl !== undefined ? overrideUrl : googleSheetUrl;
+    const targetUrl = (rawTarget || "").trim();
+    const isDemo =
+      !targetUrl ||
+      targetUrl === "demo" ||
+      targetUrl.toLowerCase().includes("demo") ||
+      targetUrl.toLowerCase().includes("celebrity");
+
+    if (!targetUrl && !isDemo) {
+      alert("Please enter a valid Google Sheets share link or click 'Load Sample Data'.");
       return;
     }
 
     try {
       setSyncingSheet(true);
-      setStatusMessage({ type: "info", text: "Connecting to Google Sheet & extracting attendance data..." });
+      setStatusMessage({
+        type: "info",
+        text: isDemo
+          ? "Loading verified sample attendance dataset for 154 workers..."
+          : "Connecting to Google Sheet & extracting attendance data...",
+      });
 
       const res = await axiosInstance.post("/labour-wage/import-google-sheet", {
-        url: targetUrl,
+        url: isDemo ? "demo" : targetUrl,
         month: selectedMonth,
         year: selectedYear,
       });
@@ -468,13 +501,21 @@ export default function MonthlyWageSheetPage() {
         if (d.attendanceGrid) {
           setAttendanceGrid(d.attendanceGrid);
         }
-        if (targetUrl) {
+        if (targetUrl && !isDemo) {
           setGoogleSheetUrl(targetUrl);
           localStorage.setItem(`hrm_gsheet_url_${companyName}`, targetUrl);
+        } else if (isDemo) {
+          // Clear any fake demo URL so user is never misled
+          if (googleSheetUrl.includes("celebrity-brewing-october-2026-demo") || googleSheetUrl.includes("demo")) {
+            setGoogleSheetUrl("");
+            localStorage.removeItem(`hrm_gsheet_url_${companyName}`);
+          }
         }
         setStatusMessage({
           type: "success",
-          text: `🎉 Successfully synced ${d.rows.length} worker records from Google Sheet! Live preview ready.`,
+          text: isDemo
+            ? `🎉 Successfully loaded verified sample data for ${d.rows.length} workers! Live calculations ready below.`
+            : `🎉 Successfully synced ${d.rows.length} worker records from Google Sheet! Live preview ready.`,
         });
       } else {
         throw new Error(res.data?.message || "Failed to sync Google Sheet.");
@@ -491,7 +532,7 @@ export default function MonthlyWageSheetPage() {
   };
 
   const handleLoadDemoGoogleSheet = () => {
-    handleSyncGoogleSheet("https://docs.google.com/spreadsheets/d/celebrity-brewing-october-2026-demo/edit");
+    handleSyncGoogleSheet("demo");
   };
 
   const getEmbedUrl = (url: string) => {
@@ -1407,29 +1448,40 @@ export default function MonthlyWageSheetPage() {
                     className="btn-gsheet-action demo-btn"
                     onClick={handleLoadDemoGoogleSheet}
                     disabled={syncingSheet}
-                    title="Load verified sample Google Sheet with realistic attendance"
+                    title="Load verified sample attendance dataset for 154 workers"
                   >
-                    <Sparkles size={14} /> <span>Try Demo Sheet</span>
+                    <Sparkles size={14} /> <span>Load Sample Data (154 Workers)</span>
                   </button>
 
-                  {googleSheetUrl && (
-                    <>
-                      <button
-                        type="button"
-                        className="btn-gsheet-action view-btn"
-                        onClick={() => setShowSheetViewer(!showSheetViewer)}
-                      >
-                        <Eye size={14} /> {showSheetViewer ? "Hide Embedded Sheet" : "Preview Sheet Iframe"}
-                      </button>
-                      <a
-                        href={googleSheetUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn-gsheet-action open-btn"
-                      >
-                        <ExternalLink size={14} /> Open in Google Sheets
-                      </a>
-                    </>
+                  {isRealGSheet && (
+                    <button
+                      type="button"
+                      className="btn-gsheet-action view-btn"
+                      onClick={() => setShowSheetViewer(!showSheetViewer)}
+                    >
+                      <Eye size={14} /> {showSheetViewer ? "Hide Embedded Sheet" : "Preview Sheet Iframe"}
+                    </button>
+                  )}
+
+                  {isRealGSheet ? (
+                    <a
+                      href={googleSheetUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-gsheet-action open-btn"
+                    >
+                      <ExternalLink size={14} /> Open in Google Sheets
+                    </a>
+                  ) : (
+                    <a
+                      href="https://sheets.new"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn-gsheet-action open-btn"
+                      title="Open Google Sheets in new tab to create a new spreadsheet"
+                    >
+                      <ExternalLink size={14} /> Open sheets.new
+                    </a>
                   )}
                 </div>
               </div>
@@ -1439,7 +1491,7 @@ export default function MonthlyWageSheetPage() {
                   <input
                     type="url"
                     className="gsheet-url-input"
-                    placeholder="Paste Google Sheets Share Link (e.g. https://docs.google.com/spreadsheets/d/.../edit)"
+                    placeholder="Paste Google Sheets Share Link (e.g. https://docs.google.com/spreadsheets/d/1BxiMVs.../edit)"
                     value={googleSheetUrl}
                     onChange={(e) => setGoogleSheetUrl(e.target.value)}
                   />
@@ -1453,13 +1505,36 @@ export default function MonthlyWageSheetPage() {
                 </button>
               </div>
 
-              {showSheetViewer && googleSheetUrl && (
+              {showSheetViewer && isRealGSheet && (
                 <div className="gsheet-iframe-wrapper">
                   <iframe
                     src={getEmbedUrl(googleSheetUrl)}
                     className="gsheet-iframe"
                     title="Google Sheet Cloud Viewer"
                   />
+                </div>
+              )}
+
+              {!isRealGSheet && (
+                <div className="gsheet-guide-banner">
+                  <div className="gsheet-guide-title">
+                    <Sparkles size={15} className="text-amber-500" />
+                    <span>How to connect your live Google Sheet in 3 easy steps:</span>
+                  </div>
+                  <div className="gsheet-guide-steps">
+                    <div className="guide-step">
+                      <span className="step-num">1</span>
+                      <span>Open <a href="https://sheets.new" target="_blank" rel="noreferrer" className="guide-link">sheets.new</a> or upload your Excel template.</span>
+                    </div>
+                    <div className="guide-step">
+                      <span className="step-num">2</span>
+                      <span>Click <strong>Share</strong> (top-right) &rarr; change General access to <strong>&quot;Anyone with the link can view&quot;</strong> &rarr; click <strong>Copy link</strong>.</span>
+                    </div>
+                    <div className="guide-step">
+                      <span className="step-num">3</span>
+                      <span>Paste the link in the box above &amp; click <strong>&quot;Pull &amp; Sync Attendance&quot;</strong>! All 154 workers &amp; Form XVII wages will sync in real time.</span>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -2160,7 +2235,7 @@ export default function MonthlyWageSheetPage() {
                     title="Load verified demonstration Google Sheet with realistic attendance for Celebrity Brewing"
                   >
                     <Sparkles size={16} />
-                    <span>Try Celebrity Demo Sheet (Instant Preview)</span>
+                    <span>Load Celebrity Sample Data (154 Workers)</span>
                   </button>
                 </div>
               </div>
@@ -2764,6 +2839,60 @@ export default function MonthlyWageSheetPage() {
         }
 
         /* Google Sheets Sync Hub Card */
+        .gsheet-guide-banner {
+          margin-top: 14px;
+          padding: 12px 16px;
+          background: #f8fafc;
+          border-radius: 10px;
+          border: 1px dashed #cbd5e1;
+        }
+
+        .gsheet-guide-title {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 13px;
+          font-weight: 700;
+          color: #334155;
+          margin-bottom: 8px;
+        }
+
+        .gsheet-guide-steps {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 10px;
+        }
+
+        .guide-step {
+          display: flex;
+          align-items: flex-start;
+          gap: 8px;
+          font-size: 12px;
+          color: #475569;
+          line-height: 1.4;
+        }
+
+        .guide-step .step-num {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #e2e8f0;
+          color: #1e293b;
+          font-weight: 800;
+          font-size: 11px;
+          flex-shrink: 0;
+          margin-top: 1px;
+        }
+
+        .guide-step .guide-link {
+          color: #2563eb;
+          font-weight: 600;
+          text-decoration: underline;
+        }
+
         .gsheet-hub-card {
           background: #ffffff;
           border-radius: 14px;
