@@ -122,7 +122,7 @@ const WorkSchedulePolicyPage = () => {
     shiftId: "",
 
     isActive: true,
-    allowedMethods: ["FACE"],
+    allowedMethods: ["NORMAL", "FACE"],
 
     weeklyOffPattern: [],
   });
