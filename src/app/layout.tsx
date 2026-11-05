@@ -50,6 +50,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined') {
+                window.addEventListener('error', function(e) {
+                  if (e && e.message && (e.message.indexOf('Loading chunk') !== -1 || e.message.indexOf('ChunkLoadError') !== -1)) {
+                    window.location.reload();
+                  }
+                });
+              }
+            `,
+          }}
+        />
+      </head>
       <body suppressHydrationWarning>
         <ReduxProvider>
           <AuthProvider>
