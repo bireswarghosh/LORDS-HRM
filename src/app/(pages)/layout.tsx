@@ -26,16 +26,24 @@ export default function PagesLayout({
         }
     }, [company?.favicon]);
     
-    const wrapperClass = `main-wrapper ${dataLayout === 'horizontal-single' ? 'menu-horizontal' : dataLayout === 'horizontal-overlay' ? 'menu-horizontal' :''}`;
+    const wrapperClass = `main-wrapper ${dataLayout === 'horizontal-single' ? 'menu-horizontal' : dataLayout === 'horizontal-overlay' ? 'menu-horizontal' : ''}`;
     
+    const isHorizontal =
+        dataLayout === 'horizontal' ||
+        dataLayout === 'horizontal-single' ||
+        dataLayout === 'horizontal-overlay' ||
+        dataLayout === 'horizontal-sidemenu';
+    const isTwoColumn = dataLayout === 'twocolumn';
+    const isStacked = dataLayout === 'stacked';
+    const isStandard = !isHorizontal && !isTwoColumn && !isStacked;
     
     return (
         <div className={wrapperClass}>
             <Header />
-            <Sidebar />
-        <HorizontalSidebar />
-        <TwoColumnSidebar />
-        <StackedSidebar />
+            {isStandard && <Sidebar />}
+            {isHorizontal && <HorizontalSidebar />}
+            {isTwoColumn && <TwoColumnSidebar />}
+            {isStacked && <StackedSidebar />}
             <ThemeSettings />
             {children}
         </div>

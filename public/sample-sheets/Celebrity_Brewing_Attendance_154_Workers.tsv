@@ -1,155 +1,145 @@
-CL CODE	CL NAME	CONTRACTOR CODE	SITE	DAY1	DAY2	DAY3	DAY4	DAY5	DAY6	DAY7	DAY8	DAY9	DAY10	DAY11	DAY12	DAY13	DAY14	DAY15	DAY16	DAY17	DAY18	DAY19	DAY20	DAY21	DAY22	DAY23	DAY24	DAY25	DAY26	DAY27	DAY28	DAY29	DAY30	DAY31	PRESENT DAYS	OT HRS
-CBPL0065	ABHISHEK HITE	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	16
-CBPL0159	Ajoy Bhowmick	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0076	Ampu Kumar Pandey	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0061	Haribol Thakur	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0060	JAGANNATH GHOSH	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0123	Ashish Kumar	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0235	Ashish Kumar Chaudhury	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0086	ASHUTOSH KUMAR SINGH	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	0
-CBPL0088	Atma Kumar	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0038	Manas Ranjan Biswal	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0233	Avijit Sarkar	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0177	Basant Kumar	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0080	Biswajit Ghosh-2	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0200	Chandan Mondal	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0175	DEBASIS KOLEY	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	0
-CBPL0146	Debjit Sarkar	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0141	DEBOJYOTI PATHAK	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0178	Dharmveer Singh Kushwah	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0218	Goutam Paul	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0180	Jaydeb Jana	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0077	JETHA RAM ROLAN	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0202	Jitul Bhattacharyay	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	0
-CBPL0093	Manoj Ghosh	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0094	Pawan Kumar Paddor	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0062	Ranjit Koley	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0172	Madhusudan Debnath	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0222	Manabjyoti Das	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0216	Manish Kumar Ray	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0098	Manisankar Ghosh	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	0
-CBPL0033	Laltun Sahani	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0063	Kamal Das	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0045	Sentu Malik	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0109	Madhab Shaw	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0055	Sambhu Yadav	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0017	Mithun Hansda	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0115	PRAVAKARSINA ROY	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	16
-CBPL0207	Pritam Bandopadhyay	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0183	Pritam Koley	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0179	PRITHWISH MALIK	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0015	Samar Hansda	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0119	Sanjay Kumar Ghosh	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0236	Shasai TD	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0030	Shibnath Hansda	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	0
-CBPL0174	Shibnath Roy	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0184	Sobir Mondal	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0161	Soham Ghosh	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0189	SUDIPTA GAYEN	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0137	SUKCHAND HEMBROM	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0120	SUMANTO GHOSH	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0166	SUNIL SAREN	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	0
-CBPL0121	SUSHANT PAL	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0194	SUVENDU KOLEY	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0199	Tanmoy Bag	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0100	SANJAY DAS	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0025	NIRUPAM MALIK	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0240	VASAGADEKAR VIPUL VIJAY	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0064	MAIDUL ISLAM	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	0
-CBPL0102	SORAJ DEY	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0258	Chandra Hus Kumar	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0049	ARUN DHAL	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0050	BISWAJIT GHOSH 1	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0046	RAJKUMAR DAS	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0048	SANJAY DHAL	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0005	AMIYA DAS	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	0
-CBPL0139	KOUSHIK GHOSH	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0079	HEMENTA DAS	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0051	BIDHAN CHANDRA DUTTA	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0052	PRASANTA DUTTA	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0264	Rakesh Ranjan	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0267	Amit Sah	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0265	Rajkumar Sahani	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	16
-CBPL0262	Dibyajyoti Das	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0261	Bachhu Mondal	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0028	Bijay Kumar Srivastava	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0268	Uttam Kumar Raut	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0269	Surendra Ojha	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0273	Amit Das	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0276	Milind Sharad Thavai	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	0
-CBPL0281	Suman Patra	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0279	Biswarup Roy	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0280	Siba Prasad Das	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0099	Anil Chandra Koley	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0314	Pritam Polen	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0034	Bharat Parihar	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0298	Pritam Kr.Pan	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	0
-CBPL0185	Abhijit Roy	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0316	Sourav Sarma	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0002	Ganesh Kanwar	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0319	Manikandan H K	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0283	Jojo Routh	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0288	Prasenjit Biswas	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0290	Saikat Sikdar	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	0
-CBPL0291	Koushik Haldar	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0295	Sourav Sarkar	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0296	Bhaskar Das	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0300	Asit Kumar Pratihari	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0302	Mantosh Kr.Pandey	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0305	Kousik Ghosh	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0306	Vikrant Kumar	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	0
-CBPL0307	Sujit Kr. Jha	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0309	Somnath Majhi	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0312	Raju Sardar	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0313	Subho Singh	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0315	Anuj Ram	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0336	Ganesh Tudu	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0107	Sk.Asiq Iqbal	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	16
-CBPL0108	Trishanu Kundu	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0326	Palash Karmakar	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0327	Manish Tiwari	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0328	Avijit Hait	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0332	Raj Kumar Pashi	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0333	Kushal Santra	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0334	Tamal Das	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	0
-CBPL0335	Biswajit Hansda	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0337	Atanu Ghosh	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0338	Ankit Chowdhury	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0342	Souvik Dutta	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0343	Kattamuri Likhit	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0344	Satya Prakash Ojha	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0350	Vengatesan Nagarathinam	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	0
-CBPL0352	Sourav Deshmukh	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0353	Anusha Samanta	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0355	Dibyakanta Sahu	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0356	Sandeep Kumar Shukla	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0357	Auranj Kumar Paswan	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0358	Aditya Raj	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0359	Raju Kumar	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	0
-CBPL0360	Tanoy Dutta	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0361	Argha Kamal Banerjee	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0362	Subhasis Chakrabarty	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0363	Kuntal Ghosh	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0364	Debasish Maitra	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0366	Ranit Das	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0367	Sumanta Banerjee	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	0
-CBPL0368	Biswajit Jha	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0369	Rahul Chakraborty	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0370	Ashis Moitri	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0371	Atanu Deshmukh	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0372	Ravish Ranjan	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0373	Pradip Mahata	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0374	Libin M. Lalu	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	16
-CBPL0375	Santanu Sikdar	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0376	Subir Dhawa	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0377	Kayakakula Narayana	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0378	Krishnendu Mondal	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0379	Prashant Murlidhar Khadam	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0380	Soumo Mukherjee	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0381	Akshat Srivastava	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	A	P	P	P	P	P	WO	P	A	P	P	P	P	WO	P	P	P	P	P	P	29	0
-CBPL0382	Gobinda Sasmal	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0383	Krishan Kumar	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0384	Souvik Ghosh	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	16
-CBPL0385	Surajit Das	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0386	Vikash Kushwaha	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
-CBPL0387	Ashok Kumar Yadav	CBPL	Celebrity Brewing	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	31	0
+ 	 EMPLOYEE CODE	EMPLOYEE NAME	DEPARTMENT	Designation	Category	DOJ	Cost Head	Date	1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	19	20	21	22	23	24	25	26	27	28	29	30	31	Present Exclude WO/HO	Approved Leave (CL/SL/EL)	Loss of Pay (LOP)	Absent (A) Include WO/HO	Weekly Off (W/O)	Holiday  	Paid Days(Including Oct'26)	Additional Remarks 	Balnce Leave	Leave
+1	CBPL0367	Sumanta Banerjee	Brewing	Fermentation Operator Trainee	Operator	46069	VIC	Attendance	P	A	P	P	P	P	P	P	A	P	P	P	P	P	P	P	A	A	A	P	P	P	P	P	A	P	P	P	P	P	0	24	0	0	6	4	2	30		8.5	8.5
+2	CBPL0314	Pritam Polen	Brewing	Traniee Operator	Operator	45631	VIC	Attendance	P	P	P	A	A	P	P	P	P	P	P	P	P	P	P	P	A	P	P	P	P	A	P	P	P	A	P	P	P	P	0	25	0	0	5	4	1	30		16	16
+3	CBPL0366	Ranit Das	Brewing	Fermentation Operator Trainee	Operator	46069	VIC	Attendance	P	A	A	P	P	P	P	A	P	P	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	A	A	P	P	0	24	0	0	6	4	2	30		7.5	7.5
+4	CBPL0034	Bharat Parihar	Packaging	Labelling Operator	Operator	45380	VIC	Attendance	P	A	P	P	A	P	P	P	P	A	A	A	A	A	A	P	A	A	P	P	A	P	P	P	P	P	P	A	P	P	0	18	6	0	12	4	2	30		-2	-8
+5	CBPL0065	Abhishek Hite	Brewing	Filtration Operator	Operator	42801	VIC	Attendance	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	A	P	P	P	P	P	A	P	P	P	P	P	P	A	0	26	0	0	4	3	1	30		17	17
+6	CBPL0063	Kamal Das	Brewing	Filtration Operator	Operator	42744	VIC	Attendance	P	P	P	P	A	P	P	P	P	P	P	P	A	P	P	P	A	A	P	P	P	P	P	P	A	P	P	P	P	P	0	25	0	0	5	4	1	30		-12	-12
+7	CBPL0045	Sentu Malik	Brewing	Filtration Operator	Operator	42826	VIC	Attendance	P	P	P	P	P	A	P	P	P	P	P	A	P	P	P	P	A	P	A	P	P	P	P	P	P	P	P	A	A	P	0	24	0	0	6	4	2	30		-2	-2
+8	CBPL0038	Manas Ranjan Biswal	Packaging	Bottle Washer Operator	Operator	43234	VIC	Attendance	P	A	P	P	P	P	P	P	A	P	A	P	P	P	P	P	A	A	P	P	P	P	P	P	A	P	P	P	P	P	0	24	0	0	6	4	2	30		-1	-1
+9	CBPL0061	Haribole Thakur	Packaging	Bottle Washer Operator	Operator	42856	VIC	Attendance	P	P	A	A	P	P	P	P	P	P	A	P	P	P	P	P	A	P	P	A	P	P	P	P	P	P	A	P	P	P	0	24	0	0	6	4	2	30		2	2
+10	CBPL0258	Chandrahas Kumar	Packaging	Filler Operator	Operator	45159	VIC	Attendance	P	A	P	P	P	P	P	P	P	A	P	P	P	A	P	P	A	A	P	P	P	P	P	P	A	P	P	P	P	P	0	24	0	0	6	4	2	30		1	1
+11	CBPL0102	Soraj Dey	Packaging_Can Line	Shrink-wrap cum Caser Operator	Operator	44121	VIC	Attendance	P	P	P	P	A	P	P	P	P	A	P	A	P	P	P	P	A	P	P	A	A	P	P	P	P	P	P	A	P	P	0	23	1	0	7	4	2	30		8	7
+12	CBPL0080	Biswajit Ghosh2	Packaging_Can Line	Shrink-wrap cum Caser Operator	Operator	43647	VIC	Attendance	P	P	A	P	P	P	P	P	P	P	A	P	P	P	P	A	A	P	P	A	P	P	A	P	P	P	A	P	P	P	0	23	1	0	7	4	2	30		10	9
+13	CBPL0119	Sanjay Kumar Ghosh	TS	Helper Fitter	Operator	44501	OH	Attendance	P	P	A	P	P	P	P	P	P	P	P	P	A	P	A	A	A	P	P	P	A	P	P	P	P	A	A	P	P	P	0	22	2	0	8	4	2	30	Leave approved	9	7
+14	CBPL0120	Sumanto Ghosh	TS	Argon Welder	Operator	44501	OH	Attendance	P	P	A	P	P	P	P	P	P	P	P	A	P	A	A	P	A	A	P	P	P	P	P	P	P	A	A	P	P	P	0	22	2	0	8	4	2	30	Leave approved	2	0
+15	CBPL0121	Sushant Pal	TS	Packaging Fitter	Operator	44501	OH	Attendance	A	P	P	P	P	P	P	P	P	A	P	P	P	P	P	P	A	P	P	P	P	P	P	A	P	P	P	P	A	P	0	25	0	0	5	4	1	30		17	17
+16	CBPL0139	Koushik Ghosh	Packaging	Packaging Executive - Trainee	Executive	44635	VIC	Attendance	P	A	P	P	A	P	P	P	P	P	P	P	A	P	P	P	A	P	P	P	A	P	P	P	P	P	P	A	P	P	0	24	0	0	6	4	2	30		-3	-3
+17	CBPL0077	Jetha Ram Rolan	Packaging_Can Line	Bottle Washer Operator	Operator	44320	VIC	Attendance	P	A	P	P	P	P	A	P	P	P	P	P	A	P	P	P	A	A	P	P	P	P	A	P	A	P	P	A	P	P	0	22	2	0	8	4	2	30		5	3
+18	CBPL0060	Jagannath Ghosh	Packaging_Can Line	Bottle Washer Operator	Operator	43586	VIC	Attendance	P	A	P	P	A	P	P	P	P	P	P	A	P	P	P	P	A	P	P	P	A	P	P	P	P	P	P	A	P	P	0	24	0	0	6	4	2	30		2	2
+19	CBPL0033	Laltun Sahani	Packaging_Can Line	Filler Operator	Operator	42719	VIC	Attendance	P	P	P	P	P	A	P	P	P	P	P	P	P	A	P	P	A	P	P	P	A	P	P	P	P	P	P	A	P	P	0	25	0	0	5	4	1	30		9	9
+20	CBPL0064	Maidul Islam	Packaging_Can Line	Pasteurizer Operator	Operator	43647	VIC	Attendance	A	P	P	P	P	A	P	P	P	P	P	P	A	P	P	P	A	P	P	P	P	A	P	P	P	P	P	P	A	P	0	24	0	0	6	4	2	30		9	9
+21	CBPL0276	Milind Sharad Thavai	Packaging	Packaging Exicutive	Executive	45303	VIC	Attendance	P	A	P	A	P	P	P	P	P	P	A	P	P	P	P	P	A	P	P	A	P	P	P	P	A	P	P	P	P	P	0	24	0	0	6	4	2	30		-6	-6
+22	CBPL0326	Palash Karmakar	Packaging	Packaging Executive	Executive	45769	VIC	Attendance	A	A	P	P	P	P	P	P	P	A	P	P	P	P	P	P	A	P	P	P	P	A	P	P	P	P	A	P	P	P	0	24	0	0	6	4	2	30		12	12
+23	CBPL0015	Samar Hasnda	Brewing	Trainee Fermentation Opt	Operator	43059	VIC	Attendance	P	P	P	P	P	P	A	P	P	P	P	P	P	P	A	P	P	P	P	P	A	P	A	P	P	P	P	P	P	A	0	25	0	0	5	4	1	30		16	16
+24	CBPL0017	Mithun Hasda	Quality	Lab Attendent	Operator	43059	OH	Attendance	P	A	A	P	P	P	P	P	P	P	P	A	A	P	P	A	A	A	A	A	A	A	P	P	P	P	P	P	P	P	0	19	5	11	11	4	2	30		15	10
+25	CBPL0123	Ashish Kumar	TS	Mechanical Engineer	Executive	44513	OH	Attendance	A	P	P	A	P	P	P	P	P	P	A	P	P	P	P	P	A	P	P	A	P	P	P	P	P	P	P	P	P	P	0	25	0	0	5	4	1	30		-8	-8
+26	CBPL0055	Sambhu Yadav	TS	Fitter	Operator	44270	OH	Attendance	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	P	A	P	P	P	P	A	P	P	P	P	P	P	P	P	0	27	0	0	3	2	1	30		-6	-6
+27	CBPL0109	Madhab Shaw	TS	Fitter	Operator	44396	OH	Attendance	A	P	P	P	P	P	A	P	P	P	P	P	A	A	A	P	A	P	P	P	P	P	P	P	P	P	P	P	P	A	0	23	1	0	7	4	2	30	Leave approved	-7	-8
+28	CBPL0062	Ranjit Koley	TS	Fitter	Operator	42933	OH	Attendance	P	P	P	P	A	P	P	P	P	P	P	A	P	P	P	P	A	P	P	P	P	P	A	P	P	P	P	P	P	P	0	26	0	0	4	3	1	30		3	3
+29	CBPL0046	Rajkumar Das	TS	Refrigeration Operator	Operator	42675	OH	Attendance	P	P	A	P	P	P	P	P	P	A	P	A	P	P	P	P	A	P	P	P	A	P	P	P	P	A	P	P	A	A	0	22	2	0	8	4	2	30	Leave approved	-3	-5
+30	CBPL0048	Sanjay Dhal	TS	Refrigeration Operator	Operator	42655	OH	Attendance	P	P	A	A	A	A	P	P	P	P	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	P	P	P	P	0	25	0	0	5	4	1	30		-39	-39
+31	CBPL0050	BISWAJIT GHOSH (1)	TS	Refrigeration Operator	Operator	44270	OH	Attendance	P	P	P	P	P	P	A	A	A	A	A	A	A	A	A	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	0	21	0	4	9	4	1	26	Left job	11	11
+32	CBPL0051	Bidhan Chandra Dutta	TS	WTP Operator	Operator	42694	OH	Attendance	P	P	P	A	A	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	A	P	P	0	27	0	0	3	2	1	30		5	5
+33	CBPL0049	Arun Dhal	TS	Refrigeration Operator	Operator	42891	OH	Attendance	P	P	P	P	P	P	P	P	P	P	P	P	P	A	A	A	A	A	A	A	A	A	A	P	P	P	P	P	P	P	0	20	4	0	10	4	2	30	Leave approved	-5	-9
+34	CBPL0052	Prasanta Dutta	TS	WTP Operator	Operator	43893	OH	Attendance	P	P	P	P	P	P	P	P	P	P	P	A	P	P	P	P	P	A	A	A	P	P	P	P	A	A	A	P	P	P	0	23	1	0	7	4	2	30	Leave approved	-55	-56
+35	CBPL0327	Manish Tiwari	TS	Assistant TS Manager	Executive	45769	OH	Attendance	P	P	P	A	A	A	P	P	P	P	P	P	P	P	P	P	A	P	P	A	P	P	P	P	P	P	P	P	P	P	0	25	0	0	5	4	1	30		5	5
+36	CBPL0352	Sourav Deshmukh	TS	Electrician Trainee	Operator	45968	OH	Attendance	A	P	A	P	P	P	P	P	A	P	P	P	P	A	P	A	A	P	P	P	A	P	P	P	P	P	P	P	P	A	0	22	2	0	8	4	2	30	Leave approved	13	11
+37	CBPL0369	Rahul Chakraborty	TS	 Trainee W.T.P Operator	Operator	46069	OH	Attendance	P	P	P	A	P	P	A	P	P	P	A	P	P	P	P	P	P	P	P	P	A	A	A	A	P	P	P	P	P	P	0	23	1	0	7	4	2	30	Leave approved	5.5	4.5
+38	CBPL0076	Ampu Kumar Pandey	Logistic	Executive Store Operation (FG)	Executive	44372	VLC	Attendance	P	P	P	A	P	P	P	P	P	P	A	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	P	P	P	P	0	27	0	0	3	2	1	30		7	7
+39	CBPL0370	Ashis Moitri	Packaging	Trainee Pasteurizer Operator	Operator	46069	VIC	Attendance	P	P	A	P	P	P	P	P	A	P	P	P	P	A	P	P	A	A	P	P	P	P	P	P	A	P	P	P	P	P	0	24	0	0	6	4	2	30		7.5	7.5
+40	CBPL0371	Atanu Deshmukh	Packaging	Trainee Labeller Operator	Operator	46069	VIC	Attendance	A	A	P	P	P	P	P	A	P	P	P	P	P	P	A	A	A	P	P	P	P	P	P	A	P	P	P	P	P	P	0	23	1	0	7	4	2	30		8.5	7.5
+41	CBPL0028	Bijay Kumar Srivastava	Logistic	Excise Coordinator WB	Executive	42401	VLC	Attendance	P	A	P	A	P	P	P	P	P	A	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	A	P	P	P	0	25	0	0	5	4	1	30		12	12
+42	CBPL0079	Hementa Das	Logistic	Warehouse Supervisor	Operator	44327	VLC	Attendance	P	A	P	A	P	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	0	26	0	0	4	3	1	30		14	14
+43	CBPL0030	Shibnath Hasda	Logistic	Loading Supervisor	Operator	42402	VLC	Attendance	P	A	A	A	P	A	P	P	P	A	A	P	P	P	A	P	A	P	P	P	P	A	P	P	P	P	P	P	P	P	0	21	3	0	9	4	2	30		4	1
+44	CBPL0264	Rakesh Ranjan	Logistic	Asst. Manager 	Executive	45202	VLC	Attendance	P	P	P	P	P	P	P	P	P	P	A	P	P	P	P	P	A	P	A	A	P	P	P	P	P	P	P	P	P	P	0	26	0	0	4	3	1	30		8	8
+45	CBPL0372	Ravish Ranjan	Logistic	Logistic Executive	Executive	46073	VLC	Attendance	A	A	P	A	A	P	P	P	P	A	P	A	A	P	P	A	A	A	A	A	P	P	P	P	P	P	A	P	P	P	0	17	7	0	13	4	2	30		3.5	-3.5
+46	CBPL0115	Pravakarsina Roy	Logistic	Forkilft Operator	Operator	43626	VLC	Attendance	A	A	P	A	P	A	P	P	P	P	P	A	A	P	A	A	A	A	P	P	P	P	P	P	P	P	P	P	A	A	0	18	0	6	12	4	2	24	Leave  not Approvd	-20	-20
+47	CBPL0358	ADITYA RAJ	TS	Trainee Mechanical Maintenance	Executive	46036	OH	Attendance	A	P	P	A	P	P	P	P	P	P	A	P	P	P	P	A	A	P	P	P	P	P	P	P	P	P	A	P	P	P	0	24	0	0	6	4	2	30		1.5	1.5
+48	CBPL0137	Sukchand Hembrom	Logistic	Warehouse Executive	Executive	44621	VLC	Attendance	P	A	P	A	P	P	P	P	P	P	A	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	P	P	P	P	0	26	0	0	4	3	1	30		15	15
+49	CBPL0141	DEBOJYOTI PATHAK	Logistic	Loading Supervisor	Operator	44635	VLC	Attendance	P	P	P	P	P	P	P	P	P	P	A	P	P	P	P	P	A	P	A	P	P	P	P	P	P	P	P	P	P	P	0	27	0	0	3	2	1	30		16	16
+50	CBPL0093	Manoj Ghosh	People	Driver	Operator	42818	OH	Attendance	A	A	A	A	A	A	A	A	A	A	A	P	P	P	P	A	A	A	A	A	A	A	A	A	A	A	A	A	A	A	0	4	6	20	26	0	0	10	06 Leave Approved	6	0
+51	CBPL0094	Pawan kr Poddar	People	Driver	Operator	43473	OH	Attendance	P	A	P	A	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	P	P	P	P	A	A	A	P	P	P	0	24	0	0	6	4	2	30		9	9
+52	CBPL0360	Tanoy dutta	Packaging	PRODUCTION EXECUTIVE	Executive	46055	VIC	Attendance	P	A	P	P	P	P	P	P	A	P	P	A	P	P	P	P	A	P	P	P	P	A	A	A	P	P	P	P	P	P	0	23	1	0	7	4	2	30		10	9
+53	CBPL0098	Manishankar Ghosh	People	Cook	Operator	42470	OH	Attendance	P	P	P	A	P	P	P	P	P	P	P	P	P	P	A	P	A	P	P	P	P	P	P	P	P	A	P	P	P	P	0	26	0	0	4	3	1	30		13	13
+54	CBPL0099	Anil Chandra Koley	People	Cook	Operator	42401	OH	Attendance	P	P	P	A	P	P	P	P	P	P	A	P	P	P	P	P	A	P	P	A	P	P	P	P	P	P	A	P	P	P	0	25	0	0	5	4	1	30		5	5
+55	CBPL0100	Sanjay Das	People	MALI	Operator	43444	OH	Attendance	P	P	P	P	P	OD	P	P	P	P	P	P	P	P	P	P	A	A	A	A	P	P	P	P	P	P	P	P	P	P	0	26	0	0	4	3	1	30		18	18
+56	CBPL0269	Surendra Ojha	People	Pujari	Operator	45212	OH	Attendance	P	P	P	A	P	P	P	P	P	P	A	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	P	P	P	P	0	27	0	0	3	2	1	30		18	18
+57	CBPL0298	Pritam Kr.Pan	Logistic	Bottle Yard Supervisor-Trainee	Operator	45423	VLC	Attendance	A	A	P	A	P	P	P	P	P	A	P	P	P	A	A	P	A	P	P	P	A	P	P	P	P	A	P	P	P	P	0	21	3	0	9	4	2	30		8	5
+58	CBPL0088	Atma Kumar	People	HR Executive	Executive	42461	OH	Attendance	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	P	P	P	P	0	29	0	0	1	0	1	30		-2	-2
+59	CBPL0025	Nirupam Malik	Account	Office Filling Supervisor	Operator	43263	OH	Attendance	P	A	P	A	P	P	P	P	P	P	A	A	P	P	P	P	A	P	P	A	A	P	P	P	P	P	A	P	P	P	0	22	2	0	8	4	2	30		6	4
+60	CBPL0146	Debjit Sarkar	Account	Account Executive	Executive	44641	OH	Attendance	P	A	OD	A	P	P	P	P	P	P	A	P	P	P	A	P	A	P	P	A	P	P	P	P	P	P	A	P	P	P	0	23	1	0	7	4	2	30	01 Day OD Duty	4	3
+61	CBPL0288	Prasenjit Biswas	Account	Account Executive	Executive	45404	OH	Attendance	P	A	P	A	P	P	P	P	P	P	A	P	P	P	P	P	A	P	P	A	P	P	P	P	A	P	A	P	P	P	0	23	0	1	7	4	2	29	Leave not Approved	-6	-6
+62	CBPL0159	Ajoy Bhowmick	Packaging	Sr. Executive Packaging	Executive	44676	VIC	Attendance	P	P	P	P	P	P	A	P	P	P	P	P	P	A	P	P	A	P	P	P	P	P	A	P	P	P	P	P	P	A	0	25	0	0	5	4	1	30		4	4
+63	CBPL0161	Soham Ghosh	Packaging	Traininee Pasteurizer Operator	Operator	44683	VIC	Attendance	P	P	P	A	A	P	P	P	P	P	P	A	P	P	P	P	A	P	P	P	P	P	A	P	P	P	P	A	P	P	0	24	0	0	6	4	2	30		-6	-6
+64	CBPL0166	Sunil Saren	TS	Electrician	Operator	44700	OH	Attendance	P	P	P	P	P	P	P	A	P	P	P	P	A	P	P	P	P	P	P	A	P	A	P	P	P	P	P	P	P	P	0	26	0	0	4	3	1	30		14	14
+65	CBPL0172	Madhusudan Debnath	Logistic	RM Supervisor	Operator	44718	VLC	Attendance	P	P	P	P	P	A	P	P	P	P	A	P	P	P	P	P	A	P	P	A	P	P	P	P	P	P	A	P	P	P	0	25	0	0	5	4	1	30		17	17
+66	CBPL0265	Rajkumar Sahani	Packaging	Trainee Bottle Washer Operator	Operator	45202	VIC	Attendance	P	A	P	P	P	P	A	P	P	A	P	P	P	A	P	A	A	P	P	P	P	P	A	P	P	P	P	P	P	A	0	22	2	0	8	4	2	30		-6	-8
+67	CBPL0174	Shibnath Roy	Packaging	Trainee Machine Operator - EBI	Operator	44723	VIC	Attendance	A	A	P	A	P	A	P	P	P	P	P	P	P	P	A	A	A	P	P	P	P	A	P	P	P	P	P	P	P	A	0	21	3	0	9	4	2	30		7	4
+68	CBPL0175	Debasis Koley	Logistic	PM Supervisor	Operator	44725	VLC	Attendance	P	A	P	P	P	P	A	A	P	P	P	P	P	P	P	P	A	P	P	A	P	P	P	P	P	A	P	P	P	P	0	24	0	0	6	4	2	30		15	15
+69	CBPL0177	Basant Kumar	Packaging_Can Line	Filler Machine Operator	Operator	44730	VIC	Attendance	P	A	P	P	P	P	A	P	P	P	P	P	P	A	P	A	A	P	P	P	P	P	A	P	P	P	P	P	P	A	0	23	1	0	7	4	2	30		5	4
+70	CBPL0178	Dharamveer Singh	Packaging	Filler Machine Operator	Operator	44731	VIC	Attendance	A	A	A	A	A	A	A	A	A	A	A	A	A	P	P	P	A	P	P	A	P	P	A	P	P	P	P	P	P	P	0	14	10	0	16	4	2	30		-4	-14
+71	CBPL0179	Prithwish Malik	Packaging	Traininee Pasteurizer Operator	Operator	44733	VIC	Attendance	P	A	P	P	A	P	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	A	P	P	P	P	P	P	A	P	0	25	0	0	5	4	1	30		-1	-1
+72	CBPL0180	Jaydeb Jana	Packaging	Assistant manager	Executive	44736	VIC	Attendance	P	P	P	P	P	P	P	P	P	P	A	P	P	P	P	P	A	A	P	P	P	P	P	P	P	P	A	P	P	P	0	26	0	0	4	3	1	30		2	2
+73	CBPL0185	Abhijit Roy	TS	Fitter	Operator	45413	OH	Attendance	P	P	P	P	P	A	A	P	P	P	P	P	P	A	P	P	A	A	P	P	P	A	P	P	P	P	P	P	P	A	0	23	1	0	7	4	2	30	Leave approved	14	13
+74	CBPL0184	Sobir Mondal	Packaging	Traininee Pasteurizer Operator	Operator	44743	VIC	Attendance	P	P	P	P	A	P	P	P	P	P	P	A	P	P	A	P	A	P	P	P	A	P	P	P	P	P	A	P	P	P	0	24	0	0	6	4	2	30		-8	-8
+75	CBPL0183	Pritam Koley	Packaging	Jr. Filler Machine Operator-Trainee	Operator	44743	VIC	Attendance	A	A	P	P	P	P	P	A	P	P	P	P	P	P	A	P	A	P	P	P	P	P	P	A	P	P	P	P	P	P	0	24	0	0	6	4	2	30		0	0
+76	CBPL0189	Sudipta Gayen	Packaging	Trainee Bottle Washer Operator	Operator	44768	VIC	Attendance	P	P	P	P	P	A	P	P	P	A	P	P	P	A	P	P	A	P	P	A	P	A	P	P	P	P	P	P	A	P	0	23	1	0	7	4	2	30		9	8
+77	CBPL0368	Biswajit Jha	EHS	Supervisor	Executive	46069	OH	Attendance	P	P	P	P	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	0	29	0	0	1	0	1	30		12.5	12.5
+78	CBPL0194	Suvendu Koley	Packaging	Labelling Operator - Trainee	Operator	44778	VIC	Attendance	A	A	P	P	P	P	P	P	P	A	A	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	P	P	P	P	0	25	0	0	5	4	1	30		7	7
+79	CBPL0199	Tanmoy Bag	TS	Fitter	Operator	44845	OH	Attendance	P	P	P	A	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	0	29	0	0	1	0	1	30		12	12
+80	CBPL0200	Chandan Mondal	Packaging	Trainee Machine Operator	Operator	44846	VIC	Attendance	P	P	A	P	P	A	P	A	P	P	P	P	A	P	P	P	A	P	P	P	A	P	P	P	P	P	P	A	P	P	0	23	1	0	7	4	2	30		15	14
+81	CBPL0337	Atanu Ghosh	Packaging	Bottle Washer Operator	Operator		VIC	Attendance	A	A	P	P	P	P	P	A	P	P	P	P	P	P	A	P	A	P	P	P	P	P	P	P	P	A	P	P	P	P	0	24	0	0	6	4	2	30		9	9
+82	CBPL0202	Jitul Bhattacharyay	Packaging_Can Line	Jr. Filler Machine Operator-Trainee	Operator	44875	VIC	Attendance	P	A	A	P	P	P	P	P	P	A	P	P	P	P	P	P	A	A	A	P	P	P	P	P	P	A	P	P	P	P	0	23	1	0	7	4	2	30		11	10
+83	CBPL0328	Avijit Hait	Packaging	Labelling Operator	Operator	45477	VIC	Attendance	P	A	P	P	P	P	P	P	P	A	P	P	A	P	P	P	A	P	P	P	P	P	P	A	P	P	P	P	P	A	0	24	0	0	6	4	2	30		5	5
+84	CBPL0216	Manish Kr. Ray	Brewing	Fermentation Operator	Operator	44936	VIC	Attendance	P	P	P	P	P	P	A	P	P	A	P	P	P	P	A	P	A	P	P	P	P	P	P	A	P	P	P	P	P	A	0	24	0	0	6	4	2	30		2	2
+85	CBPL0218	Goutam Paul	Account	Assistant Accountant	Executive	44942	OH	Attendance	P	A	P	A	P	P	P	P	P	P	A	P	P	P	P	P	A	A	OD	A	P	P	P	P	P	P	A	P	P	P	0	23	1	0	7	4	2	30	01 Day OD Duty	-7	-8
+86	CBPL0279	Biswarup Roy	Packaging_Can Line	Shrink-wrap  Operator	Operator	45337	VIC	Attendance	A	A	P	P	P	P	P	P	A	P	P	P	P	P	P	P	A	P	P	P	P	P	P	A	A	A	P	P	P	P	0	23	1	0	7	4	2	30		12	11
+87	CBPL0273	Amit Das	Packaging_Can Line	Filler Operator	Operator	45279	VIC	Attendance	A	P	P	A	P	P	P	P	P	P	A	A	P	P	P	P	A	P	P	A	P	P	P	P	A	P	A	P	P	P	0	22	2	0	8	4	2	30		-2	-4
+88	CBPL0222	Manabjyoti Das	Packaging_Can Line	Shrink-wrap cum Caser Operator	Operator	44972	VIC	Attendance	P	A	P	A	P	P	P	P	P	P	A	P	P	P	P	P	A	A	A	P	P	P	P	P	P	P	A	P	P	P	0	23	1	0	7	4	2	30		-10	-11
+89	CBPL0374	Libin M Lalu	Brewing	Fermentation Operator	Operator	46132	VIC	Attendance	P	P	P	A	A	P	P	P	P	P	P	P	P	P	P	P	A	P	A	P	P	P	P	P	P	P	P	P	P	P	0	26	0	0	4	3	1	30		6.5	6.5
+90	CBPL0280	Sibaprasad Das	Packaging	Labelling Operator	Operator	45337	VIC	Attendance	P	A	P	P	P	A	P	P	P	P	P	A	P	P	A	A	A	P	P	P	P	P	A	P	P	P	P	P	P	A	0	22	2	0	8	4	2	30		-7	-9
+91	CBPL0267	Amit Sah	Packaging	Labelling Operator	Operator	45203	VIC	Attendance	P	A	A	A	A	P	P	P	P	A	P	P	P	A	P	A	A	A	A	A	A	A	A	A	A	A	A	A	A	A	0	9	15	0	21	4	2	30		-7	-22
+92	CBPL0355	Dibyakanta Sahu	TS	Senior Electrician	Executive	46001	OH	Attendance	P	P	P	P	P	A	A	A	P	P	P	P	P	P	P	A	A	P	P	P	P	P	P	P	P	P	P	P	A	P	0	24	0	0	6	4	2	30		8	8
+93	CBPL0233	Avijit Sarkar	Logistic	Logistic Executive	Executive	45008	VLC	Attendance	P	A	P	P	P	P	P	P	P	P	P	P	P	P	P	A	A	P	P	P	P	P	P	P	P	P	P	P	P	P	0	27	0	0	3	2	1	30		16	16
+94	CBPL0235	Ashish Kumar Chaudhury	Quality	Quality Executive	Executive	45017	OH	Attendance	P	P	P	P	P	P	P	P	P	P	P	P	P	A	P	P	A	P	P	P	A	A	A	A	A	A	A	P	P	P	0	21	3	0	9	4	2	30		14	11
+95	CBPL0268	Uttam Kumar	Packaging	Labelling Operator	Operator	45203	VIC	Attendance	A	A	P	P	P	P	A	P	P	P	P	P	P	P	P	A	A	A	P	P	P	P	P	P	P	P	P	P	P	P	0	24	0	0	6	4	2	30		3	3
+96	CBPL0240	Vasagadekar Vipul Vijay	Brewing	Trainee Shift Brewer	Operator	45075	VIC	Attendance	A	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	A	P	P	A	P	P	P	P	P	P	P	P	P	P	0	27	0	0	3	2	1	30		12	12
+97	CBPL0373	Pradip Mahata	TS	E & I Senior Technician Executive	Executive	46113	OH	Attendance	P	P	P	P	P	P	P	P	P	P	P	A	A	P	P	P	P	P	P	P	P	A	A	A	A	A	P	P	P	P	0	23	1	0	7	4	2	30	Leave approved	8	7
+98	CBPL0316	Sourav Sarma	Logistic	Store Supervisor	Executive	45668	VLC	Attendance	P	P	A	A	P	P	P	P	P	P	A	P	P	P	P	A	A	A	A	A	P	P	P	P	P	P	A	P	P	P	0	21	3	0	9	4	2	30		-2	-5
+99	CBPL0364	Debasish Maitra	Packaging	Trainee Hologram Operator	Operator	46069	VIC	Attendance	P	A	P	P	P	P	A	P	P	P	P	P	P	P	P	P	A	A	P	P	P	P	A	P	P	P	P	P	P	A	0	24	0	0	6	4	2	30		4.5	4.5
+100	CBPL0002	Ganesh Kanwar	People	General Manager	Executive	45139	OH	Attendance	P	P	P	A	P	P	P	P	P	P	A	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	A	P	P	P	0	26	0	0	4	3	1	30		8	8
+101	CBPL0342	Souvik Dutta	Quality	Quality Executive - Packaging	Executive	45805	OH	Attendance	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	A	P	P	P	P	P	A	A	P	P	P	P	P	A	0	25	0	0	5	4	1	30		-3	-3
+102	CBPL0343	Kattamuri Likhit	Quality	Quality Executive	Executive	45810	OH	Attendance	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	A	A	A	A	A	A	A	A	A	A	A	P	P	P	P	0	19	5	0	11	4	2	30		1	-4
+103	CBPL0377	Kayakakula Narayana	Quality	Quality Executive	Executive	46146	OH	Attendance	P	P	P	A	P	P	P	P	P	P	A	P	P	P	P	P	A	P	P	P	P	P	P	P	A	P	P	P	P	P	0	26	0	0	4	3	1	30		2	2
+104	CBPL0261	Bachhu Mondal	Logistic	Asst. Manager 	Executive	45170	VLC	Attendance	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	P	P	P	P	0	29	0	0	1	0	1	30		-5	-5
+105	CBPL0207	Pritam Bandopadhyay	Packaging	Trainee Machine Operator -Hologram	Operator	44908	VIC	Attendance	P	A	P	P	P	A	P	P	P	P	P	P	A	P	P	P	A	P	P	A	P	A	P	A	P	P	P	A	P	P	0	22	2	0	8	4	2	30		1	-1
+106	CBPL0281	Suman Patra	Logistic	PM Supervisour	Operator	45323	VLC	Attendance	A	P	P	A	P	P	P	P	A	P	P	P	P	P	P	P	A	A	P	P	P	P	P	P	P	P	P	A	P	P	0	24	0	0	6	4	2	30		3	3
+107	CBPL0357	Auranj kumar paswan	Logistic	Logistic Executive	Executive	46023	VLC	Attendance	P	P	P	P	P	P	P	P	P	A	P	P	P	P	P	P	A	P	A	P	P	P	P	A	A	A	P	P	P	P	0	24	0	0	6	4	2	30		16	16
+108	CBPL0353	Anusha Samanta	Brewing	Brewing Supervisour	Executive	45971	VIC	Attendance	P	A	P	A	P	P	P	P	P	P	A	P	P	P	P	P	A	P	P	A	P	P	P	P	P	P	P	P	P	P	0	25	0	0	5	4	1	30		11	11
+109	CBPL0319	Manikandan H K	Brewing	Shift Brewer_Trainee	Executive	45723	VIC	Attendance	P	P	P	P	P	P	P	P	P	P	A	P	P	P	P	P	A	P	P	P	P	P	P	A	P	P	P	P	P	P	0	27	0	0	3	2	1	30		-19	-19
+110	CBPL0283	Jojo Routh	Brewing	Fermentation Operater	Operator	45323	VIC	Attendance	P	P	P	A	P	P	P	P	P	P	A	P	P	P	P	P	A	P	P	A	A	A	P	P	P	P	P	P	P	P	0	24	0	0	6	4	2	30		18	18
+111	CBPL0290	Saikat Sikdar	Packaging	Traininee Caser Operator	Operator	45413	VIC	Attendance	A	A	P	P	P	A	P	P	P	P	P	P	A	P	P	P	A	A	A	P	P	A	P	P	P	P	P	P	A	P	0	21	3	0	9	4	2	30		9	6
+112	CBPL0291	Koushik Haldar	Packaging	Traininee Pasteurizer Operator	Operator	45413	VIC	Attendance	P	A	P	A	P	P	P	P	P	P	A	P	P	P	P	P	A	A	A	P	P	P	P	P	P	P	A	P	P	P	0	23	1	0	7	4	2	30		5	4
+113	CBPL0363	Kuntal Ghosh	Packaging	Trainee Pasteurizer Operator	Operator	46069	VIC	Attendance	A	A	P	P	P	P	P	A	P	P	P	P	P	P	P	P	A	A	P	P	P	P	P	A	P	P	P	P	P	P	0	24	0	0	6	4	2	30		9.5	9.5
+114	CBPL0362	Subhasisi Chakrabarty	Packaging	Trainee Case Packer Operator	Operator	46069	VIC	Attendance	P	A	P	P	A	P	P	A	P	P	P	A	P	P	P	A	A	A	A	A	A	A	A	A	A	A	A	A	P	P	0	13	11	0	17	4	2	30		-3.5	-14.5
+115	CBPL0295	Sourav Sarkar	Packaging	Training Operator	Operator	45413	VIC	Attendance	P	A	P	P	P	P	P	P	A	P	P	P	P	P	P	A	A	A	P	P	P	P	P	P	A	P	P	P	P	A	0	23	1	0	7	4	2	30		13	12
+116	CBPL0296	Bhaskar Das	Packaging	Traininee Case packer Operator	Operator	45413	VIC	Attendance	P	A	P	P	P	P	A	P	P	A	P	P	P	A	P	A	A	P	P	P	P	P	A	P	P	P	P	P	P	A	0	22	2	0	8	4	2	30		4	2
+117	CBPL0386	Vikash Kushwaha	Quality	Quality Executive	Executive	46290	OH	Attendance	P	A	P	A	P	P	P	P	P	P	A	P	P	P	P	A	A	A	A	A	A	A	A	A	P	P	P	P	P	P	0	18	0	9	12	3	0	21	New Joining On 25 Sept	4.5	4.5
+118	CBPL0300	Asit Kumar Pratihari	TS	Trainee Electrician	Operator	45489	OH	Attendance	P	P	P	A	A	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	P	A	A	A	P	P	P	0	25	0	0	5	4	1	30		16	16
+119	CBPL0356	Sandeep Kumar Shukla	Logistic	Logistic Executive	Executive	46001	VLC	Attendance	A	A	A	A	A	P	P	P	P	P	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	P	P	P	A	0	23	1	0	7	4	2	30		11	10
+120	CBPL0302	Mantosh Kr.Pandey	Logistic	Asst. Manager PM	Executive	45494	VLC	Attendance	P	A	P	A	P	P	P	P	P	P	A	P	P	A	A	P	A	P	P	A	P	P	P	P	P	P	A	P	P	P	0	22	2	0	8	4	2	30		-1	-3
+121	CBPL0305	Kousik Ghosh	Logistic	Bottle Yard Supervisor - Trainee	Operator	45520	VLC	Attendance	A	P	P	P	P	P	P	A	P	P	A	P	P	P	P	P	A	A	P	P	P	P	A	P	P	P	P	P	P	P	0	24	0	0	6	4	2	30		17	17
+122	CBPL0306	Vikrant Kumar	People	Admin Supervisour	Executive	45568	OH	Attendance	P	P	P	A	P	P	P	P	P	P	A	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	A	P	P	P	0	26	0	0	4	3	1	30		5	5
+123	CBPL0307	Sujit Kr. Jha	Logistic	Logistic Executive	Executive	45580	VLC	Attendance	A	P	P	P	P	A	P	P	P	P	A	A	P	P	P	P	A	P	P	P	P	A	P	P	P	P	P	P	P	P	0	24	0	0	6	4	2	30		-19	-19
+124	CBPL0309	Somnath Majhi	TS	Trainee Electrician	Operator	45607	OH	Attendance	P	P	P	P	A	P	P	P	P	P	P	P	P	P	P	P	A	A	A	A	P	P	P	P	P	P	P	P	P	P	0	25	0	0	5	4	1	30		16	16
+125	CBPL0350	Vengatesan Nagarathinam	Brewing	Shift Brewer	Executive	45904	VIC	Attendance	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	A	P	P	P	P	0	27	0	0	3	2	1	30		-1	-1
+126	CBPL0312	Raju Sardar	Quality	Trainee Executive	Executive	45610	OH	Attendance	P	P	P	P	P	P	P	A	A	P	P	P	P	P	P	P	A	A	A	P	P	P	P	P	P	P	P	P	P	P	0	25	0	0	5	4	1	30		18	18
+127	CBPL0313	Subho Singh	Brewing	Traning Operater	Operator	45627	VIC	Attendance	P	P	A	P	P	P	P	P	P	P	A	A	P	P	P	P	A	P	A	P	P	P	P	P	P	P	P	P	P	A	0	24	0	0	6	4	2	30		14	14
+128	CBPL0315	Anuj Ram	Account	Account Executive	Executive	45642	OH	Attendance	P	A	A	A	P	P	P	P	P	P	A	P	P	P	P	P	A	P	P	A	P	P	P	A	P	P	A	P	P	P	0	22	0	2	8	4	2	28	Leave not Approved	-5	-5
+129	CBPL0336	Ganesh Tudu	People	Driver	Executive	45703	OH	Attendance	A	A	A	A	A	A	A	A	A	A	A	A	P	P	P	A	A	A	A	A	A	A	A	A	A	A	A	A	A	A	0	3	3	24	27	0	0	6	03 Leave Approved	3	0
+130	CBPL0378	Krishnendu Mondal	Brewing	Trainee Fermentation Opt	Operator	46128	VIC	Attendance	P	A	P	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	P	P	A	P	P	P	P	P	A	P	P	0	26	0	0	4	3	1	30		6.5	6.5
+131	CBPL0379	Prashant Kadam	Brewing	Brewing Opt	Operator	46162	VIC	Attendance	A	P	P	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	A	A	P	P	P	P	P	P	P	P	P	0	26	0	0	4	3	1	30		9.5	9.5
+132	CBPL0359	Raju Kumar	Packaging	Electrical & Instrumentation Eng	Executive	46042	VIC	Attendance	P	A	A	P	P	P	P	P	P	P	P	A	P	P	P	P	A	P	P	A	P	P	P	P	A	P	P	P	P	P	0	24	0	0	6	4	2	30		8.5	8.5
+133	CBPL0332	Raj Kumar Pashi	Packaging	Trainee caser operator	Operator	45748	VIC	Attendance	A	A	P	P	P	P	P	A	P	A	P	P	P	P	A	A	A	P	P	P	P	P	P	A	P	P	P	P	P	P	0	22	2	0	8	4	2	30		6	4
+134	CBPL0333	Kushal Santra	Packaging	Trainee-Bottle washer operator 	Operator	45748	VIC	Attendance	P	A	P	P	A	P	P	P	P	A	P	P	A	P	P	P	A	P	P	P	P	A	P	P	P	P	P	P	A	P	0	23	1	0	7	4	2	30		13	12
+135	CBPL0334	Tamal Das	Packaging	Trainee Asebi operator	Operator	45748	VIC	Attendance	A	A	P	P	A	P	P	P	P	P	P	A	A	A	P	P	A	A	P	P	A	P	P	P	P	P	P	P	P	P	0	21	3	0	9	4	2	30		4	1
+136	CBPL0335	Biswajit Hansda	Packaging	Trainee-Shrink wrapper/Caser operator 	Operator	45748	VIC	Attendance	P	P	A	A	P	A	P	P	P	P	P	P	A	P	P	A	A	P	P	P	P	A	P	P	P	P	P	P	A	P	0	22	2	0	8	4	2	30		9	7
+137	CBPL0086	Subhodh Kr. Singh	People	Labour Supervisour	Executive	45748	OH	Attendance	P	A	P	P	P	P	P	P	P	P	P	P	P	P	P	P	A	P	P	P	P	P	P	P	P	P	P	P	P	P	0	28	0	0	2	1	1	30		11	11
+138	CBPL0375	Santanu Sikdar	TS	Electricion	Operator	46128	OH	Attendance	A	A	P	P	P	P	P	P	P	A	P	P	P	P	A	P	A	A	P	P	P	P	P	P	P	P	P	A	P	P	0	23	1	0	7	4	2	30	Leave approved	9.5	8.5
+139	CBPL0376	SUBIR DHAWA	Packaging	Packaging Excutive	Executive	46144	VIC	Attendance	A	A	P	P	P	A	P	P	P	P	P	P	A	P	P	A	A	A	P	P	P	P	P	A	P	P	P	P	P	P	0	22	2	0	8	4	2	30		6	4
+140	CBPL0380	Soumo Mukherjee	TS	AM Electrical & Instrument Eng	Executive	46176	OH	Attendance	P	P	P	A	A	A	P	P	P	P	A	P	P	P	P	P	A	P	P	A	P	P	P	P	P	A	A	P	P	P	0	22	2	0	8	4	2	30	Leave approved	1	-1
+141	CBPL0382	Gobinda Sasmal	TS	WTP Operator	Operator	46193	OH	Attendance	P	P	P	P	P	A	A	A	A	A	P	P	P	P	P	A	A	P	P	P	P	P	P	P	P	P	P	P	P	P	0	23	1	0	7	4	2	30	Leave approved	5.5	4.5
+142	CBPL0383	Krishan Kumar	Packaging	Fillar Operator	Operator	46200	OH	Attendance	P	P	P	P	A	P	P	P	P	P	P	P	A	P	P	A	A	A	A	A	A	A	P	P	P	P	P	P	A	P	0	20	4	0	10	4	2	30		2.5	-1.5
+143	CBPL0384	Souvik Ghosh	Packaging	Trainee Pasteurizer Operator	Operator	46204	OH	Attendance	P	P	P	P	A	P	P	A	A	P	P	P	A	P	A	P	A	A	P	P	P	P	A	P	P	P	P	P	P	A	0	21	3	0	9	4	2	30		6.5	3.5
+144	CBPL0385	Surajit Das	Quality	Trainee Executive	Executive	46244	OH	Attendance	A	A	P	P	P	P	P	P	P	P	P	P	P	P	A	P	A	P	P	A	P	P	P	P	P	P	P	P	P	A	0	24	0	0	6	4	2	30		6	6

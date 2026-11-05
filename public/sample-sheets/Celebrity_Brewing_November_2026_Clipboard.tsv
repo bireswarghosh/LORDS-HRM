@@ -1,0 +1,145 @@
+SL NO	EMP CODE	EMPLOYEE NAME	DEPARTMENT	DESIGNATION	16-Oct	17-Oct	18-Oct	19-Oct	20-Oct	21-Oct	22-Oct	23-Oct	24-Oct	25-Oct	26-Oct	27-Oct	28-Oct	29-Oct	30-Oct	31-Oct	01-Nov	02-Nov	03-Nov	04-Nov	05-Nov	06-Nov	07-Nov	08-Nov	09-Nov	10-Nov	11-Nov	12-Nov	13-Nov	14-Nov	15-Nov	PRESENT DAYS	OT HRS
+1	CBPL0367	Sumanta Banerjee	Brewing	Fermentation Operator Trainee	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+2	CBPL0314	Pritam Polen	Brewing	Traniee Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+3	CBPL0366	Ranit Das	Brewing	Fermentation Operator Trainee	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+4	CBPL0034	Bharat Parihar	Packaging	Labelling Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+5	CBPL0065	Abhishek Hite	Brewing	Filtration Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+6	CBPL0063	Kamal Das	Brewing	Filtration Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+7	CBPL0045	Sentu Malik	Brewing	Filtration Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+8	CBPL0038	Manas Ranjan Biswal	Packaging	Bottle Washer Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+9	CBPL0061	Haribole Thakur	Packaging	Bottle Washer Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+10	CBPL0258	Chandrahas Kumar	Packaging	Filler Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+11	CBPL0102	Soraj Dey	Packaging_Can Line	Shrink-wrap cum Caser Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+12	CBPL0080	Biswajit Ghosh2	Packaging_Can Line	Shrink-wrap cum Caser Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+13	CBPL0119	Sanjay Kumar Ghosh	TS	Helper Fitter	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+14	CBPL0120	Sumanto Ghosh	TS	Argon Welder	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+15	CBPL0121	Sushant Pal	TS	Packaging Fitter	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+16	CBPL0139	Koushik Ghosh	Packaging	Packaging Executive - Trainee	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+17	CBPL0077	Jetha Ram Rolan	Packaging_Can Line	Bottle Washer Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+18	CBPL0060	Jagannath Ghosh	Packaging_Can Line	Bottle Washer Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+19	CBPL0033	Laltun Sahani	Packaging_Can Line	Filler Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+20	CBPL0064	Maidul Islam	Packaging_Can Line	Pasteurizer Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+21	CBPL0276	Milind Sharad Thavai	Packaging	Packaging Exicutive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+22	CBPL0326	Palash Karmakar	Packaging	Packaging Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+23	CBPL0015	Samar Hasnda	Brewing	Trainee Fermentation Opt	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+24	CBPL0017	Mithun Hasda	Quality	Lab Attendent	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+25	CBPL0123	Ashish Kumar	TS	Mechanical Engineer	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+26	CBPL0055	Sambhu Yadav	TS	Fitter	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+27	CBPL0109	Madhab Shaw	TS	Fitter	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+28	CBPL0062	Ranjit Koley	TS	Fitter	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+29	CBPL0046	Rajkumar Das	TS	Refrigeration Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+30	CBPL0048	Sanjay Dhal	TS	Refrigeration Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+31	CBPL0050	BISWAJIT GHOSH (1)	TS	Refrigeration Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+32	CBPL0051	Bidhan Chandra Dutta	TS	WTP Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+33	CBPL0049	Arun Dhal	TS	Refrigeration Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+34	CBPL0052	Prasanta Dutta	TS	WTP Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+35	CBPL0327	Manish Tiwari	TS	Assistant TS Manager	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+36	CBPL0352	Sourav Deshmukh	TS	Electrician Trainee	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+37	CBPL0369	Rahul Chakraborty	TS	Trainee W.T.P Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+38	CBPL0076	Ampu Kumar Pandey	Logistic	Executive Store Operation (FG)	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+39	CBPL0370	Ashis Moitri	Packaging	Trainee Pasteurizer Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+40	CBPL0371	Atanu Deshmukh	Packaging	Trainee Labeller Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+41	CBPL0028	Bijay Kumar Srivastava	Logistic	Excise Coordinator WB	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+42	CBPL0079	Hementa Das	Logistic	Warehouse Supervisor	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+43	CBPL0030	Shibnath Hasda	Logistic	Loading Supervisor	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+44	CBPL0264	Rakesh Ranjan	Logistic	Asst. Manager	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+45	CBPL0372	Ravish Ranjan	Logistic	Logistic Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+46	CBPL0115	Pravakarsina Roy	Logistic	Forkilft Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+47	CBPL0358	ADITYA RAJ	TS	Trainee Mechanical Maintenance	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+48	CBPL0137	Sukchand Hembrom	Logistic	Warehouse Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+49	CBPL0141	DEBOJYOTI PATHAK	Logistic	Loading Supervisor	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+50	CBPL0093	Manoj Ghosh	People	Driver	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+51	CBPL0094	Pawan kr Poddar	People	Driver	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+52	CBPL0360	Tanoy dutta	Packaging	PRODUCTION EXECUTIVE	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+53	CBPL0098	Manishankar Ghosh	People	Cook	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+54	CBPL0099	Anil Chandra Koley	People	Cook	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+55	CBPL0100	Sanjay Das	People	MALI	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+56	CBPL0269	Surendra Ojha	People	Pujari	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+57	CBPL0298	Pritam Kr.Pan	Logistic	Bottle Yard Supervisor-Trainee	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+58	CBPL0088	Atma Kumar	People	HR Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+59	CBPL0025	Nirupam Malik	Account	Office Filling Supervisor	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+60	CBPL0146	Debjit Sarkar	Account	Account Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+61	CBPL0288	Prasenjit Biswas	Account	Account Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+62	CBPL0159	Ajoy Bhowmick	Packaging	Sr. Executive Packaging	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+63	CBPL0161	Soham Ghosh	Packaging	Traininee Pasteurizer Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+64	CBPL0166	Sunil Saren	TS	Electrician	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+65	CBPL0172	Madhusudan Debnath	Logistic	RM Supervisor	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+66	CBPL0265	Rajkumar Sahani	Packaging	Trainee Bottle Washer Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+67	CBPL0174	Shibnath Roy	Packaging	Trainee Machine Operator - EBI	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+68	CBPL0175	Debasis Koley	Logistic	PM Supervisor	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+69	CBPL0177	Basant Kumar	Packaging_Can Line	Filler Machine Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+70	CBPL0178	Dharamveer Singh	Packaging	Filler Machine Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+71	CBPL0179	Prithwish Malik	Packaging	Traininee Pasteurizer Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+72	CBPL0180	Jaydeb Jana	Packaging	Assistant manager	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+73	CBPL0185	Abhijit Roy	TS	Fitter	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+74	CBPL0184	Sobir Mondal	Packaging	Traininee Pasteurizer Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+75	CBPL0183	Pritam Koley	Packaging	Jr. Filler Machine Operator-Trainee	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+76	CBPL0189	Sudipta Gayen	Packaging	Trainee Bottle Washer Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+77	CBPL0368	Biswajit Jha	EHS	Supervisor	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+78	CBPL0194	Suvendu Koley	Packaging	Labelling Operator - Trainee	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+79	CBPL0199	Tanmoy Bag	TS	Fitter	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+80	CBPL0200	Chandan Mondal	Packaging	Trainee Machine Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+81	CBPL0337	Atanu Ghosh	Packaging	Bottle Washer Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+82	CBPL0202	Jitul Bhattacharyay	Packaging_Can Line	Jr. Filler Machine Operator-Trainee	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+83	CBPL0328	Avijit Hait	Packaging	Labelling Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+84	CBPL0216	Manish Kr. Ray	Brewing	Fermentation Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+85	CBPL0218	Goutam Paul	Account	Assistant Accountant	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+86	CBPL0279	Biswarup Roy	Packaging_Can Line	Shrink-wrap  Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+87	CBPL0273	Amit Das	Packaging_Can Line	Filler Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+88	CBPL0222	Manabjyoti Das	Packaging_Can Line	Shrink-wrap cum Caser Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+89	CBPL0374	Libin M Lalu	Brewing	Fermentation Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+90	CBPL0280	Sibaprasad Das	Packaging	Labelling Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+91	CBPL0267	Amit Sah	Packaging	Labelling Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+92	CBPL0355	Dibyakanta Sahu	TS	Senior Electrician	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+93	CBPL0233	Avijit Sarkar	Logistic	Logistic Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+94	CBPL0235	Ashish Kumar Chaudhury	Quality	Quality Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+95	CBPL0268	Uttam Kumar	Packaging	Labelling Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+96	CBPL0240	Vasagadekar Vipul Vijay	Brewing	Trainee Shift Brewer	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+97	CBPL0373	Pradip Mahata	TS	E & I Senior Technician Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+98	CBPL0316	Sourav Sarma	Logistic	Store Supervisor	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+99	CBPL0364	Debasish Maitra	Packaging	Trainee Hologram Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+100	CBPL0002	Ganesh Kanwar	People	General Manager	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+101	CBPL0342	Souvik Dutta	Quality	Quality Executive - Packaging	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+102	CBPL0343	Kattamuri Likhit	Quality	Quality Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+103	CBPL0377	Kayakakula Narayana	Quality	Quality Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+104	CBPL0261	Bachhu Mondal	Logistic	Asst. Manager	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+105	CBPL0207	Pritam Bandopadhyay	Packaging	Trainee Machine Operator -Hologram	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+106	CBPL0281	Suman Patra	Logistic	PM Supervisour	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+107	CBPL0357	Auranj kumar paswan	Logistic	Logistic Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+108	CBPL0353	Anusha Samanta	Brewing	Brewing Supervisour	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+109	CBPL0319	Manikandan H K	Brewing	Shift Brewer_Trainee	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+110	CBPL0283	Jojo Routh	Brewing	Fermentation Operater	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+111	CBPL0290	Saikat Sikdar	Packaging	Traininee Caser Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+112	CBPL0291	Koushik Haldar	Packaging	Traininee Pasteurizer Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+113	CBPL0363	Kuntal Ghosh	Packaging	Trainee Pasteurizer Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+114	CBPL0362	Subhasisi Chakrabarty	Packaging	Trainee Case Packer Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+115	CBPL0295	Sourav Sarkar	Packaging	Training Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+116	CBPL0296	Bhaskar Das	Packaging	Traininee Case packer Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+117	CBPL0386	Vikash Kushwaha	Quality	Quality Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+118	CBPL0300	Asit Kumar Pratihari	TS	Trainee Electrician	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+119	CBPL0356	Sandeep Kumar Shukla	Logistic	Logistic Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+120	CBPL0302	Mantosh Kr.Pandey	Logistic	Asst. Manager PM	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+121	CBPL0305	Kousik Ghosh	Logistic	Bottle Yard Supervisor - Trainee	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+122	CBPL0306	Vikrant Kumar	People	Admin Supervisour	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+123	CBPL0307	Sujit Kr. Jha	Logistic	Logistic Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+124	CBPL0309	Somnath Majhi	TS	Trainee Electrician	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+125	CBPL0350	Vengatesan Nagarathinam	Brewing	Shift Brewer	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+126	CBPL0312	Raju Sardar	Quality	Trainee Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+127	CBPL0313	Subho Singh	Brewing	Traning Operater	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+128	CBPL0315	Anuj Ram	Account	Account Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+129	CBPL0336	Ganesh Tudu	People	Driver	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+130	CBPL0378	Krishnendu Mondal	Brewing	Trainee Fermentation Opt	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+131	CBPL0379	Prashant Kadam	Brewing	Brewing Opt	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+132	CBPL0359	Raju Kumar	Packaging	Electrical & Instrumentation Eng	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+133	CBPL0332	Raj Kumar Pashi	Packaging	Trainee caser operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+134	CBPL0333	Kushal Santra	Packaging	Trainee-Bottle washer operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+135	CBPL0334	Tamal Das	Packaging	Trainee Asebi operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+136	CBPL0335	Biswajit Hansda	Packaging	Trainee-Shrink wrapper/Caser operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+137	CBPL0086	Subhodh Kr. Singh	People	Labour Supervisour	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+138	CBPL0375	Santanu Sikdar	TS	Electricion	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+139	CBPL0376	SUBIR DHAWA	Packaging	Packaging Excutive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+140	CBPL0380	Soumo Mukherjee	TS	AM Electrical & Instrument Eng	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+141	CBPL0382	Gobinda Sasmal	TS	WTP Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+142	CBPL0383	Krishan Kumar	Packaging	Fillar Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+143	CBPL0384	Souvik Ghosh	Packaging	Trainee Pasteurizer Operator	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0
+144	CBPL0385	Surajit Das	Quality	Trainee Executive	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	P	P	P	P	P	P	WO	31	0

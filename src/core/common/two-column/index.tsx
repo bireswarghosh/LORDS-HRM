@@ -185,22 +185,28 @@ const TwoColumnSidebar = () => {
                     <PerfectScrollbar>
                         <div className="sidebar-left slimscroll">
                             <div className="nav flex-column align-items-center nav-pills" id="sidebar-tabs" role="tablist" aria-orientation="vertical">
-                                {menuItems.map((item: any, index: number) => (
-                                    <Link
-                                        key={`tab-${index}`}
-                                        href="#"
-                                        className={`nav-link ${activeTab === item.menuValue ? 'active' : ''} ${hasActiveDescendant(item) ? 'active' : ''}`}
-                                        title={item.menuValue}
-                                        data-bs-toggle="tab"
-                                        data-bs-target={`#${item.menuValue.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '')}`}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            setActiveTab(item.menuValue);
-                                        }}
-                                    >
-                                        <i className={`ti ti-${item.icon}`}></i>
-                                    </Link>
-                                ))}
+                                {menuItems.map((item: any, index: number) => {
+                                    const isActive = activeTab === item.menuValue;
+                                    return (
+                                        <Link
+                                            key={`tab-${index}`}
+                                            href="#"
+                                            role="tab"
+                                            aria-selected={isActive}
+                                            tabIndex={isActive ? 0 : -1}
+                                            className={`nav-link ${isActive ? 'active' : ''} ${hasActiveDescendant(item) ? 'active' : ''}`}
+                                            title={item.menuValue}
+                                            data-bs-toggle="tab"
+                                            data-bs-target={`#${item.menuValue.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '')}`}
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setActiveTab(item.menuValue);
+                                            }}
+                                        >
+                                            <i className={`ti ti-${item.icon}`}></i>
+                                        </Link>
+                                    );
+                                })}
                             </div>
                         </div>
                     </PerfectScrollbar>
@@ -229,6 +235,7 @@ const TwoColumnSidebar = () => {
                             {menuItems.map((item: any, index: number) => (
                                 <div
                                     key={`content-${index}`}
+                                    role="tabpanel"
                                     className={`tab-pane fade ${activeTab === item.menuValue ? 'show active' : ''}`}
                                     id={item.menuValue.toLowerCase().replace(/\s+/g, '-').replace(/&/g, '')}
                                 >

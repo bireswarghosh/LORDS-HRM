@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "antd/dist/reset.css";
 import BootstrapJs from "../components/bootstrap-js/bootstrapjs";
@@ -23,11 +23,14 @@ import { AuthProvider } from "@/providers/AuthContext";
 import AuthInitializer from "@/authMe/AuthInitializer";
 import HelpChatWidget from "@/components/help-chatbot/ChatWidget";
 
+export const viewport: Viewport = {
+  themeColor: "#ffffff",
+};
+
 export const metadata: Metadata = {
   title: "HRM",
   description: "HRM",
   manifest: "/manifest.json",
-  themeColor: "#ffffff",
   applicationName: "HRM",
   appleWebApp: {
     capable: true,
@@ -46,8 +49,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <ReduxProvider>
           <AuthProvider>
             <AuthInitializer />

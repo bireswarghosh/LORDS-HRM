@@ -245,11 +245,12 @@ const StackedSidebar = () => {
                                             <Link
                                                 href={`#menu-${item.menuValue.toLowerCase().replace(/\s+/g, '-')}`}
                                                 role="tab"
+                                                aria-selected={activeTab === item.menuValue}
+                                                tabIndex={activeTab === item.menuValue ? 0 : -1}
                                                 className={`nav-link ${activeTab === item.menuValue ? 'active' : ''} ${hasActiveDescendant(item) ? 'active' : ''}`}
                                                 title={item.menuValue}
                                                 data-bs-toggle="tab"
                                                 data-bs-target={`#menu-${item.menuValue.toLowerCase().replace(/\s+/g, '-')}`}
-                                                aria-selected={activeTab === item.menuValue}
                                                 onClick={(e) => {
                                                     e.preventDefault();
                                                     setActiveTab(item.menuValue);
@@ -268,6 +269,7 @@ const StackedSidebar = () => {
                                 {menuItems.map((item: any, index: number) => (
                                     <div
                                         key={`content-${index}`}
+                                        role="tabpanel"
                                         className={`tab-pane fade ${activeTab === item.menuValue ? 'show active' : ''}`}
                                         id={`menu-${item.menuValue.toLowerCase().replace(/\s+/g, '-')}`}
                                          style={{
